@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/register_screen.dart';
+import 'package:flutter_chatting/screen/Home.dart';
 
 void main() {
   runApp(const MyApp());
@@ -89,24 +90,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0))),
                     ),
-                    onPressed: () => showDialog<String>(
-                          context: context,
-                          builder: (BuildContext context) => AlertDialog(
-                            title: const Text('Ops.....'),
-                            content: Text(username.text + password.text),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.pop(context, 'Cancel'),
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, 'OK'),
-                                child: const Text('OK'),
-                              ),
-                            ],
-                          ),
-                        ),
+                    onPressed: () => {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const HomeRoute()),
+                          )
+                        },
                     child: Text('Sign in', style: TextStyle(fontSize: 25))))
           ],
         ),
