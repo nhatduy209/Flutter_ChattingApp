@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/register_screen.dart';
 import 'package:flutter_chatting/screen/Home.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
   runApp(const MyApp());
 }
 
@@ -36,6 +41,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    CollectionReference accounts =
+        FirebaseFirestore.instance.collection('account');
     return Scaffold(
       body: Center(
         child: Column(
@@ -67,13 +74,11 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Container(
                 child: TextButton(
-                    onPressed: () => {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const SecondRoute()),
-                          )
-                        },
+                    onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const SecondRoute()),
+                        ),
                     child: Text(
                       "Register account",
                       textAlign: TextAlign.end,
@@ -90,13 +95,22 @@ class _MyHomePageState extends State<MyHomePage> {
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0))),
                     ),
-                    onPressed: () => {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomeRoute()),
-                          )
-                        },
+                    onPressed: () =>
+                        accounts.get().then((QuerySnapshot querySnapshot) {
+                          final allData = querySnapshot.docs
+                              .map((doc) => doc.data())
+                              .toList();
+                          var exist = allData.where((item) =>
+                              item['username'] == username.text &&
+                              item['password'] == password.text);
+                          if (exist.length > 0) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HomeRoute()),
+                            );
+                          }
+                        }),
                     child: Text('Sign in', style: TextStyle(fontSize: 25))))
           ],
         ),
