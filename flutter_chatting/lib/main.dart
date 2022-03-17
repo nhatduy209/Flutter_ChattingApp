@@ -3,6 +3,8 @@ import 'package:flutter_chatting/register_screen.dart';
 import 'package:flutter_chatting/screen/Home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -95,8 +97,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0))),
                     ),
-                    onPressed: () =>
-                        accounts.get().then((QuerySnapshot querySnapshot) {
+                    onPressed: () => accounts
+                            .get()
+                            .then((QuerySnapshot querySnapshot) async {
                           final allData = querySnapshot.docs
                               .map((doc) => doc.data())
                               .toList();
@@ -104,10 +107,17 @@ class _MyHomePageState extends State<MyHomePage> {
                               item['username'] == username.text &&
                               item['password'] == password.text);
                           if (exist.length > 0) {
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            // Set
+                            prefs.setString('username', username.text);
+
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const HomeRoute()),
+                                  builder: (context) => HomeRouteState(
+                                        title: 'Home',
+                                      )),
                             );
                           }
                         }),
