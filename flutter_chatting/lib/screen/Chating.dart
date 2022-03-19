@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/models/Message.dart';
+import 'package:flutter_chatting/widget/RenderMessage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -39,7 +40,6 @@ class Chatting extends StatefulWidget {
 }
 
 class ChattingState extends State<Chatting> {
-  late Iterable<Message> listMessagesState = [];
   String id;
   String userChatting;
   String username = "";
@@ -60,11 +60,21 @@ class ChattingState extends State<Chatting> {
 
     var genID = new Uuid();
     var idMess = genID.v1();
+
     messages.doc(idChatting).collection('listmessage').add({
       'message': message,
       'Time': DateTime.now(),
       'id': '$idMess-$username'
     });
+
+    setState(() => {
+          listMessages.insert(
+              0,
+              Message(
+                  id: "idMess_$username",
+                  content: message,
+                  time: DateTime.now()))
+        });
   }
 
   Future<dynamic> getListMessage({idChatting = String}) async {
@@ -76,10 +86,7 @@ class ChattingState extends State<Chatting> {
         .collection('listmessage')
         .orderBy('Time', descending: true);
 
-    if (listMessages.isEmpty || listMessagesState.isEmpty) {
-      print("LENGTH");
-      print(listMessages.length);
-      print(listMessagesState.length);
+    if (listMessages.isEmpty) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var getUsername = prefs.getString('username');
       username = prefs.getString('username');
@@ -87,18 +94,23 @@ class ChattingState extends State<Chatting> {
       await data.get().then((QuerySnapshot querySnapshot) {
         for (var doc in querySnapshot.docs) {
           var messageInstance = new Message(id: "", content: "");
-          doc.data().forEach((key, value) => {
-                if (key == 'message')
-                  {messageInstance.setContent = value}
-                else if (key == 'id')
-                  {messageInstance.setId = value}
-              });
-
-          listMessages.insert(0, messageInstance);
+          doc.data().forEach((key, value) {
+            if (key == 'message') {
+              messageInstance.setContent = value;
+            } else if (key == 'Time') {
+              var timestamp = value as Timestamp;
+              var dt =
+                  DateTime.fromMillisecondsSinceEpoch(value.seconds * 1000);
+              messageInstance.setTime = dt;
+            } else {
+              messageInstance.setId = value;
+            }
+          });
+          listMessages.add(messageInstance);
         }
       });
-      listMessagesState = listMessages.reversed;
       isInitListMessage = false;
+      //setState(() => {listMessages: listMessages.reversed});
     }
   }
 
@@ -113,6 +125,7 @@ class ChattingState extends State<Chatting> {
     super.initState();
   }
 
+// handle when partner sending message
   void _onEventsSnapshot(QuerySnapshot snapshot) {
     print('EVENT --- change $username');
     if (isInitListMessage == false) {
@@ -120,15 +133,21 @@ class ChattingState extends State<Chatting> {
         (docChange) {
           // If you need to do something for each document change, do it here.
           var messageInstance = new Message(id: "", content: "");
-          docChange.doc.data().forEach((key, value) => {
-                if (key == 'message')
-                  {messageInstance.setContent = value}
-                else if (key == 'id')
-                  {messageInstance.setId = value},
-              });
+          docChange.doc.data().forEach((key, value) {
+            if (key == 'message') {
+              messageInstance.setContent = value;
+            } else if (key == 'Time') {
+              var timestamp = value as Timestamp;
+              var dt =
+                  DateTime.fromMillisecondsSinceEpoch(value.seconds * 1000);
+              print("TIME $dt");
+            } else {
+              messageInstance.setId = value;
+            }
+          });
           if (messageInstance.id.contains(username) == false) {
-            listMessages.add(messageInstance);
-            setState(() => {listMessagesState: listMessages});
+            //listMessages.reversed.toList().add(messageInstance);
+            setState(() => {listMessages.insert(0, messageInstance)});
           }
         },
       );
@@ -136,7 +155,6 @@ class ChattingState extends State<Chatting> {
   }
 
   Widget build(BuildContext context) {
-    print('USERNAME -- $username');
     return FutureBuilder<dynamic>(
       future: getListMessage(idChatting: id),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -164,44 +182,12 @@ class ChattingState extends State<Chatting> {
                               shrinkWrap: true,
                               controller: _controller,
                               children: [
-                                ...listMessagesState.map((e) => e.id
-                                        .contains(username)
-                                    ? Container(
-                                        width: 200,
-                                        margin: const EdgeInsets.only(
-                                            top: 5, left: 100),
-                                        decoration: BoxDecoration(
-                                          color: Colors.indigo[50],
-                                          borderRadius: const BorderRadius.only(
-                                            topRight: Radius.circular(8.0),
-                                            bottomLeft: Radius.circular(8.0),
-                                            bottomRight: Radius.circular(8.0),
-                                            topLeft: Radius.circular(8.0),
-                                          ),
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10.0),
-                                          child: Text(
-                                            e.content,
-                                            textAlign: TextAlign.right,
-                                          ),
-                                        ))
-                                    : Container(
-                                        margin: const EdgeInsets.only(
-                                            top: 5, right: 100),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.blue,
-                                          borderRadius: BorderRadius.only(
-                                            topRight: Radius.circular(8.0),
-                                            bottomLeft: Radius.circular(8.0),
-                                            bottomRight: Radius.circular(8.0),
-                                            topLeft: Radius.circular(8.0),
-                                          ),
-                                        ),
-                                        child: Padding(
-                                            padding: const EdgeInsets.all(10.0),
-                                            child: Text(e.content,
-                                                textAlign: TextAlign.left))))
+                                ...listMessages.map((e) =>
+                                    e.id.contains(username)
+                                        ? RenderMessage(
+                                            message: e, renderOnTheLeft: true)
+                                        : RenderMessage(
+                                            message: e, renderOnTheLeft: false))
                               ],
                             )),
                         Positioned(
@@ -224,16 +210,10 @@ class ChattingState extends State<Chatting> {
                                 color: Colors.blue,
                                 onPressed: () => {
                                   sendMessage(message.text, id),
-                                  listMessages.add(Message(
-                                      id: "idMess_$username",
-                                      content: message.text)),
-                                  setState(
-                                    () => {listMessagesState: listMessages},
-                                  ),
                                   _controller.animateTo(
                                     0.0,
                                     curve: Curves.easeOut,
-                                    duration: const Duration(milliseconds: 300),
+                                    duration: const Duration(milliseconds: 500),
                                   )
                                 },
                               ),
