@@ -182,12 +182,21 @@ class ChattingState extends State<Chatting> {
                               shrinkWrap: true,
                               controller: _controller,
                               children: [
-                                ...listMessages.map((e) =>
-                                    e.id.contains(username)
-                                        ? RenderMessage(
-                                            message: e, renderOnTheLeft: true)
-                                        : RenderMessage(
-                                            message: e, renderOnTheLeft: false))
+                                ...listMessages.map(
+                                  (e) => e.id.contains(username)
+                                      ? RenderMessage(
+                                          message: e,
+                                          renderOnTheLeft: true,
+                                          listMessage:
+                                              listMessages.reversed.toList(),
+                                        )
+                                      : RenderMessage(
+                                          message: e,
+                                          renderOnTheLeft: false,
+                                          listMessage:
+                                              listMessages.reversed.toList(),
+                                        ),
+                                ),
                               ],
                             )),
                         Positioned(
