@@ -85,10 +85,13 @@ class RenderMessage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                          message.content,
-                          textAlign: TextAlign.left,
-                        ),
+                        message.content.contains(
+                                'https://firebasestorage.googleapis.com/')
+                            ? Image.network(message.content)
+                            : Text(
+                                message.content,
+                                textAlign: TextAlign.left,
+                              ),
                         SizedBox(height: 5),
                         Text(
                           dateTime,
@@ -121,10 +124,14 @@ class RenderMessage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            message.content,
-                            textAlign: TextAlign.right,
-                          ),
+                          message.content.contains(
+                                  'https://firebasestorage.googleapis.com/')
+                              ? Image.network(message.content,
+                                  width: 100, height: 100)
+                              : Text(
+                                  message.content,
+                                  textAlign: TextAlign.right,
+                                ),
                           SizedBox(height: 5),
                           Text(
                             dateTime,

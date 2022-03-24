@@ -39,6 +39,7 @@ dependencies:
   firebase_storage: "^7.0.0"
   firebase_messaging: "^8.0.0-dev.15"
   localstorage: ^3.0.6
+  image_picker: ^0.6.7+6
 
   # Add the dependencies for any other Firebase products you want to use in your app
   # For example, to use Firebase Authentication and Cloud Firestore
