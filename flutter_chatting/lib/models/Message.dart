@@ -17,4 +17,8 @@ class Message {
   }
 
   String get getContent => content;
+
+  set setTime(DateTime _time) {
+    time = _time;
+  }
 }

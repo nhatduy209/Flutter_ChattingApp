@@ -1,10 +1,14 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables
 
 import 'dart:async';
-
+import 'dart:io';
+import 'package:path/path.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chatting/common/firebase.dart';
 import 'package:flutter_chatting/models/Message.dart';
+import 'package:flutter_chatting/widget/RenderMessage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -39,7 +43,6 @@ class Chatting extends StatefulWidget {
 }
 
 class ChattingState extends State<Chatting> {
-  late Iterable<Message> listMessagesState = [];
   String id;
   String userChatting;
   String username = "";
@@ -47,6 +50,7 @@ class ChattingState extends State<Chatting> {
   bool isInitListMessage = true;
   final ScrollController _controller = ScrollController();
   bool isRead = false;
+  List<File> listImage = <File>[];
   late StreamSubscription<QuerySnapshot> listeningMessageChange;
   ChattingState(this.listMessages, this.isRead, this.id, this.userChatting);
   final message = TextEditingController();
@@ -60,11 +64,43 @@ class ChattingState extends State<Chatting> {
 
     var genID = new Uuid();
     var idMess = genID.v1();
-    messages.doc(idChatting).collection('listmessage').add({
-      'message': message,
-      'Time': DateTime.now(),
-      'id': '$idMess-$username'
-    });
+
+    if (listImage.isEmpty) {
+      messages.doc(idChatting).collection('listmessage').add({
+        'message': message,
+        'Time': DateTime.now(),
+        'id': '$idMess-$username'
+      });
+
+      setState(() => {
+            listMessages.insert(
+                0,
+                Message(
+                    id: "idMess_$username",
+                    content: message,
+                    time: DateTime.now()))
+          });
+    } else {
+      var listImageUrl = await uploadImageToFirebase(listImage);
+      listImageUrl.forEach((element) {
+        if (listImageUrl.isNotEmpty) {
+          messages.doc(idChatting).collection('listmessage').add({
+            'message': element,
+            'Time': DateTime.now(),
+            'id': '$idMess-$username'
+          });
+          setState(() => {
+                listMessages.insert(
+                    0,
+                    Message(
+                        id: "idMess_$username",
+                        content: element,
+                        time: DateTime.now()))
+              });
+        }
+      });
+      setState(() => {listImage: []});
+    }
   }
 
   Future<dynamic> getListMessage({idChatting = String}) async {
@@ -76,10 +112,7 @@ class ChattingState extends State<Chatting> {
         .collection('listmessage')
         .orderBy('Time', descending: true);
 
-    if (listMessages.isEmpty || listMessagesState.isEmpty) {
-      print("LENGTH");
-      print(listMessages.length);
-      print(listMessagesState.length);
+    if (listMessages.isEmpty) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var getUsername = prefs.getString('username');
       username = prefs.getString('username');
@@ -87,18 +120,50 @@ class ChattingState extends State<Chatting> {
       await data.get().then((QuerySnapshot querySnapshot) {
         for (var doc in querySnapshot.docs) {
           var messageInstance = new Message(id: "", content: "");
-          doc.data().forEach((key, value) => {
-                if (key == 'message')
-                  {messageInstance.setContent = value}
-                else if (key == 'id')
-                  {messageInstance.setId = value}
-              });
-
-          listMessages.insert(0, messageInstance);
+          doc.data().forEach((key, value) {
+            if (key == 'message') {
+              messageInstance.setContent = value;
+            } else if (key == 'Time') {
+              var timestamp = value as Timestamp;
+              var dt =
+                  DateTime.fromMillisecondsSinceEpoch(value.seconds * 1000);
+              messageInstance.setTime = dt;
+            } else {
+              messageInstance.setId = value;
+            }
+          });
+          listMessages.add(messageInstance);
         }
       });
-      listMessagesState = listMessages.reversed;
       isInitListMessage = false;
+      //setState(() => {listMessages: listMessages.reversed});
+    }
+  }
+
+  _getFromGallery() async {
+    PickedFile pickedFile = await ImagePicker().getImage(
+      source: ImageSource.gallery,
+      maxWidth: 1800,
+      maxHeight: 1800,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        listImage.add(File(pickedFile.path));
+      });
+    }
+  }
+
+  _getFromCamera() async {
+    PickedFile pickedFile = await ImagePicker().getImage(
+      source: ImageSource.camera,
+      maxWidth: 1800,
+      maxHeight: 1800,
+    );
+
+    if (pickedFile != null) {
+      setState(() {
+        listImage.add(File(pickedFile.path));
+      });
     }
   }
 
@@ -113,6 +178,7 @@ class ChattingState extends State<Chatting> {
     super.initState();
   }
 
+// handle when partner sending message
   void _onEventsSnapshot(QuerySnapshot snapshot) {
     print('EVENT --- change $username');
     if (isInitListMessage == false) {
@@ -120,15 +186,21 @@ class ChattingState extends State<Chatting> {
         (docChange) {
           // If you need to do something for each document change, do it here.
           var messageInstance = new Message(id: "", content: "");
-          docChange.doc.data().forEach((key, value) => {
-                if (key == 'message')
-                  {messageInstance.setContent = value}
-                else if (key == 'id')
-                  {messageInstance.setId = value},
-              });
+          docChange.doc.data().forEach((key, value) {
+            if (key == 'message') {
+              messageInstance.setContent = value;
+            } else if (key == 'Time') {
+              var timestamp = value as Timestamp;
+              var dt =
+                  DateTime.fromMillisecondsSinceEpoch(value.seconds * 1000);
+              print("TIME $dt");
+            } else {
+              messageInstance.setId = value;
+            }
+          });
           if (messageInstance.id.contains(username) == false) {
-            listMessages.add(messageInstance);
-            setState(() => {listMessagesState: listMessages});
+            //listMessages.reversed.toList().add(messageInstance);
+            setState(() => {listMessages.insert(0, messageInstance)});
           }
         },
       );
@@ -136,7 +208,6 @@ class ChattingState extends State<Chatting> {
   }
 
   Widget build(BuildContext context) {
-    print('USERNAME -- $username');
     return FutureBuilder<dynamic>(
       future: getListMessage(idChatting: id),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -150,94 +221,99 @@ class ChattingState extends State<Chatting> {
             ),
             body: Align(
                 child: Container(
-                    margin: const EdgeInsets.only(
-                        left: 10.0, right: 10.0, top: 30.0),
+                    margin: const EdgeInsets.only(left: 10.0, right: 10.0),
                     alignment: Alignment.bottomRight,
-                    height: 600.0,
                     child: Stack(
                       children: [
                         Container(
-                            margin: const EdgeInsets.only(bottom: 80.0),
-                            height: 500.0,
+                            margin: const EdgeInsets.only(bottom: 120.0),
+                            height: 550.0,
                             child: ListView(
                               reverse: true,
                               shrinkWrap: true,
                               controller: _controller,
                               children: [
-                                ...listMessagesState.map((e) => e.id
-                                        .contains(username)
-                                    ? Container(
-                                        width: 200,
-                                        margin: const EdgeInsets.only(
-                                            top: 5, left: 100),
-                                        decoration: BoxDecoration(
-                                          color: Colors.indigo[50],
-                                          borderRadius: const BorderRadius.only(
-                                            topRight: Radius.circular(8.0),
-                                            bottomLeft: Radius.circular(8.0),
-                                            bottomRight: Radius.circular(8.0),
-                                            topLeft: Radius.circular(8.0),
-                                          ),
+                                ...listMessages.map(
+                                  (e) => e.id.contains(username)
+                                      ? RenderMessage(
+                                          message: e,
+                                          renderOnTheLeft: true,
+                                          listMessage:
+                                              listMessages.reversed.toList(),
+                                        )
+                                      : RenderMessage(
+                                          message: e,
+                                          renderOnTheLeft: false,
+                                          listMessage:
+                                              listMessages.reversed.toList(),
                                         ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(10.0),
-                                          child: Text(
-                                            e.content,
-                                            textAlign: TextAlign.right,
-                                          ),
-                                        ))
-                                    : Container(
-                                        margin: const EdgeInsets.only(
-                                            top: 5, right: 100),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.blue,
-                                          borderRadius: BorderRadius.only(
-                                            topRight: Radius.circular(8.0),
-                                            bottomLeft: Radius.circular(8.0),
-                                            bottomRight: Radius.circular(8.0),
-                                            topLeft: Radius.circular(8.0),
-                                          ),
-                                        ),
-                                        child: Padding(
-                                            padding: const EdgeInsets.all(10.0),
-                                            child: Text(e.content,
-                                                textAlign: TextAlign.left))))
+                                ),
                               ],
                             )),
                         Positioned(
-                            child: Row(children: [
-                              Container(
-                                margin: const EdgeInsets.only(top: 5),
-                                height: 60,
-                                width: MediaQuery.of(context).size.width - 70,
-                                child: TextFormField(
-                                  controller: message,
-                                  decoration: const InputDecoration(
-                                    border: UnderlineInputBorder(),
-                                    labelText: 'Type somthing...',
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(children: [
+                                  Container(
+                                    margin: const EdgeInsets.only(top: 5),
+                                    height: 60,
+                                    width:
+                                        MediaQuery.of(context).size.width - 120,
+                                    child: TextFormField(
+                                      controller: message,
+                                      decoration: const InputDecoration(
+                                        border: UnderlineInputBorder(),
+                                        labelText: 'Type somthing...',
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.keyboard_arrow_right,
-                                    size: 40.0),
-                                color: Colors.blue,
-                                onPressed: () => {
-                                  sendMessage(message.text, id),
-                                  listMessages.add(Message(
-                                      id: "idMess_$username",
-                                      content: message.text)),
-                                  setState(
-                                    () => {listMessagesState: listMessages},
+                                  IconButton(
+                                    icon: const Icon(Icons.keyboard_arrow_right,
+                                        size: 30.0),
+                                    color: Colors.blue,
+                                    onPressed: () => {
+                                      sendMessage(message.text, id),
+                                      _controller.animateTo(
+                                        0.0,
+                                        curve: Curves.easeOut,
+                                        duration:
+                                            const Duration(milliseconds: 500),
+                                      )
+                                    },
                                   ),
-                                  _controller.animateTo(
-                                    0.0,
-                                    curve: Curves.easeOut,
-                                    duration: const Duration(milliseconds: 300),
-                                  )
-                                },
-                              ),
-                            ]),
+                                  IconButton(
+                                    icon: const Icon(Icons.collections,
+                                        size: 30.0),
+                                    color: Colors.blue,
+                                    onPressed: () => {_getFromGallery()},
+                                  ),
+                                ]),
+                                listImage.isNotEmpty
+                                    ? Container(
+                                        margin: const EdgeInsets.only(top: 5.0),
+                                        height: 50,
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        child: Row(
+                                          children: [
+                                            ...listImage.map((e) => Container(
+                                                margin: const EdgeInsets.only(
+                                                    right: 7),
+                                                child: InkWell(
+                                                  onTap: () => {
+                                                    setState(() =>
+                                                        {listImage.remove(e)})
+                                                  },
+                                                  child: Image.file(
+                                                    e,
+                                                  ),
+                                                )))
+                                          ],
+                                        ))
+                                    : Container()
+                              ],
+                            ),
                             bottom: 0),
                       ],
                     ))),
