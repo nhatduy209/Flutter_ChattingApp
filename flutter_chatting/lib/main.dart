@@ -3,8 +3,10 @@ import 'package:flutter_chatting/register_screen.dart';
 import 'package:flutter_chatting/screen/Home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:localstorage/localstorage.dart';
+import 'package:flutter_chatting/screen/forgot_password/ForgotPassword.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +37,20 @@ class MyHomePage extends StatefulWidget {
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
+}
+
+Future makeOnline(String username) async {
+  QuerySnapshot accounts = await FirebaseFirestore.instance
+      .collection('account')
+      .where('username', isEqualTo: username)
+      .get();
+
+  accounts.docs[0].reference.update({'isOnline': true});
+}
+
+void _openURL() async {
+  if (!await launch('https://www.google.com/'))
+    throw 'Could not launch https://www.google.com';
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -106,11 +122,22 @@ class _MyHomePageState extends State<MyHomePage> {
                           var exist = allData.where((item) =>
                               item['username'] == username.text &&
                               item['password'] == password.text);
+
                           if (exist.length > 0) {
+                            makeOnline(username.text);
                             SharedPreferences prefs =
                                 await SharedPreferences.getInstance();
                             // Set
                             prefs.setString('username', username.text);
+
+                            Fluttertoast.showToast(
+                                msg: "Login successfully",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.green[500],
+                                textColor: Colors.white,
+                                fontSize: 16.0);
 
                             Navigator.push(
                               context,
@@ -119,9 +146,28 @@ class _MyHomePageState extends State<MyHomePage> {
                                         title: 'Home',
                                       )),
                             );
+                          } else {
+                            Fluttertoast.showToast(
+                                msg: "Login fail",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.CENTER,
+                                backgroundColor: Colors.red,
+                                textColor: Colors.white,
+                                fontSize: 20.0);
                           }
                         }),
-                    child: Text('Sign in', style: TextStyle(fontSize: 25))))
+                    child: Text('Sign in', style: TextStyle(fontSize: 25)))),
+            Container(
+                child: TextButton(
+                    onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ForgotPassword()),
+                        ),
+                    child: const Text(
+                      "Forgot password",
+                      textAlign: TextAlign.end,
+                    ))),
           ],
         ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
