@@ -123,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               item['username'] == username.text &&
                               item['password'] == password.text);
 
-                          if (exist.length > 0) {
+                          if (exist.length > 0 && username.text.isNotEmpty && password.text.isNotEmpty) {
                             makeOnline(username.text);
                             SharedPreferences prefs =
                                 await SharedPreferences.getInstance();

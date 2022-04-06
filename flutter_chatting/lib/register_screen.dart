@@ -12,8 +12,17 @@ class SecondRoute extends StatefulWidget {
 }
 class _SecondRouteState extends State<SecondRoute> {
   final username = TextEditingController();
+  final email = TextEditingController();
+  final age = TextEditingController();
+  final phoneNumber = TextEditingController();
   final password = TextEditingController();
   final confirmPassword = TextEditingController();
+
+  bool checkNull() {
+    return username.text.isNotEmpty && email.text.isNotEmpty
+    && age.text.isNotEmpty && phoneNumber.text.isNotEmpty
+    && password.text.isNotEmpty;
+  }
 
   void _showToast(BuildContext context) {
     final scaffold = ScaffoldMessenger.of(context);
@@ -34,7 +43,8 @@ class _SecondRouteState extends State<SecondRoute> {
     CollectionReference accounts =
         FirebaseFirestore.instance.collection('account');
     return Scaffold(
-      body: Center(
+      body: SingleChildScrollView(
+        child: Center(
           child: Column(children: <Widget>[
         Container(
           child:
@@ -60,6 +70,63 @@ class _SecondRouteState extends State<SecondRoute> {
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Enter your username',
+                ),
+              ),
+            )),
+          ],
+        ),
+        Container(margin: const EdgeInsets.only(top: 20.0)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            const Icon(Icons.lock, color: Colors.lightBlue, size: 30.0),
+            Flexible(
+                child: SizedBox(
+              height: 40,
+              width: 250,
+              child: TextFormField(
+                controller: email,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Enter your email',
+                ),
+              ),
+            )),
+          ],
+        ),
+        Container(margin: const EdgeInsets.only(top: 20.0)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            const Icon(Icons.lock, color: Colors.lightBlue, size: 30.0),
+            Flexible(
+                child: SizedBox(
+              height: 40,
+              width: 250,
+              child: TextFormField(
+                controller: phoneNumber,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Enter your phone number',
+                ),
+              ),
+            )),
+          ],
+        ),
+        Container(margin: const EdgeInsets.only(top: 20.0)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            const Icon(Icons.lock, color: Colors.lightBlue, size: 30.0),
+            Flexible(
+                child: SizedBox(
+              height: 40,
+              width: 250,
+              child: TextFormField(
+                controller: age,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Enter your age',
                 ),
               ),
             )),
@@ -116,18 +183,29 @@ class _SecondRouteState extends State<SecondRoute> {
                     borderRadius: BorderRadius.circular(5)),
               ),
               onPressed: () {
-                if(confirmPassword.text == password.text) {
+                if(confirmPassword.text == password.text && checkNull()) {
                   accounts.add({
                     'username': username.text,
-                    'password' : password.text
+                    'password' : password.text,
+                    'email': email.text,
+                    'phoneNumber' : phoneNumber.text,
+                    'age' : age.text
                   }).then((value) => _showToast(context));
+                } else {
+                  final scaffold = ScaffoldMessenger.of(context);
+                  scaffold.showSnackBar(
+                    SnackBar(
+                      content: const Text('Please fill all field'),
+                      action: SnackBarAction(label: 'Close', onPressed: scaffold.hideCurrentSnackBar),
+                    ),
+                  );
                 }
               },
               child: Text('Sign up'),
             )),
         Container(margin: const EdgeInsets.only(top: 10.0), child: Text("Or")),
         Container(
-            margin: const EdgeInsets.only(top: 10.0),
+            margin: const EdgeInsets.only(top: 10.0, bottom: 20.0),
             width: MediaQuery.of(context).size.width * 0.8,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -151,6 +229,7 @@ class _SecondRouteState extends State<SecondRoute> {
               ),
             )),
       ])),
+      )
     );
   }
 }
