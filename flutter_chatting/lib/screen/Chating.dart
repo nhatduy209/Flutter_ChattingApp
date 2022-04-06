@@ -99,7 +99,7 @@ class ChattingState extends State<Chatting> {
               });
         }
       });
-      setState(() => {listImage: []});
+      setState(() => {listImage.clear()});
     }
   }
 
@@ -180,7 +180,6 @@ class ChattingState extends State<Chatting> {
 
 // handle when partner sending message
   void _onEventsSnapshot(QuerySnapshot snapshot) {
-    print('EVENT --- change $username');
     if (isInitListMessage == false) {
       snapshot.docChanges?.forEach(
         (docChange) {
@@ -261,6 +260,7 @@ class ChattingState extends State<Chatting> {
                                     width:
                                         MediaQuery.of(context).size.width - 120,
                                     child: TextFormField(
+                                      enabled: listImage.isEmpty,
                                       controller: message,
                                       decoration: const InputDecoration(
                                         border: UnderlineInputBorder(),

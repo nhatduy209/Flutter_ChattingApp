@@ -2,9 +2,9 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chatting/main.dart';
 import 'package:flutter_chatting/screen/User_online.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../models/Message.dart';
 import '../models/User.dart';
 import 'Chating.dart';
@@ -20,7 +20,7 @@ class HomeRouteState extends StatefulWidget {
 class HomeRoute extends State<HomeRouteState> {
   var userChatting = FirebaseFirestore.instance.collection('message');
   late List<User> listUsers = [];
-
+  String getUsername = "";
   HomeRoute();
 
   String getUserChatting({idChatting = String, username = String}) {
@@ -33,18 +33,37 @@ class HomeRoute extends State<HomeRouteState> {
 
   Future<dynamic> getLisUsers() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var getUsername = prefs.getString('username');
+    getUsername = prefs.getString('username');
 
     // Get data from docs and convert map to List
     if (listUsers.isEmpty) {
       await userChatting.get().then((QuerySnapshot querySnapshot) {
         for (var doc in querySnapshot.docs) {
-          String newUserChatting =
-              getUserChatting(idChatting: doc.id, username: getUsername);
-          listUsers.add(User(username: newUserChatting, idChatting: doc.id));
+          if (doc.id.contains(getUsername)) {
+            String newUserChatting =
+                getUserChatting(idChatting: doc.id, username: getUsername);
+            listUsers.add(User(username: newUserChatting, idChatting: doc.id));
+          }
         }
       });
     }
+  }
+
+  Future logout(String username) async {
+    QuerySnapshot accounts = await FirebaseFirestore.instance
+        .collection('account')
+        .where('username', isEqualTo: username)
+        .get();
+
+    accounts.docs[0].reference.update({'isOnline': false});
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => const MyHomePage(
+                title: '',
+              )),
+    );
   }
 
   @override
@@ -53,6 +72,22 @@ class HomeRoute extends State<HomeRouteState> {
         future: getLisUsers(),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           return Scaffold(
+              bottomNavigationBar: BottomNavigationBar(
+                items: const <BottomNavigationBarItem>[
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.message),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.person_add),
+                    label: 'Find friends',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.settings),
+                    label: 'Settings',
+                  ),
+                ],
+              ),
               backgroundColor: Colors.deepPurple[100],
               body: Stack(children: <Widget>[
                 Container(
@@ -62,8 +97,8 @@ class HomeRoute extends State<HomeRouteState> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           IconButton(
-                              icon: const Icon(Icons.reorder, size: 30.0),
-                              onPressed: () => {}),
+                              icon: const Icon(Icons.logout, size: 30.0),
+                              onPressed: () => logout(getUsername)),
                           const Text(
                             'Chatty',
                             textAlign: TextAlign.center,
@@ -73,33 +108,6 @@ class HomeRoute extends State<HomeRouteState> {
                               icon: const Icon(Icons.camera_alt, size: 30.0),
                               onPressed: () => {}),
                         ])),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Container(
-                          margin: const EdgeInsets.only(
-                            top: 100.0,
-                            left: 30.0,
-                            right: 30.0,
-                          ),
-                          child: ComponentButton(
-                            text: 'Chats',
-                          )),
-                      Container(
-                          margin: const EdgeInsets.only(top: 100.0),
-                          child: ComponentButton(
-                            text: 'Status',
-                          )),
-                      Container(
-                          margin: const EdgeInsets.only(
-                            top: 100.0,
-                            left: 30.0,
-                            right: 30.0,
-                          ),
-                          child: ComponentButton(
-                            text: 'Calls',
-                          ))
-                    ]),
                 Column(
                   children: [
                     Expanded(
@@ -110,7 +118,7 @@ class HomeRoute extends State<HomeRouteState> {
                                 topRight: Radius.circular(40)),
                             color: Colors.white,
                           ),
-                          margin: const EdgeInsets.only(top: 200.0),
+                          margin: const EdgeInsets.only(top: 100.0),
                           child: ListView(
                             children: [
                               ...listUsers.map(
@@ -136,40 +144,5 @@ class HomeRoute extends State<HomeRouteState> {
                 )
               ]));
         });
-  }
-}
-
-class ComponentButton extends StatefulWidget {
-  @override
-  final bool isPress;
-
-  @override
-  final String
-      text; // <--- generates the error, "Field doesn't override an inherited getter or setter"
-  ComponentButton({required String text, bool isPress = false})
-      : this.text = text,
-        this.isPress = isPress;
-
-  ComponentButtonState createState() => new ComponentButtonState(text, isPress);
-}
-
-class ComponentButtonState extends State<ComponentButton> {
-  ComponentButtonState(this.text, this.isPress);
-  final String text;
-  bool isPress = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextButton(
-      style: ButtonStyle(
-          backgroundColor: (isPress
-              ? MaterialStateProperty.all<Color>(Colors.greenAccent)
-              : MaterialStateProperty.all<Color>(Colors.transparent))),
-      onPressed: () {
-        setState(() => isPress = true);
-      },
-      child: Text(text,
-          style: const TextStyle(fontSize: 20.0, color: Colors.white)),
-    );
   }
 }
