@@ -1,84 +1,223 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'main.dart';
 
-class SecondRoute extends StatelessWidget {
+class SecondRoute extends StatefulWidget {
   const SecondRoute({Key? key}) : super(key: key);
 
   @override
+  State<SecondRoute> createState() => _SecondRouteState();
+}
+class _SecondRouteState extends State<SecondRoute> {
+  final username = TextEditingController();
+  final email = TextEditingController();
+  final age = TextEditingController();
+  final phoneNumber = TextEditingController();
+  final password = TextEditingController();
+  final confirmPassword = TextEditingController();
+
+  bool checkNull() {
+    return username.text.isNotEmpty && email.text.isNotEmpty
+    && age.text.isNotEmpty && phoneNumber.text.isNotEmpty
+    && password.text.isNotEmpty;
+  }
+
+  void _showToast(BuildContext context) {
+    final scaffold = ScaffoldMessenger.of(context);
+    scaffold.showSnackBar(
+      SnackBar(
+        content: const Text('Sign up successfully'),
+        action: SnackBarAction(label: 'Close', onPressed: scaffold.hideCurrentSnackBar),
+      ),
+    );
+    Navigator.pop(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MyApp()),
+                );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    CollectionReference accounts =
+        FirebaseFirestore.instance.collection('account');
     return Scaffold(
-      body: Center(
+      body: SingleChildScrollView(
+        child: Center(
           child: Column(children: <Widget>[
         Container(
           child:
-              Icon(Icons.label_important, color: Colors.lightBlue, size: 150.0),
-          margin: const EdgeInsets.only(top: 100.0),
+              const Icon(Icons.label_important, color: Colors.lightBlue, size: 150.0),
+          margin: const EdgeInsets.only(top: 40.0),
         ),
         Container(
-            alignment: Alignment.bottomLeft,
+            alignment: Alignment.bottomCenter,
+            margin: const EdgeInsets.all(20),
             padding: const EdgeInsets.only(
-                left: 20.0, right: 20.0, top: 40.0, bottom: 30.0),
-            child: Text("Create account", style: TextStyle(fontSize: 25.0))),
-        Row(
+                left: 20.0, right: 20.0, top: 10.0, bottom: 30.0),
+            child: const Text("Create account", style: TextStyle(fontSize: 25.0))),
+        Container(
+          margin: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
+          decoration: const BoxDecoration(
+            border: Border(
+              bottom: BorderSide(width: 1.0, color: Colors.black38)
+              )
+          ),
+          child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Icon(Icons.person, color: Colors.lightBlue, size: 30.0),
-            new Flexible(
+            const Icon(Icons.person, color: Colors.lightBlue, size: 30.0),
+            Flexible(
                 child: SizedBox(
-              height: 40,
-              width: 250,
-              child: TextFormField(
+              height: 50,
+              width: 300,
+              child: TextField(
+                controller: username,
                 decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Enter your username',
+                  hintText: 'Enter your username',
+                  border: InputBorder.none
                 ),
               ),
             )),
           ],
         ),
-        Container(margin: const EdgeInsets.only(top: 20.0)),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Icon(Icons.lock, color: Colors.lightBlue, size: 30.0),
-            new Flexible(
-                child: SizedBox(
-              height: 40,
-              width: 250,
-              child: TextFormField(
-                obscureText: true,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Enter your password',
-                ),
-              ),
-            )),
-          ],
-        ),
-        Container(margin: const EdgeInsets.only(top: 20.0)),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Container(width: 30, height: 30),
-            new Flexible(
-                child: SizedBox(
-              height: 40,
-              width: 250,
-              child: TextFormField(
-                obscureText: true,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Confirm your password',
-                ),
-              ),
-            )),
-          ],
         ),
         Container(
-            margin: const EdgeInsets.only(top: 30.0),
-            width: MediaQuery.of(context).size.width * 0.8,
+          margin: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
+          decoration: const BoxDecoration(
+            border: Border(
+              bottom: BorderSide(width: 1.0, color: Colors.black38)
+              )
+          ),
+          child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            const Icon(Icons.male, color: Colors.lightBlue, size: 30.0),
+            Flexible(
+                child: SizedBox(
+              height: 50,
+              width: 300,
+              child: TextField(
+                controller: age,
+                decoration: const InputDecoration(
+                  hintText: 'Enter your age',
+                  border: InputBorder.none
+                ),
+              ),
+            )),
+          ],
+        ),
+          ),
+        Container(
+          margin: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
+          decoration: const BoxDecoration(
+            border: Border(
+              bottom: BorderSide(width: 1.0, color: Colors.black38)
+              )
+          ),
+          child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            const Icon(Icons.mail, color: Colors.lightBlue, size: 30.0),
+            Flexible(
+                child: SizedBox(
+              height: 50,
+              width: 300,
+              child: TextField(
+                controller: email,
+                decoration: const InputDecoration(
+                  hintText: 'Enter your email',
+                  border: InputBorder.none
+                ),
+              ),
+            )),
+          ],
+        ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
+          decoration: const BoxDecoration(
+            border: Border(
+              bottom: BorderSide(width: 1.0, color: Colors.black38)
+              )
+          ),
+          child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            const Icon(Icons.phone, color: Colors.lightBlue, size: 30.0),
+            Flexible(
+                child: SizedBox(
+              height: 50,
+              width: 300,
+              child: TextField(
+                controller: phoneNumber,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Enter your phone number',
+                ),
+              ),
+            )),
+          ],
+        ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
+          decoration: const BoxDecoration(
+            border: Border(
+              bottom: BorderSide(width: 1.0, color: Colors.black38)
+              )
+          ),
+          child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            const Icon(Icons.lock, color: Colors.lightBlue, size: 30.0),
+            Flexible(
+                child: SizedBox(
+              height: 50,
+              width: 300,
+              child: TextField(
+                controller: password,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Enter your password',
+                ),
+              ),
+            )),
+          ],
+        ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
+          decoration: const BoxDecoration(
+            border: Border(
+              bottom: BorderSide(width: 1.0, color: Colors.black38)
+              )
+          ),
+          child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            const Icon(Icons.lock, color: Colors.lightBlue, size: 30.0),
+            Flexible(
+                child: SizedBox(
+              height: 50,
+              width: 300,
+              child: TextField(
+                controller: confirmPassword,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Confirm your password',
+                ),
+              ),
+            )),
+          ],
+        ),
+        ),
+        Container(
+            margin: const EdgeInsets.only(top: 60.0),
+            width: MediaQuery.of(context).size.width * 0.6,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 primary: Colors.lightBlue, // background
@@ -86,13 +225,51 @@ class SecondRoute extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5)),
               ),
-              onPressed: () {},
+              onPressed: () async {
+                var exist;
+                await accounts
+                  .get()
+                  .then((QuerySnapshot querySnapshot) async {
+                    final allData = querySnapshot.docs
+                    .map((doc) => doc.data())
+                    .toList();
+                exist = allData.where((item) =>
+                    item['username'] == username.text);
+                  });
+                if (exist.length > 0) {
+                  final scaffold = ScaffoldMessenger.of(context);
+                  scaffold.showSnackBar(
+                    SnackBar(
+                      content: const Text('Username existed!'),
+                      action: SnackBarAction(label: 'Close', onPressed: scaffold.hideCurrentSnackBar),
+                    ),
+                  );
+                  return;
+                }
+                if(confirmPassword.text == password.text && checkNull()) {
+                  accounts.add({
+                    'username': username.text,
+                    'password' : password.text,
+                    'email': email.text,
+                    'phoneNumber' : phoneNumber.text,
+                    'age' : age.text
+                  }).then((value) => _showToast(context));
+                } else {
+                  final scaffold = ScaffoldMessenger.of(context);
+                  scaffold.showSnackBar(
+                    SnackBar(
+                      content: const Text('Please fill all field'),
+                      action: SnackBarAction(label: 'Close', onPressed: scaffold.hideCurrentSnackBar),
+                    ),
+                  );
+                }
+              },
               child: Text('Sign up'),
             )),
         Container(margin: const EdgeInsets.only(top: 10.0), child: Text("Or")),
         Container(
-            margin: const EdgeInsets.only(top: 10.0),
-            width: MediaQuery.of(context).size.width * 0.8,
+            margin: const EdgeInsets.only(top: 10.0, bottom: 20.0),
+            width: MediaQuery.of(context).size.width * 0.6,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                   primary: Colors.white, // background
@@ -115,6 +292,7 @@ class SecondRoute extends StatelessWidget {
               ),
             )),
       ])),
+      )
     );
   }
 }
