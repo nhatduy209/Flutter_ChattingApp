@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class UserOnline extends StatefulWidget {
   @override
-  final bool isOnline;
+  bool isOnline;
 
   @override
   final String
@@ -14,34 +14,40 @@ class UserOnline extends StatefulWidget {
   @override
   final String avatar;
 
+  @override
+  final String latestMessage;
+
   UserOnline(
-      {required String username, bool isOnline = false, required String avatar})
+      {required String username,
+      required bool isOnline,
+      required String avatar,
+      required String latestMessage})
       : this.username = username,
         this.isOnline = isOnline,
-        this.avatar = avatar;
+        this.avatar = avatar,
+        this.latestMessage = latestMessage;
 
   @override
-  UserOnlineState createState() =>
-      new UserOnlineState(username, isOnline, avatar);
+  UserOnlineState createState() => UserOnlineState();
 }
 
 class UserOnlineState extends State<UserOnline> {
-  UserOnlineState(this.username, this.isOnline, this.avatar);
+  // UserOnlineState(this.username, this.isOnline, this.avatar);
   late StreamSubscription<QuerySnapshot> listeningMessageChange;
-  final String username;
-  bool isOnline = false;
-  String avatar;
+  // final String username;
+  // bool isOnline = false;
+  // String avatar;
 
   Future checkUserOnline() async {
     var data = await FirebaseFirestore.instance
         .collection('account')
-        .where('username', isEqualTo: username)
+        .where('username', isEqualTo: widget.username)
         .get();
 
     var isUserOnline = data.docs.firstWhere((element) {
       if (element['isOnline'] == true) {
-        if (isOnline == false) {
-          setState(() => {isOnline = true});
+        if (widget.isOnline == false) {
+          setState(() => {widget.isOnline = true});
         }
       }
       return true;
@@ -53,7 +59,7 @@ class UserOnlineState extends State<UserOnline> {
     checkUserOnline();
     var data = FirebaseFirestore.instance
         .collection('account')
-        .where('username', isEqualTo: username);
+        .where('username', isEqualTo: widget.username);
     listeningMessageChange =
         data.snapshots().listen((snapshot) => _onEventsSnapshot(snapshot));
     super.initState();
@@ -65,8 +71,8 @@ class UserOnlineState extends State<UserOnline> {
         print("On change ${docChange}");
         // If you need to do something for each document change, do it here.
         docChange.doc.data().forEach((key, value) {
-          if (key == 'isOnline' && isOnline != value) {
-            setState(() => {isOnline = value});
+          if (key == 'isOnline' && widget.isOnline != value) {
+            setState(() => {widget.isOnline = value});
           }
         });
       },
@@ -76,6 +82,7 @@ class UserOnlineState extends State<UserOnline> {
   @override
   Widget build(BuildContext context) {
     //checkUserOnline();
+    print("HELLO ---  ${widget.username}");
     return Container(
         margin: const EdgeInsets.only(top: 20.0, left: 5.0, right: 5.0),
         child: Row(
@@ -84,16 +91,16 @@ class UserOnlineState extends State<UserOnline> {
             ClipRRect(
               borderRadius: BorderRadius.circular(50.0),
               child: Image.network(
-                this.avatar,
+                widget.avatar,
                 height: 65.0,
                 width: 65.0,
               ),
             ),
             Column(
               children: [
-                Text(this.username, textAlign: TextAlign.start),
+                Text(widget.username, textAlign: TextAlign.start),
                 Text(
-                  "Latest message render here.....",
+                  widget.latestMessage.isNotEmpty ? widget.latestMessage : "",
                   style: TextStyle(color: Colors.black),
                 )
               ],
@@ -103,7 +110,8 @@ class UserOnlineState extends State<UserOnline> {
                 child: Container(
                     width: 10.0,
                     height: 10.0,
-                    color: isOnline == true ? Colors.green : Colors.grey)),
+                    color:
+                        widget.isOnline == true ? Colors.green : Colors.grey)),
           ],
         ));
   }

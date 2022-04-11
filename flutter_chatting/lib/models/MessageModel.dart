@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/widgets.dart';
 
-class Message {
+class Message extends ChangeNotifier {
   String id;
   String content;
   DateTime time = DateTime.now();

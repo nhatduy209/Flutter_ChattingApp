@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chatting/models/ListBubbeMessageModel.dart';
 import 'package:flutter_chatting/register_screen.dart';
 import 'package:flutter_chatting/screen/Home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_chatting/screen/forgot_password/ForgotPassword.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -12,7 +14,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  runApp(const MyApp());
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => ListUserModel()),
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -123,7 +130,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               item['username'] == username.text &&
                               item['password'] == password.text);
 
-                          if (exist.length > 0 && username.text.isNotEmpty && password.text.isNotEmpty) {
+                          if (exist.length > 0 &&
+                              username.text.isNotEmpty &&
+                              password.text.isNotEmpty) {
                             makeOnline(username.text);
                             SharedPreferences prefs =
                                 await SharedPreferences.getInstance();

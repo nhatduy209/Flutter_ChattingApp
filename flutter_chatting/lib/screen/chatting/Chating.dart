@@ -1,14 +1,16 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables
-
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter_chatting/common/utilities.dart';
+import 'package:flutter_chatting/models/ListBubbeMessageModel.dart';
 import 'package:path/path.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/common/firebase.dart';
-import 'package:flutter_chatting/models/Message.dart';
+import 'package:flutter_chatting/models/MessageModel.dart';
 import 'package:flutter_chatting/widget/RenderMessage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -27,7 +29,8 @@ class Chatting extends StatefulWidget {
       listMessages; // <--- generates the error, "Field doesn't override an inherited getter or setter"
 
   Chatting(
-      {required List<Message> listMessages,
+      {Key? key,
+      required List<Message> listMessages,
       bool isRead = false,
       required id,
       username,
@@ -35,7 +38,8 @@ class Chatting extends StatefulWidget {
       : this.listMessages = listMessages,
         this.isRead = isRead,
         this.id = id,
-        this.userChatting = userChatting;
+        this.userChatting = userChatting,
+        super(key: key);
 
   @override
   ChattingState createState() =>
@@ -103,9 +107,10 @@ class ChattingState extends State<Chatting> {
     }
   }
 
-  Future<dynamic> getListMessage({idChatting = String}) async {
+  Future<dynamic> getListMessage(
+      {idChatting = String, BuildContext? context}) async {
     // Get data from docs and convert map to List
-
+    var listUsers = Provider.of<ListUserModel>(context!);
     var data = await FirebaseFirestore.instance
         .collection('message')
         .doc(idChatting)
@@ -136,7 +141,8 @@ class ChattingState extends State<Chatting> {
         }
       });
       isInitListMessage = false;
-      //setState(() => {listMessages: listMessages.reversed});
+      listUsers.changeLatestMessage(
+          userChatting, listMessages[0].content); // get latest message
     }
   }
 
@@ -181,6 +187,8 @@ class ChattingState extends State<Chatting> {
 // handle when partner sending message
   void _onEventsSnapshot(QuerySnapshot snapshot) {
     if (isInitListMessage == false) {
+      var modelUser = ListUserModel(); // update latest message
+
       snapshot.docChanges?.forEach(
         (docChange) {
           // If you need to do something for each document change, do it here.
@@ -199,6 +207,9 @@ class ChattingState extends State<Chatting> {
           });
           if (messageInstance.id.contains(username) == false) {
             //listMessages.reversed.toList().add(messageInstance);
+            print("TESTING ----- $userChatting");
+            modelUser.changeLatestMessage(
+                userChatting, messageInstance.content);
             setState(() => {listMessages.insert(0, messageInstance)});
           }
         },
@@ -208,7 +219,7 @@ class ChattingState extends State<Chatting> {
 
   Widget build(BuildContext context) {
     return FutureBuilder<dynamic>(
-      future: getListMessage(idChatting: id),
+      future: getListMessage(idChatting: id, context: context),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         // AsyncSnapshot<Your object type>
         if (snapshot.hasError) {

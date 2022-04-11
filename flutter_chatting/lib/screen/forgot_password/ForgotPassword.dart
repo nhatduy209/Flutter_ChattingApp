@@ -24,7 +24,7 @@ class ForgotPassword extends StatelessWidget {
             fontSize: 20.0);
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => MyApp()),
+          MaterialPageRoute(builder: (context) => const MyApp()),
         );
       },
     );
