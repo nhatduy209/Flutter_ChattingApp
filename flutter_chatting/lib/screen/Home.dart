@@ -2,12 +2,15 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chatting/common/utilities.dart';
 import 'package:flutter_chatting/main.dart';
+import 'package:flutter_chatting/models/ListBubbeMessageModel.dart';
 import 'package:flutter_chatting/screen/User_online.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/Message.dart';
-import '../models/User.dart';
-import 'Chating.dart';
+import '../models/MessageModel.dart';
+import '../models/BubleMessageModel.dart';
+import 'chatting/Chating.dart';
 import 'settings/Settings.dart';
 
 class HomeRouteState extends StatefulWidget {
@@ -20,31 +23,23 @@ class HomeRouteState extends StatefulWidget {
 
 class HomeRoute extends State<HomeRouteState> {
   var userChatting = FirebaseFirestore.instance.collection('message');
-  late List<User> listUsers = [];
   String getUsername = "";
   int selectedTab = 0;
   HomeRoute();
-
-  String getUserChatting({idChatting = String, username = String}) {
-    if (idChatting.toString().indexOf(username) == 0) {
-      return idChatting.toString().substring(username.toString().length + 1);
-    } else {
-      return idChatting.toString().substring(0, username.toString().length + 2);
-    }
-  }
-
-  Future<dynamic> getLisUsers() async {
+  var commonFunc = Utilities();
+  Future<dynamic> getLisUsers(ListUserModel listUsers) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     getUsername = prefs.getString('username');
 
     // Get data from docs and convert map to List
-    if (listUsers.isEmpty) {
+    if (listUsers.totalUser == 0) {
       await userChatting.get().then((QuerySnapshot querySnapshot) {
         for (var doc in querySnapshot.docs) {
           if (doc.id.contains(getUsername)) {
-            String newUserChatting =
-                getUserChatting(idChatting: doc.id, username: getUsername);
-            listUsers.add(User(username: newUserChatting, idChatting: doc.id));
+            String newUserChatting = commonFunc.getUserChatting(
+                idChatting: doc.id, username: getUsername);
+            listUsers.add(
+                BubbleMessage(username: newUserChatting, idChatting: doc.id));
           }
         }
       });
@@ -73,10 +68,15 @@ class HomeRoute extends State<HomeRouteState> {
     setState(() => selectedTab = index);
   }
 
+  void removeUser(BubbleMessage user, ListUserModel listUsers) {
+    listUsers.removeUser(user);
+  }
+
   @override
   Widget build(BuildContext context) {
+    var listUsers = Provider.of<ListUserModel>(context);
     return FutureBuilder<dynamic>(
-        future: getLisUsers(),
+        future: getLisUsers(listUsers),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           return Scaffold(
               bottomNavigationBar: BottomNavigationBar(
@@ -131,27 +131,38 @@ class HomeRoute extends State<HomeRouteState> {
                                   color: Colors.white,
                                 ),
                                 margin: const EdgeInsets.only(top: 100.0),
-                                child: ListView(
-                                  children: [
-                                    ...listUsers.map(
-                                      (e) => TextButton(
-                                          onPressed: () => Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        Chatting(
-                                                          listMessages: const [],
-                                                          id: e.idChatting,
-                                                          userChatting:
-                                                              e.username,
-                                                        )),
-                                              ),
-                                          child: UserOnline(
-                                              username: e.username,
-                                              avatar:
-                                                  "https://thumbs.dreamstime.com/b/male-avatar-icon-flat-style-male-user-icon-cartoon-man-avatar-hipster-vector-stock-91462914.jpg")),
-                                    ),
-                                  ],
+                                child: ListView.builder(
+                                  itemCount: listUsers.getListUsers.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return TextButton(
+                                        onPressed: () => Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      Chatting(
+                                                        listMessages: const [],
+                                                        id: listUsers
+                                                            .getListUsers[index]
+                                                            .idChatting,
+                                                        userChatting: listUsers
+                                                            .getListUsers[index]
+                                                            .username,
+                                                      )),
+                                            ),
+                                        onLongPress: () => removeUser(
+                                            listUsers.getListUsers[index],
+                                            listUsers),
+                                        child: UserOnline(
+                                            username: listUsers
+                                                .getListUsers[index].username,
+                                            avatar:
+                                                "https://thumbs.dreamstime.com/b/male-avatar-icon-flat-style-male-user-icon-cartoon-man-avatar-hipster-vector-stock-91462914.jpg",
+                                            isOnline: false,
+                                            latestMessage: listUsers
+                                                .getListUsers[index]
+                                                .latestMessage));
+                                  },
                                 )),
                           )
                         ],

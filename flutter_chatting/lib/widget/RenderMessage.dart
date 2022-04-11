@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/Message.dart';
+import '../models/MessageModel.dart';
 
 class RenderMessage extends StatelessWidget {
   bool isPress = false;
