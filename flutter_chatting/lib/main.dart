@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/models/ListBubbeMessageModel.dart';
-import 'package:flutter_chatting/register_screen.dart';
+import 'package:flutter_chatting/screen/register/register_screen.dart';
 import 'package:flutter_chatting/screen/Home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

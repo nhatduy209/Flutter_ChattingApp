@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import 'main.dart';
+import '../../main.dart';
 
 class SecondRoute extends StatefulWidget {
   const SecondRoute({Key? key}) : super(key: key);
@@ -11,6 +10,9 @@ class SecondRoute extends StatefulWidget {
   State<SecondRoute> createState() => _SecondRouteState();
 }
 class _SecondRouteState extends State<SecondRoute> {
+  CollectionReference accounts =
+        FirebaseFirestore.instance.collection('account');
+
   final username = TextEditingController();
   final email = TextEditingController();
   final age = TextEditingController();
@@ -24,24 +26,54 @@ class _SecondRouteState extends State<SecondRoute> {
     && password.text.isNotEmpty;
   }
 
-  void _showToast(BuildContext context) {
+  void _showToast(BuildContext context, String text) {
     final scaffold = ScaffoldMessenger.of(context);
     scaffold.showSnackBar(
       SnackBar(
-        content: const Text('Sign up successfully'),
+        content: Text(text),
         action: SnackBarAction(label: 'Close', onPressed: scaffold.hideCurrentSnackBar),
       ),
     );
-    Navigator.pop(
+  }
+
+  Future<dynamic> signUp() async {
+    var exist;
+    await accounts
+      .get()
+      .then((QuerySnapshot querySnapshot) async {
+        final allData = querySnapshot.docs
+        .map((doc) => doc.data())
+        .toList();
+    exist = allData.where((item) =>
+        item['username'] == username.text);
+      });
+    if (!checkNull()) {
+      _showToast(context, 'Please fill all field');
+      return;
+    }
+    if (exist.length > 0) {
+      _showToast(context, 'Username existed!');
+      return;
+    }
+    if(confirmPassword.text == password.text) {
+      accounts.add({
+        'username': username.text,
+        'password' : password.text,
+        'email': email.text,
+        'phoneNumber' : phoneNumber.text,
+        'age' : age.text
+      }).then((value) => _showToast(context, 'Sign up successfully'))
+      .then((value) => Navigator.pop(
                   context,
                   MaterialPageRoute(builder: (context) => const MyApp()),
-                );
+                ));
+    } else {
+      _showToast(context, 'Password confirm is not correct!');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    CollectionReference accounts =
-        FirebaseFirestore.instance.collection('account');
     return Scaffold(
       body: SingleChildScrollView(
         child: Center(
@@ -225,45 +257,7 @@ class _SecondRouteState extends State<SecondRoute> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5)),
               ),
-              onPressed: () async {
-                var exist;
-                await accounts
-                  .get()
-                  .then((QuerySnapshot querySnapshot) async {
-                    final allData = querySnapshot.docs
-                    .map((doc) => doc.data())
-                    .toList();
-                exist = allData.where((item) =>
-                    item['username'] == username.text);
-                  });
-                if (exist.length > 0) {
-                  final scaffold = ScaffoldMessenger.of(context);
-                  scaffold.showSnackBar(
-                    SnackBar(
-                      content: const Text('Username existed!'),
-                      action: SnackBarAction(label: 'Close', onPressed: scaffold.hideCurrentSnackBar),
-                    ),
-                  );
-                  return;
-                }
-                if(confirmPassword.text == password.text && checkNull()) {
-                  accounts.add({
-                    'username': username.text,
-                    'password' : password.text,
-                    'email': email.text,
-                    'phoneNumber' : phoneNumber.text,
-                    'age' : age.text
-                  }).then((value) => _showToast(context));
-                } else {
-                  final scaffold = ScaffoldMessenger.of(context);
-                  scaffold.showSnackBar(
-                    SnackBar(
-                      content: const Text('Please fill all field'),
-                      action: SnackBarAction(label: 'Close', onPressed: scaffold.hideCurrentSnackBar),
-                    ),
-                  );
-                }
-              },
+              onPressed: () => signUp(),
               child: Text('Sign up'),
             )),
         Container(margin: const EdgeInsets.only(top: 10.0), child: Text("Or")),
