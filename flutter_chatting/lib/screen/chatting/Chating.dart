@@ -141,8 +141,8 @@ class ChattingState extends State<Chatting> {
         }
       });
       isInitListMessage = false;
-      listUsers.changeLatestMessage(
-          userChatting, listMessages[0].content); // get latest message
+      listUsers.changeLatestMessage(userChatting, listMessages[0].content,
+          listMessages[0].time.toString()); // get latest message
     }
   }
 
@@ -208,8 +208,8 @@ class ChattingState extends State<Chatting> {
           if (messageInstance.id.contains(username) == false) {
             //listMessages.reversed.toList().add(messageInstance);
             print("TESTING ----- $userChatting");
-            modelUser.changeLatestMessage(
-                userChatting, messageInstance.content);
+            modelUser.changeLatestMessage(userChatting, messageInstance.content,
+                messageInstance.time.toString());
             setState(() => {listMessages.insert(0, messageInstance)});
           }
         },

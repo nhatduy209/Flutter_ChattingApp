@@ -154,14 +154,18 @@ class HomeRoute extends State<HomeRouteState> {
                                             listUsers.getListUsers[index],
                                             listUsers),
                                         child: UserOnline(
-                                            username: listUsers
-                                                .getListUsers[index].username,
-                                            avatar:
-                                                "https://thumbs.dreamstime.com/b/male-avatar-icon-flat-style-male-user-icon-cartoon-man-avatar-hipster-vector-stock-91462914.jpg",
-                                            isOnline: false,
-                                            latestMessage: listUsers
-                                                .getListUsers[index]
-                                                .latestMessage));
+                                          username: listUsers
+                                              .getListUsers[index].username,
+                                          avatar:
+                                              "https://thumbs.dreamstime.com/b/male-avatar-icon-flat-style-male-user-icon-cartoon-man-avatar-hipster-vector-stock-91462914.jpg",
+                                          isOnline: false,
+                                          latestMessage: listUsers
+                                              .getListUsers[index]
+                                              .latestMessage,
+                                          latestMessageTime: listUsers
+                                              .getListUsers[index]
+                                              .latestMessageTime,
+                                        ));
                                   },
                                 )),
                           )

@@ -21,11 +21,13 @@ class ListUserModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void changeLatestMessage(String username, String latestMessage) {
+  void changeLatestMessage(
+      String username, String latestMessage, String latestTime) {
     var updateMessage =
         _listUser.where((userUpdate) => userUpdate.username == username).first;
 
     updateMessage.latestMessage = latestMessage;
+    updateMessage.latestMessageTime = latestTime;
     // This call tells the widgets that are listening to this model to rebuild.
     notifyListeners();
   }
