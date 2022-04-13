@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:jiffy/jiffy.dart';
 
 class UserOnline extends StatefulWidget {
   @override
@@ -17,15 +18,20 @@ class UserOnline extends StatefulWidget {
   @override
   final String latestMessage;
 
+  @override
+  final String latestMessageTime;
+
   UserOnline(
       {required String username,
       required bool isOnline,
       required String avatar,
-      required String latestMessage})
+      required String latestMessage,
+      required String latestMessageTime})
       : this.username = username,
         this.isOnline = isOnline,
         this.avatar = avatar,
-        this.latestMessage = latestMessage;
+        this.latestMessage = latestMessage,
+        this.latestMessageTime = latestMessageTime;
 
   @override
   UserOnlineState createState() => UserOnlineState();
@@ -81,8 +87,6 @@ class UserOnlineState extends State<UserOnline> {
 
   @override
   Widget build(BuildContext context) {
-    //checkUserOnline();
-    print("HELLO ---  ${widget.username}");
     return Container(
         margin: const EdgeInsets.only(top: 20.0, left: 5.0, right: 5.0),
         child: Row(
@@ -105,6 +109,12 @@ class UserOnlineState extends State<UserOnline> {
                 )
               ],
             ),
+            widget.latestMessageTime.isNotEmpty
+                ? Text(
+                    Jiffy(widget.latestMessageTime).fromNow(),
+                    style: const TextStyle(fontSize: 11.0),
+                  )
+                : Container(),
             ClipRRect(
                 borderRadius: BorderRadius.circular(50.0),
                 child: Container(
