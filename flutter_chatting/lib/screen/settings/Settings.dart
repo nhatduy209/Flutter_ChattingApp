@@ -23,7 +23,7 @@ class SettingsApp extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(100.0),
                     child: Image.network(
-                      'https://scontent.fsgn5-7.fna.fbcdn.net/v/t39.30808-6/241641645_1039308073570420_4340682428897197454_n.jpg?_nc_cat=101&ccb=1-5&_nc_sid=09cbfe&_nc_ohc=wPvzy9yTXRgAX8K8cRH&_nc_ht=scontent.fsgn5-7.fna&oh=00_AT8eZ5Gt8KBV9byua-yMJpf0lNwTLVN1mhfQvUVvlOChNg&oe=625083F3',
+                      'https://scontent.fsgn5-14.fna.fbcdn.net/v/t39.30808-6/241641645_1039308073570420_4340682428897197454_n.jpg?_nc_cat=101&ccb=1-5&_nc_sid=09cbfe&_nc_ohc=nJLSb_4ICeEAX8ZLJ2Z&_nc_ht=scontent.fsgn5-14.fna&oh=00_AT-PNc2us-m_wYgALpS9Mf5jcFcM0bVwS_5gIb_CIjgrCw&oe=625E5BB3',
                       height: 100.0,
                       width: 100.0,
                     ),

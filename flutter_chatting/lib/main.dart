@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chatting/models/ListBubbeMessageModel.dart';
+import 'package:flutter_chatting/common/firebase.dart';
+import 'package:flutter_chatting/models/ListBubbeMessageProvider.dart';
 import 'package:flutter_chatting/register_screen.dart';
-import 'package:flutter_chatting/screen/Home.dart';
+import 'package:flutter_chatting/screen/Home/Home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_chatting/screen/forgot_password/ForgotPassword.dart';
+import 'package:flutter_chatting/widget/LoadingCircle.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,139 +48,135 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-Future makeOnline(String username) async {
-  QuerySnapshot accounts = await FirebaseFirestore.instance
-      .collection('account')
-      .where('username', isEqualTo: username)
-      .get();
-
-  accounts.docs[0].reference.update({'isOnline': true});
-}
-
-void _openURL() async {
-  if (!await launch('https://www.google.com/'))
-    throw 'Could not launch https://www.google.com';
-}
-
 class _MyHomePageState extends State<MyHomePage> {
   final username = TextEditingController();
   final password = TextEditingController();
-
+  bool isPressLogin = false;
+  CollectionReference accounts =
+      FirebaseFirestore.instance.collection('account');
   @override
   Widget build(BuildContext context) {
-    CollectionReference accounts =
-        FirebaseFirestore.instance.collection('account');
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Icon(
-              Icons.label_important,
-              color: Colors.lightBlue,
-              size: 150.0,
-            ),
-            Container(
-              margin: const EdgeInsets.only(top: 20.0, left: 10.0, right: 10.0),
-              child: TextFormField(
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Enter your username',
-                ),
-                controller: username,
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.only(top: 20.0, left: 10.0, right: 10.0),
-              child: TextFormField(
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Enter your password'),
-                  controller: password),
-            ),
-            Container(
-                child: TextButton(
-                    onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const SecondRoute()),
-                        ),
-                    child: Text(
-                      "Register account",
-                      textAlign: TextAlign.end,
-                    ))),
-            Container(
-                margin: const EdgeInsets.only(top: 10.0),
-                width: 300,
-                child: TextButton(
-                    style: ButtonStyle(
-                      foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                          Colors.deepPurpleAccent),
-                      shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0))),
+        child: isPressLogin == true
+            ? const LoadingCircle()
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  const Icon(
+                    Icons.label_important,
+                    color: Colors.lightBlue,
+                    size: 150.0,
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(
+                        top: 20.0, left: 10.0, right: 10.0),
+                    child: TextFormField(
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Enter your username',
+                      ),
+                      controller: username,
                     ),
-                    onPressed: () => accounts
-                            .get()
-                            .then((QuerySnapshot querySnapshot) async {
-                          final allData = querySnapshot.docs
-                              .map((doc) => doc.data())
-                              .toList();
-                          var exist = allData.where((item) =>
-                              item['username'] == username.text &&
-                              item['password'] == password.text);
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(
+                        top: 20.0, left: 10.0, right: 10.0),
+                    child: TextFormField(
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Enter your password'),
+                        controller: password),
+                  ),
+                  Container(
+                      child: TextButton(
+                          onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const SecondRoute()),
+                              ),
+                          child: Text(
+                            "Register account",
+                            textAlign: TextAlign.end,
+                          ))),
+                  Container(
+                      margin: const EdgeInsets.only(top: 10.0),
+                      width: 300,
+                      child: TextButton(
+                          style: ButtonStyle(
+                            foregroundColor:
+                                MaterialStateProperty.all<Color>(Colors.white),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.deepPurpleAccent),
+                            shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30.0))),
+                          ),
+                          onPressed: () => accounts
+                                  .get()
+                                  .then((QuerySnapshot querySnapshot) async {
+                                setState(() {
+                                  isPressLogin = true;
+                                });
+                                final allData = querySnapshot.docs
+                                    .map((doc) => doc.data())
+                                    .toList();
+                                var exist = allData.where((item) =>
+                                    item['username'] == username.text &&
+                                    item['password'] == password.text);
 
-                          if (exist.length > 0 &&
-                              username.text.isNotEmpty &&
-                              password.text.isNotEmpty) {
-                            makeOnline(username.text);
-                            SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
-                            // Set
-                            prefs.setString('username', username.text);
+                                if (exist.length > 0 &&
+                                    username.text.isNotEmpty &&
+                                    password.text.isNotEmpty) {
+                                  makeOnline(username.text);
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  // Set
+                                  prefs.setString('username', username.text);
 
-                            Fluttertoast.showToast(
-                                msg: "Login successfully",
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.CENTER,
-                                timeInSecForIosWeb: 1,
-                                backgroundColor: Colors.green[500],
-                                textColor: Colors.white,
-                                fontSize: 16.0);
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => HomeRouteState(
-                                        title: 'Home',
-                                      )),
-                            );
-                          } else {
-                            Fluttertoast.showToast(
-                                msg: "Login fail",
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.CENTER,
-                                backgroundColor: Colors.red,
-                                textColor: Colors.white,
-                                fontSize: 20.0);
-                          }
-                        }),
-                    child: Text('Sign in', style: TextStyle(fontSize: 25)))),
-            Container(
-                child: TextButton(
-                    onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ForgotPassword()),
-                        ),
-                    child: const Text(
-                      "Forgot password",
-                      textAlign: TextAlign.end,
-                    ))),
-          ],
-        ),
+                                  Fluttertoast.showToast(
+                                      msg: "Login successfully",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      timeInSecForIosWeb: 1,
+                                      backgroundColor: Colors.green[500],
+                                      textColor: Colors.white,
+                                      fontSize: 16.0);
+                                  setState(() => isPressLogin = false);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => HomeRouteState(
+                                              title: 'Home',
+                                            )),
+                                  );
+                                } else {
+                                  Fluttertoast.showToast(
+                                      msg: "Login fail",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.CENTER,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                      fontSize: 20.0);
+                                  setState(() => isPressLogin = false);
+                                }
+                              }),
+                          child:
+                              Text('Sign in', style: TextStyle(fontSize: 25)))),
+                  Container(
+                      child: TextButton(
+                          onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ForgotPassword()),
+                              ),
+                          child: const Text(
+                            "Forgot password",
+                            textAlign: TextAlign.end,
+                          ))),
+                ],
+              ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
