@@ -2,8 +2,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter_chatting/common/utilities.dart';
-import 'package:flutter_chatting/models/ListBubbeMessageModel.dart';
-import 'package:path/path.dart';
+import 'package:flutter_chatting/models/ListBubbeMessageProvider.dart';
+import 'package:path/path.dart' as Path;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/common/firebase.dart';
@@ -179,15 +179,16 @@ class ChattingState extends State<Chatting> {
         .collection('message')
         .doc(id)
         .collection('listmessage');
+
     listeningMessageChange =
         data.snapshots().listen((snapshot) => _onEventsSnapshot(snapshot));
     super.initState();
   }
 
-// handle when partner sending message
+// handle when partner sending message, ListUserModel listUsers
   void _onEventsSnapshot(QuerySnapshot snapshot) {
     if (isInitListMessage == false) {
-      var modelUser = ListUserModel(); // update latest message
+      // update latest message
 
       snapshot.docChanges?.forEach(
         (docChange) {
@@ -208,9 +209,10 @@ class ChattingState extends State<Chatting> {
           if (messageInstance.id.contains(username) == false) {
             //listMessages.reversed.toList().add(messageInstance);
             print("TESTING ----- $userChatting");
-            modelUser.changeLatestMessage(userChatting, messageInstance.content,
-                messageInstance.time.toString());
+
             setState(() => {listMessages.insert(0, messageInstance)});
+            // listUsers.changeLatestMessage(userChatting, messageInstance.content,
+            //     messageInstance.time.toString());
           }
         },
       );

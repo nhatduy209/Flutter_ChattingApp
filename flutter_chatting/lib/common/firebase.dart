@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart';
 
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -42,4 +43,23 @@ Future<String> getImageFromFirebase(String imageStoragePath) async {
       return "";
     }
   }
+}
+
+Future makeOnline(String username) async {
+  QuerySnapshot accounts = await FirebaseFirestore.instance
+      .collection('account')
+      .where('username', isEqualTo: username)
+      .get();
+
+  accounts.docs[0].reference.update({'isOnline': true});
+}
+
+Future<void> deleteAPI(String collection, String documentDelete) async {
+  await FirebaseFirestore.instance
+      .collection(collection)
+      .get()
+      .then((querySnapshot) => {
+            for (var doc in querySnapshot.docs)
+              if (doc.id == documentDelete) {doc.reference.delete()}
+          });
 }
