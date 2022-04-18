@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chatting/screen/profile/Profile.dart';
 
 class SettingsApp extends StatelessWidget {
   const SettingsApp({Key? key}) : super(key: key);
@@ -39,7 +40,12 @@ class SettingsApp extends StatelessWidget {
                     ),
                     child: Column(children: [
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ProfileScreen()),
+                          );
+                        },
                         child: const ListTile(
                           leading: Icon(Icons.person, size: 35),
                           title: Text('Profile'),
