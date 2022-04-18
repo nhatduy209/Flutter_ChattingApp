@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/common/firebase.dart';
 import 'package:flutter_chatting/models/ListBubbeMessageProvider.dart';
+import 'package:flutter_chatting/models/UserModel.dart';
+import 'package:flutter_chatting/models/UserProfileProvider.dart';
 import 'package:flutter_chatting/register_screen.dart';
 import 'package:flutter_chatting/screen/Home/Home.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -19,6 +21,7 @@ void main() async {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => ListUserModel()),
+      ChangeNotifierProvider(create: (context) => UserProfile()),
     ],
     child: const MyApp(),
   ));
@@ -56,6 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
       FirebaseFirestore.instance.collection('account');
   @override
   Widget build(BuildContext context) {
+    final userProfile = Provider.of<UserProfile>(context);
     return Scaffold(
       body: Center(
         child: isPressLogin == true
@@ -119,9 +123,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                 setState(() {
                                   isPressLogin = true;
                                 });
-                                final allData = querySnapshot.docs
-                                    .map((doc) => doc.data())
-                                    .toList();
+                                final listUser = [];
+                                final allData = [];
+                                for (var doc in querySnapshot.docs) {
+                                    allData.add(doc.data());
+                                    if (doc.data()['username'] == username.text) {
+                                      listUser.add(User(id: doc.id, userName: doc.data()['username'], email: doc.data()['email'], age: doc.data()['age'], phoneNumber: doc.data()['phoneNumber'], password: doc.data()['password'], url: doc.data()['url']));
+                                    }
+                                  }
                                 var exist = allData.where((item) =>
                                     item['username'] == username.text &&
                                     item['password'] == password.text);
@@ -134,6 +143,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                       await SharedPreferences.getInstance();
                                   // Set
                                   prefs.setString('username', username.text);
+                                  print(exist.toList()[0]);
+                                  print(listUser[0].id);
+                                  userProfile.setProfile(listUser[0]);
 
                                   Fluttertoast.showToast(
                                       msg: "Login successfully",
