@@ -61,135 +61,206 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final userProfile = Provider.of<UserProfile>(context);
     return Scaffold(
-      body: Center(
-        child: isPressLogin == true
-            ? const LoadingCircle()
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const Icon(
-                    Icons.label_important,
-                    color: Colors.lightBlue,
-                    size: 150.0,
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(
-                        top: 20.0, left: 10.0, right: 10.0),
-                    child: TextFormField(
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Enter your username',
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView(
+          child: Center(
+            child: isPressLogin == true
+                ? const LoadingCircle()
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        child: Image.network(
+                          'https://img.freepik.com/free-vector/connected-world-concept-illustration_114360-3027.jpg?t=st=1650570131~exp=1650570731~hmac=aa79063ca4365e1d5622440bbb741fbd60e48de4e6293d16defaf40d40ae1c83&w=740',
+                          height: 350.0,
+                          width: 350.0,
+                        ),
+                        margin: const EdgeInsets.only(top: 100.0),
                       ),
-                      controller: username,
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(
-                        top: 20.0, left: 10.0, right: 10.0),
-                    child: TextFormField(
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Enter your password'),
-                        controller: password),
-                  ),
-                  Container(
-                      child: TextButton(
-                          onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const SecondRoute()),
-                              ),
-                          child: Text(
-                            "Register account",
-                            textAlign: TextAlign.end,
-                          ))),
-                  Container(
-                      margin: const EdgeInsets.only(top: 10.0),
-                      width: 300,
-                      child: TextButton(
-                          style: ButtonStyle(
-                            foregroundColor:
-                                MaterialStateProperty.all<Color>(Colors.white),
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                                Colors.deepPurpleAccent),
-                            shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30.0))),
-                          ),
-                          onPressed: () => accounts
-                                  .get()
-                                  .then((QuerySnapshot querySnapshot) async {
-                                setState(() {
-                                  isPressLogin = true;
-                                });
-                                final listUser = [];
-                                final allData = [];
-                                for (var doc in querySnapshot.docs) {
-                                    allData.add(doc.data());
-                                    if (doc.data()['username'] == username.text) {
-                                      listUser.add(User(id: doc.id, userName: doc.data()['username'], email: doc.data()['email'], age: doc.data()['age'], phoneNumber: doc.data()['phoneNumber'], password: doc.data()['password'], url: doc.data()['url']));
-                                    }
-                                  }
-                                var exist = allData.where((item) =>
-                                    item['username'] == username.text &&
-                                    item['password'] == password.text);
-
-                                if (exist.length > 0 &&
-                                    username.text.isNotEmpty &&
-                                    password.text.isNotEmpty) {
-                                  makeOnline(username.text);
-                                  SharedPreferences prefs =
-                                      await SharedPreferences.getInstance();
-                                  // Set
-                                  prefs.setString('username', username.text);
-                                  print(exist.toList()[0]);
-                                  print(listUser[0].id);
-                                  userProfile.setProfile(listUser[0]);
-
-                                  Fluttertoast.showToast(
-                                      msg: "Login successfully",
-                                      toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.CENTER,
-                                      timeInSecForIosWeb: 1,
-                                      backgroundColor: Colors.green[500],
-                                      textColor: Colors.white,
-                                      fontSize: 16.0);
-                                  setState(() => isPressLogin = false);
-                                  Navigator.push(
+                      // Container(
+                      //   child: const Text(
+                      //           "Login Now",
+                      //           textAlign: TextAlign.end,
+                      //           style: TextStyle(
+                      //             fontSize: 32,
+                      //             fontWeight: FontWeight.bold,
+                      //           color: Colors.black,
+                      //         )),
+                      // ),
+                      Container(
+                          alignment: Alignment.bottomLeft,
+                          margin: const EdgeInsets.only(
+                              top: 20.0, left: 30.0, right: 30.0),
+                          padding: const EdgeInsets.only(left: 16, right: 16),
+                          decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 241, 241, 241),
+                              borderRadius: BorderRadius.circular(24.0)),
+                          child: SizedBox(
+                            height: 50,
+                            width: 300,
+                            child: TextField(
+                              controller: username,
+                              // style: const TextStyle(
+                              //   letterSpacing: 1.5,
+                              // ),
+                              decoration: const InputDecoration(
+                                  hintText: 'Enter your username',
+                                  border: InputBorder.none),
+                            ),
+                          )),
+                      Container(
+                          alignment: Alignment.bottomLeft,
+                          margin: const EdgeInsets.only(
+                              top: 20.0, left: 30.0, right: 30.0),
+                          padding: const EdgeInsets.only(left: 16, right: 16),
+                          decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 241, 241, 241),
+                              borderRadius: BorderRadius.circular(24.0)),
+                          child: SizedBox(
+                            height: 50,
+                            width: 300,
+                            child: TextField(
+                              obscureText: true,
+                              // style: const TextStyle(
+                              //   letterSpacing: 1.5,
+                              // ),
+                              controller: password,
+                              decoration: const InputDecoration(
+                                  hintText: 'Enter your username',
+                                  border: InputBorder.none),
+                            ),
+                          )),
+                      Container(
+                          alignment: Alignment.centerRight,
+                          margin: const EdgeInsets.only(right: 40.0),
+                          child: TextButton(
+                              onPressed: () => Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => HomeRouteState(
-                                              title: 'Home',
-                                            )),
-                                  );
-                                } else {
-                                  Fluttertoast.showToast(
-                                      msg: "Login fail",
-                                      toastLength: Toast.LENGTH_SHORT,
-                                      gravity: ToastGravity.CENTER,
-                                      backgroundColor: Colors.red,
-                                      textColor: Colors.white,
-                                      fontSize: 20.0);
-                                  setState(() => isPressLogin = false);
-                                }
-                              }),
-                          child:
-                              Text('Sign in', style: TextStyle(fontSize: 25)))),
-                  Container(
-                      child: TextButton(
-                          onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ForgotPassword()),
+                                        builder: (context) => ForgotPassword()),
+                                  ),
+                              child: const Text(
+                                "Forgot password",
+                                textAlign: TextAlign.end,
+                                style: TextStyle(
+                                color: Colors.deepPurpleAccent,
                               ),
-                          child: const Text(
-                            "Forgot password",
-                            textAlign: TextAlign.end,
-                          ))),
-                ],
-              ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+                              ))),
+                      Container(
+                          margin: const EdgeInsets.only(top: 10.0),
+                          width: 300,
+                          child: TextButton(
+                              style: ButtonStyle(
+                                foregroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.white),
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.deepPurpleAccent),
+                                shape: MaterialStateProperty.all(
+                                    RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(30.0))),
+                              ),
+                              onPressed: () => accounts.get().then(
+                                      (QuerySnapshot querySnapshot) async {
+                                    setState(() {
+                                      isPressLogin = true;
+                                    });
+                                    final listUser = [];
+                                    final allData = [];
+                                    for (var doc in querySnapshot.docs) {
+                                      allData.add(doc.data());
+                                      if (doc.data()['username'] ==
+                                          username.text) {
+                                        listUser.add(User(
+                                            id: doc.id,
+                                            userName: doc.data()['username'],
+                                            email: doc.data()['email'],
+                                            age: doc.data()['age'],
+                                            phoneNumber:
+                                                doc.data()['phoneNumber'],
+                                            password: doc.data()['password'],
+                                            url: doc.data()['url']));
+                                      }
+                                    }
+                                    var exist = allData.where((item) =>
+                                        item['username'] == username.text &&
+                                        item['password'] == password.text);
+
+                                    if (exist.length > 0 &&
+                                        username.text.isNotEmpty &&
+                                        password.text.isNotEmpty) {
+                                      makeOnline(username.text);
+                                      SharedPreferences prefs =
+                                          await SharedPreferences.getInstance();
+                                      // Set
+                                      prefs.setString(
+                                          'username', username.text);
+                                      print(exist.toList()[0]);
+                                      print(listUser[0].id);
+                                      userProfile.setProfile(listUser[0]);
+
+                                      Fluttertoast.showToast(
+                                          msg: "Login successfully",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.CENTER,
+                                          timeInSecForIosWeb: 1,
+                                          backgroundColor: Colors.green[500],
+                                          textColor: Colors.white,
+                                          fontSize: 16.0);
+                                      setState(() => isPressLogin = false);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                HomeRouteState(
+                                                  title: 'Home',
+                                                )),
+                                      );
+                                    } else {
+                                      Fluttertoast.showToast(
+                                          msg: "Login fail",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.CENTER,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                          fontSize: 20.0);
+                                      setState(() => isPressLogin = false);
+                                    }
+                                  }),
+                              child: Text('Sign in',
+                                  style: TextStyle(fontSize: 25)))),
+                      Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                "Don't have an account!",
+                                textAlign: TextAlign.end,
+                                style: TextStyle(
+                                color: Colors.black,
+                              ),
+                              ),
+                              TextButton(
+                              onPressed: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const SecondRoute()),
+                                  ),
+                              child: const Text(
+                                "Register account",
+                                textAlign: TextAlign.end,
+                                style: TextStyle(
+                                color: Colors.deepPurpleAccent,
+                              ),
+                              )),
+                            ],
+                          ))
+                    ],
+                  ),
+          ), // This trailing comma makes auto-formatting nicer for build methods.
+        ));
   }
 }

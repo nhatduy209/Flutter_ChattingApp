@@ -59,6 +59,10 @@ class ChattingState extends State<Chatting> {
   ChattingState(this.listMessages, this.isRead, this.id, this.userChatting);
   final message = TextEditingController();
 
+  resetMessage() {
+    message.text = '';
+  }
+
   CollectionReference messages =
       FirebaseFirestore.instance.collection('message');
 
@@ -84,6 +88,7 @@ class ChattingState extends State<Chatting> {
                     content: message,
                     time: DateTime.now()))
           });
+      resetMessage();
     } else {
       var listImageUrl = await uploadImageToFirebase(listImage);
       listImageUrl.forEach((element) {

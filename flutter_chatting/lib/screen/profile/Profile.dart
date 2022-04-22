@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/models/UserModel.dart';
 import 'package:flutter_chatting/models/UserProfileProvider.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -23,12 +24,22 @@ class ProfileState extends State<ProfileScreen> {
   final age = TextEditingController();
   final email = TextEditingController();
   final userName = TextEditingController();
-  late String url = 'https://scontent.fsgn5-14.fna.fbcdn.net/v/t39.30808-6/241641645_1039308073570420_4340682428897197454_n.jpg?_nc_cat=101&ccb=1-5&_nc_sid=09cbfe&_nc_ohc=nJLSb_4ICeEAX8ZLJ2Z&_nc_ht=scontent.fsgn5-14.fna&oh=00_AT-PNc2us-m_wYgALpS9Mf5jcFcM0bVwS_5gIb_CIjgrCw&oe=625E5BB3';
+  late String url = 'https://img.freepik.com/free-vector/mysterious-gangster-mafia-character-smoking_23-2148474614.jpg?t=st=1650615735~exp=1650616335~hmac=e739702e26831846c2cb4c0c1b3901323df00e8379fd23bf37a6c6a157b4d68b&w=740';
   final password = TextEditingController();
   final confirmPassword = TextEditingController();
   @override
   void initState() {
     super.initState();
+  }
+  showMessage() {
+    Fluttertoast.showToast(
+    msg: "Updated successfully",
+    toastLength: Toast.LENGTH_SHORT,
+    gravity: ToastGravity.CENTER,
+    timeInSecForIosWeb: 1,
+    backgroundColor: Colors.green[500],
+    textColor: Colors.white,
+    fontSize: 16.0);
   }
   changeProfile() async {
     if (listImage.isNotEmpty) {
@@ -50,7 +61,10 @@ class ProfileState extends State<ProfileScreen> {
     var accounts = await FirebaseFirestore.instance.collection('account');
     accounts.doc(userProfile.id).update({
      'age': age.text, 'phoneNumber': phoneNumber.text, 'url': url
-    }).then((value) => print('success'));
+    }).then((value) => {
+      showMessage()
+
+      });
   }
   _getFromGallery() async {
     PickedFile pickedFile = await ImagePicker().getImage(
@@ -96,6 +110,7 @@ class ProfileState extends State<ProfileScreen> {
       email.text = userProfile.email;
       userName.text = userProfile.userName;
       url = userProfile.url.isEmpty ? url : userProfile.url;
+      print(userProfile.url);
     }
     // TODO: implement build
     return Scaffold(
@@ -124,8 +139,8 @@ class ProfileState extends State<ProfileScreen> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(100.0),
                       child:
-                      listImage.isEmpty ? Image.network(
-                        url,
+                      listImage.isEmpty && url.isNotEmpty ? Image.network(
+                        userProfile.url.isNotEmpty ? userProfile.url : 'https://img.freepik.com/free-vector/mysterious-gangster-mafia-character-smoking_23-2148474614.jpg?t=st=1650615735~exp=1650616335~hmac=e739702e26831846c2cb4c0c1b3901323df00e8379fd23bf37a6c6a157b4d68b&w=740',
                         height: 100.0,
                         width: 100.0,
                       ) : 

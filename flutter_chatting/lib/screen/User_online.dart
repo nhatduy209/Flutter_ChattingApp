@@ -88,40 +88,67 @@ class UserOnlineState extends State<UserOnline> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: const EdgeInsets.only(top: 20.0, left: 5.0, right: 5.0),
+        margin: const EdgeInsets.only(top: 20.0),
+        // padding: const EdgeInsets.all(4),
+        // decoration: const BoxDecoration(
+        //   color: Color.fromARGB(240, 240, 240, 240),
+        //   ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(50.0),
-              child: Image.network(
-                widget.avatar,
-                height: 65.0,
-                width: 65.0,
-              ),
-            ),
-            Column(
+            Container(
+              margin: const EdgeInsets.only(right: 16, left: 12),
+              child: Stack(
               children: [
-                Text(widget.username, textAlign: TextAlign.start),
-                Text(
-                  widget.latestMessage.isNotEmpty ? widget.latestMessage : "",
-                  style: TextStyle(color: Colors.black),
-                )
+                ClipRRect(
+                borderRadius: BorderRadius.circular(50.0),
+                child: Container(
+                    width: 77.0,
+                    height: 77.0,
+                    color:
+                        widget.isOnline == true ? Colors.green : Colors.grey)),
+                        Container(
+                          margin: const EdgeInsets.all(6),
+                          child: ClipRRect(
+                  borderRadius: BorderRadius.circular(50.0),
+                  child: Image.network(
+                    widget.avatar,
+                    height: 65.0,
+                    width: 65.0,
+                  ),
+                ),
+                        )
+                
               ],
             ),
-            widget.latestMessageTime.isNotEmpty
-                ? Text(
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 235,
+                      height: 30,
+                      child: Text(widget.username, textAlign: TextAlign.start,
+                      style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),),
+                    ),
+                    widget.latestMessageTime.isNotEmpty
+                    ? Text(
                     Jiffy(widget.latestMessageTime).fromNow(),
                     style: const TextStyle(fontSize: 11.0),
                   )
                 : Container(),
-            ClipRRect(
-                borderRadius: BorderRadius.circular(50.0),
-                child: Container(
-                    width: 10.0,
-                    height: 10.0,
-                    color:
-                        widget.isOnline == true ? Colors.green : Colors.grey)),
+                  ],
+                ),
+                Container(
+                  width: 285,
+                  child: Text(
+                    widget.latestMessage.isNotEmpty ? widget.latestMessage : "",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                )
+              ],
+            ),
           ],
         ));
   }
