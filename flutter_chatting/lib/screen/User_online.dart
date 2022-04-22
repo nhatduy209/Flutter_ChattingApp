@@ -127,7 +127,7 @@ class UserOnlineState extends State<UserOnline> {
                 Row(
                   children: [
                     Container(
-                      width: 235,
+                      width: 230,
                       height: 30,
                       child: Text(widget.username, textAlign: TextAlign.start,
                       style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),),
@@ -141,10 +141,13 @@ class UserOnlineState extends State<UserOnline> {
                   ],
                 ),
                 Container(
-                  width: 285,
+                  width: 255,
+                  margin: const EdgeInsets.only(right: 50),
+                  padding: new EdgeInsets.only(right: 13.0),
                   child: Text(
                     widget.latestMessage.isNotEmpty ? widget.latestMessage : "",
-                    style: TextStyle(color: Colors.black),
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.black),
                   ),
                 )
               ],
