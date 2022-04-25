@@ -9,6 +9,7 @@ import 'package:flutter_chatting/screen/Home/HomeEvent.dart';
 import 'package:flutter_chatting/screen/Home/widget/BubbleMessageSlide.dart';
 import 'package:flutter_chatting/screen/Home/widget/SearchText.dart';
 import 'package:flutter_chatting/screen/User_online.dart';
+import 'package:flutter_chatting/screen/friends/Friends.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/MessageModel.dart';
@@ -161,7 +162,7 @@ class HomeRoute extends State<HomeRouteState> {
                       )
                     ])
                   : selectedTab == 1
-                      ? Container()
+                      ? const Friends()
                       : const SettingsApp());
         });
   }
