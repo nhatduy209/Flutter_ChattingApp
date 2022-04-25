@@ -9,7 +9,30 @@ class User {
   String phoneNumber;
   String? password;
   String url;
-  User({required this.id, required this.userName, required this.email, required this.age, required this.phoneNumber, password, required this.url});
+  User(
+      {required this.id,
+      required this.userName,
+      required this.email,
+      required this.age,
+      required this.phoneNumber,
+      password,
+      required this.url});
+
+  User.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        userName = json['username'],
+        email = json['email'],
+        age = json['age'],
+        phoneNumber = json['phoneNumber'],
+        url = json['url'];
+
+  Map<String, dynamic> toJson() => {
+        'userName': userName,
+        'email': email,
+        'age': age,
+        'phoneNumber': phoneNumber,
+        'url': url,
+      };
 
   set setPassword(String _password) {
     password = _password;
