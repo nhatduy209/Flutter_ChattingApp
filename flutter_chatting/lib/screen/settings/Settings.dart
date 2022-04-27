@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/screen/profile/Profile.dart';
 
+import '../profile/FriendProfile.dart';
+
 class SettingsApp extends StatelessWidget {
   const SettingsApp({Key? key}) : super(key: key);
 
@@ -24,7 +26,7 @@ class SettingsApp extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(100.0),
                     child: Image.network(
-                      'https://scontent.fsgn5-14.fna.fbcdn.net/v/t39.30808-6/241641645_1039308073570420_4340682428897197454_n.jpg?_nc_cat=101&ccb=1-5&_nc_sid=09cbfe&_nc_ohc=nJLSb_4ICeEAX8ZLJ2Z&_nc_ht=scontent.fsgn5-14.fna&oh=00_AT-PNc2us-m_wYgALpS9Mf5jcFcM0bVwS_5gIb_CIjgrCw&oe=625E5BB3',
+                      'https://img.freepik.com/free-vector/mysterious-gangster-mafia-character-smoking_23-2148474614.jpg?t=st=1650615735~exp=1650616335~hmac=e739702e26831846c2cb4c0c1b3901323df00e8379fd23bf37a6c6a157b4d68b&w=740',
                       height: 100.0,
                       width: 100.0,
                     ),
@@ -43,7 +45,7 @@ class SettingsApp extends StatelessWidget {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => ProfileScreen()),
+                            MaterialPageRoute(builder: (context) => FriendProfileScreen()),
                           );
                         },
                         child: const ListTile(
