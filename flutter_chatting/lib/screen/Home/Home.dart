@@ -10,6 +10,7 @@ import 'package:flutter_chatting/screen/Home/widget/BubbleMessageSlide.dart';
 import 'package:flutter_chatting/screen/Home/widget/SearchText.dart';
 import 'package:flutter_chatting/screen/User_online.dart';
 import 'package:flutter_chatting/screen/friends/Friends.dart';
+import 'package:flutter_chatting/widget/RenderOnlineUser.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/MessageModel.dart';
@@ -31,6 +32,7 @@ class HomeRoute extends State<HomeRouteState> {
   String getUsername = "";
   bool isSearch = false;
   int selectedTab = 0;
+  List<bool> listUserOnline = [true, true, true, false, false, true, false, false];
 
   HomeRoute();
   var commonFunc = Utilities();
@@ -70,12 +72,20 @@ class HomeRoute extends State<HomeRouteState> {
                   ),
                 ],
               ),
-              backgroundColor: Colors.deepPurple[100],
+              // backgroundColor: Colors.deepPurpleAccent,
               body: selectedTab == 0
                   ? Stack(children: <Widget>[
                       Container(
-                          margin: const EdgeInsets.only(
-                              left: 20.0, right: 20.0, top: 33.0),
+                        height: 60,
+                          margin: const EdgeInsets.only(top: 28.0),
+                          padding: const EdgeInsets.only(left: 12, right: 12),
+                            decoration: BoxDecoration(
+                            color: Colors.white,
+                            // borderRadius: BorderRadius.only(
+                            //           bottomLeft: Radius.circular(40),
+                            //           bottomRight: Radius.circular(40)
+                            //           ),
+                          ),
                           child: Column(
                             children: [
                               Row(
@@ -110,13 +120,51 @@ class HomeRoute extends State<HomeRouteState> {
                         children: [
                           Expanded(
                             child: Container(
+                                margin: EdgeInsets.only(top: marginSearch),
+                                child: ListView.builder(
+                                  itemCount: listUserOnline.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return index == 0
+                                        ? Stack(
+                                          children: [Container(
+                                            margin: EdgeInsets.all(6),
+                                            width: 60.0,
+                                          height: 60.0,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: Colors.black12,
+                                            ),
+                                              borderRadius:
+                                                  BorderRadius.all(
+                                                      Radius.circular(60))),
+                                          child: const Icon(
+                                            Icons.person_add,
+                                            size: 25,
+                                            color: Colors.black12,
+                                          ),
+                                          )]
+                                        )
+                                        : RenderOnlineUser(
+                                            isOnline: listUserOnline[index],
+                                          );
+                                  },
+                                  scrollDirection: Axis.horizontal,
+                                )),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Expanded(
+                            child: Container(
+                                margin: EdgeInsets.only(top: marginSearch + 80),
                                 decoration: const BoxDecoration(
                                   borderRadius: BorderRadius.only(
                                       topLeft: Radius.circular(40),
                                       topRight: Radius.circular(40)),
                                   color: Colors.white,
                                 ),
-                                margin: EdgeInsets.only(top: marginSearch),
                                 child: ListView.builder(
                                   itemCount: listUsers.getListUsers.length,
                                   itemBuilder:
