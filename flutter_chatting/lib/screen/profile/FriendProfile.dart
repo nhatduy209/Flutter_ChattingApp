@@ -47,7 +47,7 @@ class FriendProfileState extends State<FriendProfileScreen> {
                             child: Container(
                           margin: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                              color: Color.fromARGB(255, 189, 0, 255),
+                              color: Color.fromARGB(200, 124, 77, 255),
                               borderRadius: BorderRadius.circular(180)),
                           width: 200.0,
                           height: 200.0,
@@ -57,7 +57,7 @@ class FriendProfileState extends State<FriendProfileScreen> {
                             child: Container(
                                 width: 240.0,
                                 height: 240.0,
-                                color: Color.fromARGB(100, 189, 0, 255))),
+                                color: Color.fromARGB(100, 124, 77, 255))),
                         Container(
                             child: Container(
                           margin: const EdgeInsets.all(40),
@@ -147,7 +147,7 @@ class FriendProfileState extends State<FriendProfileScreen> {
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               primary: Color.fromARGB(
-                                  255, 158, 0, 216), // background
+                                  255, 124, 77, 255), // background
                               onPrimary: Colors.white, // foreground
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(50)),
