@@ -16,6 +16,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:overlay_support/overlay_support.dart';
 
+import 'assets/component/Flushbar.dart';
+
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
@@ -139,14 +141,8 @@ class _MyHomePageState extends State<MyHomePage> {
         print(listUser[0].id);
         userProfile.setProfile(listUser[0]);
 
-        toastfliutter.Fluttertoast.showToast(
-            msg: "Login successfully",
-            toastLength: toastfliutter.Toast.LENGTH_SHORT,
-            gravity: toastfliutter.ToastGravity.CENTER,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.green[500],
-            textColor: Colors.white,
-            fontSize: 16.0);
+        ScaffoldMessenger.of(context).showSnackBar(loginSuccessBar);
+
         setState(() => isPressLogin = false);
         Navigator.push(
           context,
@@ -156,14 +152,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   )),
         );
       } else {
-        var toastfliutterToastGravity;
-        toastfliutter.Fluttertoast.showToast(
-            msg: "Login fail",
-            toastLength: toastfliutter.Toast.LENGTH_SHORT,
-            gravity: toastfliutter.ToastGravity.CENTER,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 20.0);
+        ScaffoldMessenger.of(context).showSnackBar(loginFailBar);
+
         setState(() => isPressLogin = false);
       }
     });
@@ -189,16 +179,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         margin: const EdgeInsets.only(top: 100.0),
                       ),
-                      // Container(
-                      //   child: const Text(
-                      //           "Login Now",
-                      //           textAlign: TextAlign.end,
-                      //           style: TextStyle(
-                      //             fontSize: 32,
-                      //             fontWeight: FontWeight.bold,
-                      //           color: Colors.black,
-                      //         )),
-                      // ),
                       Container(
                           alignment: Alignment.bottomLeft,
                           margin: const EdgeInsets.only(
