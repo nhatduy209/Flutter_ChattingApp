@@ -9,14 +9,55 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_chatting/screen/forgot_password/ForgotPassword.dart';
 import 'package:flutter_chatting/widget/LoadingCircle.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:fluttertoast/fluttertoast.dart' as toastfliutter;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:overlay_support/overlay_support.dart';
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+
+  showSimpleNotification(
+    Text(message.notification!.title!),
+    trailing: const Icon(
+      Icons.mark_chat_unread,
+      color: Color.fromARGB(255, 114, 178, 230),
+    ),
+    subtitle: Text(message.notification!.body),
+    background: Colors.cyan.shade700,
+    duration: Duration(seconds: 2),
+  );
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  String? token = await messaging.getToken();
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    if (message.notification != null) {
+      // For displaying the notification as an overlay
+      showSimpleNotification(
+        Text(message.notification!.title!),
+        trailing: const Icon(
+          Icons.mark_chat_unread,
+          color: Color.fromARGB(255, 114, 178, 230),
+        ),
+        subtitle: Text(message.notification!.body),
+        background: Colors.cyan.shade700,
+        duration: Duration(seconds: 2),
+      );
+    }
+  });
+
+  FirebaseMessaging.onBackgroundMessage(
+      (message) => _firebaseMessagingBackgroundHandler(message));
 
   runApp(MultiProvider(
     providers: [
@@ -33,13 +74,14 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return OverlaySupport.global(
+        child: MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'Chatting app'),
-    );
+    ));
   }
 }
 
@@ -143,8 +185,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                 "Forgot password",
                                 textAlign: TextAlign.end,
                                 style: TextStyle(
-                                color: Colors.deepPurpleAccent,
-                              ),
+                                  color: Colors.deepPurpleAccent,
+                                ),
                               ))),
                       Container(
                           margin: const EdgeInsets.only(top: 10.0),
@@ -201,10 +243,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                       print(listUser[0].id);
                                       userProfile.setProfile(listUser[0]);
 
-                                      Fluttertoast.showToast(
+                                      toastfliutter.Fluttertoast.showToast(
                                           msg: "Login successfully",
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.CENTER,
+                                          toastLength:
+                                              toastfliutter.Toast.LENGTH_SHORT,
+                                          gravity:
+                                              toastfliutter.ToastGravity.CENTER,
                                           timeInSecForIosWeb: 1,
                                           backgroundColor: Colors.green[500],
                                           textColor: Colors.white,
@@ -219,10 +263,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 )),
                                       );
                                     } else {
-                                      Fluttertoast.showToast(
+                                      var toastfliutterToastGravity;
+                                      toastfliutter.Fluttertoast.showToast(
                                           msg: "Login fail",
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.CENTER,
+                                          toastLength:
+                                              toastfliutter.Toast.LENGTH_SHORT,
+                                          gravity:
+                                              toastfliutter.ToastGravity.CENTER,
                                           backgroundColor: Colors.red,
                                           textColor: Colors.white,
                                           fontSize: 20.0);
@@ -233,16 +280,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                   style: TextStyle(fontSize: 25)))),
                       Container(
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                "Don't have an account!",
-                                textAlign: TextAlign.end,
-                                style: TextStyle(
-                                color: Colors.black,
-                              ),
-                              ),
-                              TextButton(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Don't have an account!",
+                            textAlign: TextAlign.end,
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
+                          ),
+                          TextButton(
                               onPressed: () => Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -253,11 +300,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                 "Register account",
                                 textAlign: TextAlign.end,
                                 style: TextStyle(
-                                color: Colors.deepPurpleAccent,
-                              ),
+                                  color: Colors.deepPurpleAccent,
+                                ),
                               )),
-                            ],
-                          ))
+                        ],
+                      ))
                     ],
                   ),
           ), // This trailing comma makes auto-formatting nicer for build methods.
