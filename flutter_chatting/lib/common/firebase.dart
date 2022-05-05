@@ -45,13 +45,15 @@ Future<String> getImageFromFirebase(String imageStoragePath) async {
   }
 }
 
-Future makeOnline(String username) async {
+Future makeOnline(String username, String token) async {
+  print('TOKEN GET ----' + token);
   QuerySnapshot accounts = await FirebaseFirestore.instance
       .collection('account')
       .where('username', isEqualTo: username)
       .get();
 
   accounts.docs[0].reference.update({'isOnline': true});
+  accounts.docs[0].reference.update({'token': token});
 }
 
 Future<void> deleteAPI(String collection, String documentDelete) async {

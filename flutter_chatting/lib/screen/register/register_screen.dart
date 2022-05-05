@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../main.dart';
@@ -9,9 +10,10 @@ class SecondRoute extends StatefulWidget {
   @override
   State<SecondRoute> createState() => _SecondRouteState();
 }
+
 class _SecondRouteState extends State<SecondRoute> {
   CollectionReference accounts =
-        FirebaseFirestore.instance.collection('account');
+      FirebaseFirestore.instance.collection('account');
 
   final username = TextEditingController();
   final email = TextEditingController();
@@ -21,9 +23,11 @@ class _SecondRouteState extends State<SecondRoute> {
   final confirmPassword = TextEditingController();
 
   bool checkNull() {
-    return username.text.isNotEmpty && email.text.isNotEmpty
-    && age.text.isNotEmpty && phoneNumber.text.isNotEmpty
-    && password.text.isNotEmpty;
+    return username.text.isNotEmpty &&
+        email.text.isNotEmpty &&
+        age.text.isNotEmpty &&
+        phoneNumber.text.isNotEmpty &&
+        password.text.isNotEmpty;
   }
 
   void _showToast(BuildContext context, String text) {
@@ -31,22 +35,21 @@ class _SecondRouteState extends State<SecondRoute> {
     scaffold.showSnackBar(
       SnackBar(
         content: Text(text),
-        action: SnackBarAction(label: 'Close', onPressed: scaffold.hideCurrentSnackBar),
+        action: SnackBarAction(
+            label: 'Close', onPressed: scaffold.hideCurrentSnackBar),
       ),
     );
   }
 
   Future<dynamic> signUp() async {
     var exist;
-    await accounts
-      .get()
-      .then((QuerySnapshot querySnapshot) async {
-        final allData = querySnapshot.docs
-        .map((doc) => doc.data())
-        .toList();
-    exist = allData.where((item) =>
-        item['username'] == username.text);
-      });
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    String token = await messaging.getToken();
+    await accounts.get().then((QuerySnapshot querySnapshot) async {
+      final allData = querySnapshot.docs.map((doc) => doc.data()).toList();
+      exist = allData.where((item) => item['username'] == username.text);
+    });
     if (!checkNull()) {
       _showToast(context, 'Please fill all field');
       return;
@@ -55,18 +58,21 @@ class _SecondRouteState extends State<SecondRoute> {
       _showToast(context, 'Username existed!');
       return;
     }
-    if(confirmPassword.text == password.text) {
-      accounts.add({
-        'username': username.text,
-        'password' : password.text,
-        'email': email.text,
-        'phoneNumber' : phoneNumber.text,
-        'age' : age.text
-      }).then((value) => _showToast(context, 'Sign up successfully'))
-      .then((value) => Navigator.pop(
-                  context,
-                  MaterialPageRoute(builder: (context) => const MyApp()),
-                ));
+    if (confirmPassword.text == password.text) {
+      accounts
+          .add({
+            'username': username.text,
+            'password': password.text,
+            'email': email.text,
+            'phoneNumber': phoneNumber.text,
+            'age': age.text,
+            'token': token,
+          })
+          .then((value) => _showToast(context, 'Sign up successfully'))
+          .then((value) => Navigator.pop(
+                context,
+                MaterialPageRoute(builder: (context) => const MyApp()),
+              ));
     } else {
       _showToast(context, 'Password confirm is not correct!');
     }
@@ -75,12 +81,12 @@ class _SecondRouteState extends State<SecondRoute> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Center(
+        body: SingleChildScrollView(
+      child: Center(
           child: Column(children: <Widget>[
         Container(
-          child:
-              const Icon(Icons.label_important, color: Colors.lightBlue, size: 150.0),
+          child: const Icon(Icons.label_important,
+              color: Colors.lightBlue, size: 150.0),
           margin: const EdgeInsets.only(top: 40.0),
         ),
         Container(
@@ -88,164 +94,148 @@ class _SecondRouteState extends State<SecondRoute> {
             margin: const EdgeInsets.all(20),
             padding: const EdgeInsets.only(
                 left: 20.0, right: 20.0, top: 10.0, bottom: 30.0),
-            child: const Text("Create account", style: TextStyle(fontSize: 25.0))),
+            child:
+                const Text("Create account", style: TextStyle(fontSize: 25.0))),
         Container(
           margin: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
           decoration: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(width: 1.0, color: Colors.black38)
-              )
-          ),
+              border: Border(
+                  bottom: BorderSide(width: 1.0, color: Colors.black38))),
           child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            const Icon(Icons.person, color: Colors.lightBlue, size: 30.0),
-            Flexible(
-                child: SizedBox(
-              height: 50,
-              width: 300,
-              child: TextField(
-                controller: username,
-                decoration: const InputDecoration(
-                  hintText: 'Enter your username',
-                  border: InputBorder.none
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              const Icon(Icons.person, color: Colors.lightBlue, size: 30.0),
+              Flexible(
+                  child: SizedBox(
+                height: 50,
+                width: 300,
+                child: TextField(
+                  controller: username,
+                  decoration: const InputDecoration(
+                      hintText: 'Enter your username',
+                      border: InputBorder.none),
                 ),
-              ),
-            )),
-          ],
-        ),
-        ),
-        Container(
-          margin: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
-          decoration: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(width: 1.0, color: Colors.black38)
-              )
+              )),
+            ],
           ),
-          child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            const Icon(Icons.male, color: Colors.lightBlue, size: 30.0),
-            Flexible(
-                child: SizedBox(
-              height: 50,
-              width: 300,
-              child: TextField(
-                controller: age,
-                decoration: const InputDecoration(
-                  hintText: 'Enter your age',
-                  border: InputBorder.none
-                ),
-              ),
-            )),
-          ],
-        ),
-          ),
-        Container(
-          margin: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
-          decoration: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(width: 1.0, color: Colors.black38)
-              )
-          ),
-          child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            const Icon(Icons.mail, color: Colors.lightBlue, size: 30.0),
-            Flexible(
-                child: SizedBox(
-              height: 50,
-              width: 300,
-              child: TextField(
-                controller: email,
-                decoration: const InputDecoration(
-                  hintText: 'Enter your email',
-                  border: InputBorder.none
-                ),
-              ),
-            )),
-          ],
-        ),
         ),
         Container(
           margin: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
           decoration: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(width: 1.0, color: Colors.black38)
-              )
-          ),
+              border: Border(
+                  bottom: BorderSide(width: 1.0, color: Colors.black38))),
           child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            const Icon(Icons.phone, color: Colors.lightBlue, size: 30.0),
-            Flexible(
-                child: SizedBox(
-              height: 50,
-              width: 300,
-              child: TextField(
-                controller: phoneNumber,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'Enter your phone number',
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              const Icon(Icons.male, color: Colors.lightBlue, size: 30.0),
+              Flexible(
+                  child: SizedBox(
+                height: 50,
+                width: 300,
+                child: TextField(
+                  controller: age,
+                  decoration: const InputDecoration(
+                      hintText: 'Enter your age', border: InputBorder.none),
                 ),
-              ),
-            )),
-          ],
-        ),
+              )),
+            ],
+          ),
         ),
         Container(
           margin: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
           decoration: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(width: 1.0, color: Colors.black38)
-              )
-          ),
+              border: Border(
+                  bottom: BorderSide(width: 1.0, color: Colors.black38))),
           child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            const Icon(Icons.lock, color: Colors.lightBlue, size: 30.0),
-            Flexible(
-                child: SizedBox(
-              height: 50,
-              width: 300,
-              child: TextField(
-                controller: password,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'Enter your password',
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              const Icon(Icons.mail, color: Colors.lightBlue, size: 30.0),
+              Flexible(
+                  child: SizedBox(
+                height: 50,
+                width: 300,
+                child: TextField(
+                  controller: email,
+                  decoration: const InputDecoration(
+                      hintText: 'Enter your email', border: InputBorder.none),
                 ),
-              ),
-            )),
-          ],
-        ),
+              )),
+            ],
+          ),
         ),
         Container(
           margin: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
           decoration: const BoxDecoration(
-            border: Border(
-              bottom: BorderSide(width: 1.0, color: Colors.black38)
-              )
-          ),
+              border: Border(
+                  bottom: BorderSide(width: 1.0, color: Colors.black38))),
           child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            const Icon(Icons.lock, color: Colors.lightBlue, size: 30.0),
-            Flexible(
-                child: SizedBox(
-              height: 50,
-              width: 300,
-              child: TextField(
-                controller: confirmPassword,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'Confirm your password',
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              const Icon(Icons.phone, color: Colors.lightBlue, size: 30.0),
+              Flexible(
+                  child: SizedBox(
+                height: 50,
+                width: 300,
+                child: TextField(
+                  controller: phoneNumber,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Enter your phone number',
+                  ),
                 ),
-              ),
-            )),
-          ],
+              )),
+            ],
+          ),
         ),
+        Container(
+          margin: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
+          decoration: const BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(width: 1.0, color: Colors.black38))),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              const Icon(Icons.lock, color: Colors.lightBlue, size: 30.0),
+              Flexible(
+                  child: SizedBox(
+                height: 50,
+                width: 300,
+                child: TextField(
+                  controller: password,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Enter your password',
+                  ),
+                ),
+              )),
+            ],
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0),
+          decoration: const BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(width: 1.0, color: Colors.black38))),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              const Icon(Icons.lock, color: Colors.lightBlue, size: 30.0),
+              Flexible(
+                  child: SizedBox(
+                height: 50,
+                width: 300,
+                child: TextField(
+                  controller: confirmPassword,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Confirm your password',
+                  ),
+                ),
+              )),
+            ],
+          ),
         ),
         Container(
             margin: const EdgeInsets.only(top: 60.0),
@@ -286,7 +276,6 @@ class _SecondRouteState extends State<SecondRoute> {
               ),
             )),
       ])),
-      )
-    );
+    ));
   }
 }

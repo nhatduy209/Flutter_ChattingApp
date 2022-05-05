@@ -9,14 +9,55 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_chatting/screen/forgot_password/ForgotPassword.dart';
 import 'package:flutter_chatting/widget/LoadingCircle.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:fluttertoast/fluttertoast.dart' as toastfliutter;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:overlay_support/overlay_support.dart';
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+
+  showSimpleNotification(
+    Text(message.notification!.title!),
+    trailing: const Icon(
+      Icons.mark_chat_unread,
+      color: Color.fromARGB(255, 114, 178, 230),
+    ),
+    subtitle: Text(message.notification!.body),
+    background: Colors.cyan.shade700,
+    duration: Duration(seconds: 2),
+  );
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  String? token = await messaging.getToken();
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    if (message.notification != null) {
+      // For displaying the notification as an overlay
+      showSimpleNotification(
+        Text(message.notification!.title!),
+        trailing: const Icon(
+          Icons.mark_chat_unread,
+          color: Color.fromARGB(255, 114, 178, 230),
+        ),
+        subtitle: Text(message.notification!.body),
+        background: Colors.cyan.shade700,
+        duration: Duration(seconds: 2),
+      );
+    }
+  });
+
+  FirebaseMessaging.onBackgroundMessage(
+      (message) => _firebaseMessagingBackgroundHandler(message));
 
   runApp(MultiProvider(
     providers: [
@@ -33,13 +74,14 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return OverlaySupport.global(
+        child: MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'Chatting app'),
-    );
+    ));
   }
 }
 
@@ -57,6 +99,76 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isPressLogin = false;
   CollectionReference accounts =
       FirebaseFirestore.instance.collection('account');
+
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  Future<void> handleLogin(UserProfile userProfile) async {
+    accounts.get().then((QuerySnapshot querySnapshot) async {
+      setState(() {
+        isPressLogin = true;
+      });
+      final listUser = [];
+      final allData = [];
+      for (var doc in querySnapshot.docs) {
+        allData.add(doc.data());
+        if (doc.data()['username'] == username.text) {
+          listUser.add(User(
+              id: doc.id,
+              userName: doc.data()['username'],
+              email: doc.data()['email'],
+              age: doc.data()['age'],
+              phoneNumber: doc.data()['phoneNumber'],
+              password: doc.data()['password'],
+              url: doc.data()['url'],
+              token: ''));
+        }
+      }
+      var exist = allData.where((item) =>
+          item['username'] == username.text &&
+          item['password'] == password.text);
+
+      if (exist.isNotEmpty &&
+          username.text.isNotEmpty &&
+          password.text.isNotEmpty) {
+        String? token = await messaging.getToken();
+        makeOnline(username.text, token);
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        // Set
+        prefs.setString('username', username.text);
+        print(exist.toList()[0]);
+        print(listUser[0].id);
+        userProfile.setProfile(listUser[0]);
+
+        toastfliutter.Fluttertoast.showToast(
+            msg: "Login successfully",
+            toastLength: toastfliutter.Toast.LENGTH_SHORT,
+            gravity: toastfliutter.ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green[500],
+            textColor: Colors.white,
+            fontSize: 16.0);
+        setState(() => isPressLogin = false);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomeRouteState(
+                    title: 'Home',
+                  )),
+        );
+      } else {
+        var toastfliutterToastGravity;
+        toastfliutter.Fluttertoast.showToast(
+            msg: "Login fail",
+            toastLength: toastfliutter.Toast.LENGTH_SHORT,
+            gravity: toastfliutter.ToastGravity.CENTER,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 20.0);
+        setState(() => isPressLogin = false);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final userProfile = Provider.of<UserProfile>(context);
@@ -143,8 +255,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                 "Forgot password",
                                 textAlign: TextAlign.end,
                                 style: TextStyle(
-                                color: Colors.deepPurpleAccent,
-                              ),
+                                  color: Colors.deepPurpleAccent,
+                                ),
                               ))),
                       Container(
                           margin: const EdgeInsets.only(top: 10.0),
@@ -162,87 +274,21 @@ class _MyHomePageState extends State<MyHomePage> {
                                         borderRadius:
                                             BorderRadius.circular(30.0))),
                               ),
-                              onPressed: () => accounts.get().then(
-                                      (QuerySnapshot querySnapshot) async {
-                                    setState(() {
-                                      isPressLogin = true;
-                                    });
-                                    final listUser = [];
-                                    final allData = [];
-                                    for (var doc in querySnapshot.docs) {
-                                      allData.add(doc.data());
-                                      if (doc.data()['username'] ==
-                                          username.text) {
-                                        listUser.add(User(
-                                            id: doc.id,
-                                            userName: doc.data()['username'],
-                                            email: doc.data()['email'],
-                                            age: doc.data()['age'],
-                                            phoneNumber:
-                                                doc.data()['phoneNumber'],
-                                            password: doc.data()['password'],
-                                            url: doc.data()['url']));
-                                      }
-                                    }
-                                    var exist = allData.where((item) =>
-                                        item['username'] == username.text &&
-                                        item['password'] == password.text);
-
-                                    if (exist.length > 0 &&
-                                        username.text.isNotEmpty &&
-                                        password.text.isNotEmpty) {
-                                      makeOnline(username.text);
-                                      SharedPreferences prefs =
-                                          await SharedPreferences.getInstance();
-                                      // Set
-                                      prefs.setString(
-                                          'username', username.text);
-                                      print(exist.toList()[0]);
-                                      print(listUser[0].id);
-                                      userProfile.setProfile(listUser[0]);
-
-                                      Fluttertoast.showToast(
-                                          msg: "Login successfully",
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.CENTER,
-                                          timeInSecForIosWeb: 1,
-                                          backgroundColor: Colors.green[500],
-                                          textColor: Colors.white,
-                                          fontSize: 16.0);
-                                      setState(() => isPressLogin = false);
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                HomeRouteState(
-                                                  title: 'Home',
-                                                )),
-                                      );
-                                    } else {
-                                      Fluttertoast.showToast(
-                                          msg: "Login fail",
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.CENTER,
-                                          backgroundColor: Colors.red,
-                                          textColor: Colors.white,
-                                          fontSize: 20.0);
-                                      setState(() => isPressLogin = false);
-                                    }
-                                  }),
+                              onPressed: () => handleLogin(userProfile),
                               child: Text('Sign in',
                                   style: TextStyle(fontSize: 25)))),
                       Container(
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                "Don't have an account!",
-                                textAlign: TextAlign.end,
-                                style: TextStyle(
-                                color: Colors.black,
-                              ),
-                              ),
-                              TextButton(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Don't have an account!",
+                            textAlign: TextAlign.end,
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
+                          ),
+                          TextButton(
                               onPressed: () => Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -253,11 +299,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                 "Register account",
                                 textAlign: TextAlign.end,
                                 style: TextStyle(
-                                color: Colors.deepPurpleAccent,
-                              ),
+                                  color: Colors.deepPurpleAccent,
+                                ),
                               )),
-                            ],
-                          ))
+                        ],
+                      ))
                     ],
                   ),
           ), // This trailing comma makes auto-formatting nicer for build methods.
