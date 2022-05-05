@@ -99,6 +99,76 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isPressLogin = false;
   CollectionReference accounts =
       FirebaseFirestore.instance.collection('account');
+
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  Future<void> handleLogin(UserProfile userProfile) async {
+    accounts.get().then((QuerySnapshot querySnapshot) async {
+      setState(() {
+        isPressLogin = true;
+      });
+      final listUser = [];
+      final allData = [];
+      for (var doc in querySnapshot.docs) {
+        allData.add(doc.data());
+        if (doc.data()['username'] == username.text) {
+          listUser.add(User(
+              id: doc.id,
+              userName: doc.data()['username'],
+              email: doc.data()['email'],
+              age: doc.data()['age'],
+              phoneNumber: doc.data()['phoneNumber'],
+              password: doc.data()['password'],
+              url: doc.data()['url'],
+              token: ''));
+        }
+      }
+      var exist = allData.where((item) =>
+          item['username'] == username.text &&
+          item['password'] == password.text);
+
+      if (exist.isNotEmpty &&
+          username.text.isNotEmpty &&
+          password.text.isNotEmpty) {
+        String? token = await messaging.getToken();
+        makeOnline(username.text, token);
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        // Set
+        prefs.setString('username', username.text);
+        print(exist.toList()[0]);
+        print(listUser[0].id);
+        userProfile.setProfile(listUser[0]);
+
+        toastfliutter.Fluttertoast.showToast(
+            msg: "Login successfully",
+            toastLength: toastfliutter.Toast.LENGTH_SHORT,
+            gravity: toastfliutter.ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green[500],
+            textColor: Colors.white,
+            fontSize: 16.0);
+        setState(() => isPressLogin = false);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomeRouteState(
+                    title: 'Home',
+                  )),
+        );
+      } else {
+        var toastfliutterToastGravity;
+        toastfliutter.Fluttertoast.showToast(
+            msg: "Login fail",
+            toastLength: toastfliutter.Toast.LENGTH_SHORT,
+            gravity: toastfliutter.ToastGravity.CENTER,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 20.0);
+        setState(() => isPressLogin = false);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final userProfile = Provider.of<UserProfile>(context);
@@ -204,79 +274,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         borderRadius:
                                             BorderRadius.circular(30.0))),
                               ),
-                              onPressed: () => accounts.get().then(
-                                      (QuerySnapshot querySnapshot) async {
-                                    setState(() {
-                                      isPressLogin = true;
-                                    });
-                                    final listUser = [];
-                                    final allData = [];
-                                    for (var doc in querySnapshot.docs) {
-                                      allData.add(doc.data());
-                                      if (doc.data()['username'] ==
-                                          username.text) {
-                                        listUser.add(User(
-                                            id: doc.id,
-                                            userName: doc.data()['username'],
-                                            email: doc.data()['email'],
-                                            age: doc.data()['age'],
-                                            phoneNumber:
-                                                doc.data()['phoneNumber'],
-                                            password: doc.data()['password'],
-                                            url: doc.data()['url'],
-                                            token: ''));
-                                      }
-                                    }
-                                    var exist = allData.where((item) =>
-                                        item['username'] == username.text &&
-                                        item['password'] == password.text);
-
-                                    if (exist.length > 0 &&
-                                        username.text.isNotEmpty &&
-                                        password.text.isNotEmpty) {
-                                      makeOnline(username.text);
-                                      SharedPreferences prefs =
-                                          await SharedPreferences.getInstance();
-                                      // Set
-                                      prefs.setString(
-                                          'username', username.text);
-                                      print(exist.toList()[0]);
-                                      print(listUser[0].id);
-                                      userProfile.setProfile(listUser[0]);
-
-                                      toastfliutter.Fluttertoast.showToast(
-                                          msg: "Login successfully",
-                                          toastLength:
-                                              toastfliutter.Toast.LENGTH_SHORT,
-                                          gravity:
-                                              toastfliutter.ToastGravity.CENTER,
-                                          timeInSecForIosWeb: 1,
-                                          backgroundColor: Colors.green[500],
-                                          textColor: Colors.white,
-                                          fontSize: 16.0);
-                                      setState(() => isPressLogin = false);
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                HomeRouteState(
-                                                  title: 'Home',
-                                                )),
-                                      );
-                                    } else {
-                                      var toastfliutterToastGravity;
-                                      toastfliutter.Fluttertoast.showToast(
-                                          msg: "Login fail",
-                                          toastLength:
-                                              toastfliutter.Toast.LENGTH_SHORT,
-                                          gravity:
-                                              toastfliutter.ToastGravity.CENTER,
-                                          backgroundColor: Colors.red,
-                                          textColor: Colors.white,
-                                          fontSize: 20.0);
-                                      setState(() => isPressLogin = false);
-                                    }
-                                  }),
+                              onPressed: () => handleLogin(userProfile),
                               child: Text('Sign in',
                                   style: TextStyle(fontSize: 25)))),
                       Container(
