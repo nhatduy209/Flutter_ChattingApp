@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/models/UserModel.dart';
 import 'package:flutter_chatting/models/UserProfileProvider.dart';
+import 'package:flutter_chatting/screen/User_online.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -11,15 +12,65 @@ import 'package:provider/provider.dart';
 import '../../common/firebase.dart';
 
 class FriendProfileScreen extends StatefulWidget {
-  FriendProfileScreen({Key? key}) : super(key: key);
+  @override
+  bool isAdded;
+
+  @override
+  String userName;
+
+  FriendProfileScreen({required bool isAdded, required String userName})
+  : this.userName = userName, this.isAdded = isAdded;
 
   @override
   State<FriendProfileScreen> createState() => FriendProfileState();
 }
 
 class FriendProfileState extends State<FriendProfileScreen> {
+  User userProfile = User(id: '', userName: '', email: '', age: '', phoneNumber: '', listFriend: [], url: '');
+  bool get checkFriend {
+    List<User> listFriends = Provider.of<UserProfile>(context).userProfile.listFriend;
+    return listFriends.where((element) => element.userName == widget.userName).isNotEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
+    userProfile = User(id: '', userName: '', email: '', age: '', phoneNumber: '', listFriend: [], url: '');
+    List<User> listFriends = Provider.of<UserProfile>(context).userProfile.listFriend;
+    var accounts = FirebaseFirestore.instance.collection('account');
+    if(widget.isAdded) {
+      setState(() {
+        userProfile = listFriends.where((element) => element.userName == widget.userName).first;
+      });
+    } else if (userProfile.id.isNotEmpty & !widget.isAdded) {
+      print(userProfile);
+      print(widget.userName);
+      accounts.get().then(
+        (QuerySnapshot querySnapshot) async {
+          for (var doc in querySnapshot.docs) {
+            if (doc.data()['username'] == widget.userName) {
+              setState(() {
+                userProfile = User(
+                  id: doc.id,
+                  userName: doc.data()['username'],
+                  email: doc.data()['email'],
+                  age: doc.data()['age'],
+                  phoneNumber: doc.data()['phoneNumber'],
+                  listFriend: [],
+                  url: doc.data()['url']);
+              });
+              print(User(
+                  id: doc.id,
+                  userName: doc.data()['username'],
+                  email: doc.data()['email'],
+                  age: doc.data()['age'],
+                  phoneNumber: doc.data()['phoneNumber'],
+                  listFriend: [],
+                  url: doc.data()['url']));
+            }
+          }
+        }
+      );
+    }
     // TODO: implement build
     return Scaffold(
         body: Container(
@@ -40,8 +91,7 @@ class FriendProfileState extends State<FriendProfileScreen> {
                         child: const Icon(Icons.arrow_back,
                             color: Colors.black38, size: 24.0),
                       )),
-                  Container(
-                    child: Stack(
+                  Stack(
                       children: [
                         ClipRRect(
                             child: Container(
@@ -64,7 +114,8 @@ class FriendProfileState extends State<FriendProfileScreen> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(100.0),
                             child: Image.network(
-                              'https://img.freepik.com/free-vector/mysterious-gangster-mafia-character-smoking_23-2148474614.jpg?t=st=1650615735~exp=1650616335~hmac=e739702e26831846c2cb4c0c1b3901323df00e8379fd23bf37a6c6a157b4d68b&w=740',
+                              userProfile.url.isNotEmpty ? userProfile.url :
+                              'https://img.freepik.com/free-vector/call-center-concept-with-woman_23-2147939060.jpg?t=st=1651334914~exp=1651335514~hmac=ab8b01b29bfdb4432294983ff7202b6921371e9ba8cce2bc7014ce4cf5b9c77e&w=826',
                               height: 160.0,
                               width: 160.0,
                             ),
@@ -83,9 +134,8 @@ class FriendProfileState extends State<FriendProfileScreen> {
                         // )
                       ],
                     ),
-                  ),
                   Container(
-                    margin: const EdgeInsets.only(top: 60, bottom: 10),
+                    margin: const EdgeInsets.only(top: 30, bottom: 10),
                     child: const Divider(
                       height: 6,
                       thickness: 1,
@@ -96,22 +146,29 @@ class FriendProfileState extends State<FriendProfileScreen> {
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 32),
-                    child: const Text(
-                      'Nhat Duy Tran',
+                    child: Text(
+                      userProfile.userName.toString(),
                       style: TextStyle(fontSize: 32),
                     ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 20),
-                    child: const Text(
-                      'nhatduy209@gmail.com',
+                    child: Text(
+                      userProfile.userName.toString(),
                       style: TextStyle(fontSize: 24, color: Colors.black12),
                     ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 20),
-                    child: const Text(
-                      '0999878887',
+                    child: Text(
+                      userProfile.email.toString(),
+                      style: TextStyle(fontSize: 24, color: Colors.black12),
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 20),
+                    child: Text(
+                      userProfile.phoneNumber.toString(),
                       style: TextStyle(fontSize: 24, color: Colors.black12),
                     ),
                   ),
@@ -127,20 +184,27 @@ class FriendProfileState extends State<FriendProfileScreen> {
                   ),
                   Column(
                     children: [
-                      // Container(
+                      widget.isAdded ? 
+                      Container(
                       // margin: const EdgeInsets.only(top: 120.0),
-                      // width: MediaQuery.of(context).size.width * 0.6,
-                      // height: 50,
-                      // child: ElevatedButton(
-                      //   style: ElevatedButton.styleFrom(
-                      //     primary: Color.fromARGB(255, 215, 144, 241), // background
-                      //     onPrimary: Colors.white, // foreground
-                      //     shape: RoundedRectangleBorder(
-                      //         borderRadius: BorderRadius.circular(50)),
-                      //   ),
-                      //   onPressed: () {  },
-                      //   child: Text('Unfriend', style: TextStyle(fontSize: 20, color: Colors.black54),),
-                      // )),
+                      width: MediaQuery.of(context).size.width * 0.6,
+                      height: 60,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          primary: Color.fromARGB(255, 224, 221, 224), // background
+                          onPrimary: Colors.white, // foreground
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50)),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                          // widget.isAdded= !widget.isAdded;
+                        });
+                        },
+                        child: Text(
+                          widget.isAdded ? 'Unfriend' : 'Cancel invitation',
+                          style: TextStyle(fontSize: 20, color: Colors.black54),),
+                      )) :
                       Container(
                           width: MediaQuery.of(context).size.width * 0.6,
                           height: 60,
@@ -152,7 +216,11 @@ class FriendProfileState extends State<FriendProfileScreen> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(50)),
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              setState(() {
+                          // widget.isAdded= !widget.isAdded;
+                        });
+                            },
                             child: Text(
                               'Add friend',
                               style: TextStyle(fontSize: 20),

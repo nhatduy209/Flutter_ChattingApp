@@ -173,15 +173,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                       allData.add(doc.data());
                                       if (doc.data()['username'] ==
                                           username.text) {
-                                        listUser.add(User(
-                                            id: doc.id,
-                                            userName: doc.data()['username'],
-                                            email: doc.data()['email'],
-                                            age: doc.data()['age'],
-                                            phoneNumber:
+                                        listUser.add({
+                                            'id': doc.id,
+                                            'userName': doc.data()['username'],
+                                            'email': doc.data()['email'],
+                                            'age': doc.data()['age'],
+                                            'phoneNumber':
                                                 doc.data()['phoneNumber'],
-                                            password: doc.data()['password'],
-                                            url: doc.data()['url']));
+                                            'password': doc.data()['password'],
+                                            'listFriend': doc.data()['listFriend'],
+                                            'url': doc.data()['url']});
                                       }
                                     }
                                     var exist = allData.where((item) =>
@@ -197,9 +198,28 @@ class _MyHomePageState extends State<MyHomePage> {
                                       // Set
                                       prefs.setString(
                                           'username', username.text);
-                                      print(exist.toList()[0]);
-                                      print(listUser[0].id);
-                                      userProfile.setProfile(listUser[0]);
+                                      final List<User> friends = [];
+                                      for (var friend in listUser[0]['listFriend']) {
+                                        var data = querySnapshot.docs.firstWhere((element) => element.data()['username'] == friend);                           
+                                        friends.add(User(
+                                        id: data.id,
+                                        userName: data.data()['username'],
+                                        email: data.data()['email'],
+                                        age: data.data()['age'],
+                                        phoneNumber: data.data()['phoneNumber'],
+                                        listFriend: [],
+                                        url: data.data()['url'])
+                                        );
+                                      }
+                                      userProfile.setProfile(User(
+                                        id: listUser[0]['id'],
+                                        userName: listUser[0]['userName'],
+                                        email: listUser[0]['email'],
+                                        age: listUser[0]['age'],
+                                        phoneNumber: listUser[0]['phoneNumber'],
+                                        listFriend: friends,
+                                        url: listUser[0]['url'])
+                                      );
 
                                       Fluttertoast.showToast(
                                           msg: "Login successfully",

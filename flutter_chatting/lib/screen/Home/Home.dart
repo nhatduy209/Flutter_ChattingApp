@@ -9,12 +9,15 @@ import 'package:flutter_chatting/screen/Home/HomeEvent.dart';
 import 'package:flutter_chatting/screen/Home/widget/BubbleMessageSlide.dart';
 import 'package:flutter_chatting/screen/Home/widget/SearchText.dart';
 import 'package:flutter_chatting/screen/User_online.dart';
+import 'package:flutter_chatting/screen/friends/AddFriend.dart';
 import 'package:flutter_chatting/screen/friends/Friends.dart';
 import 'package:flutter_chatting/widget/RenderOnlineUser.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/MessageModel.dart';
 import '../../models/BubleMessageModel.dart';
+import '../../models/UserModel.dart';
+import '../../models/UserProfileProvider.dart';
 import '../chatting/Chating.dart';
 import '../settings/Settings.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -32,7 +35,6 @@ class HomeRoute extends State<HomeRouteState> {
   String getUsername = "";
   bool isSearch = false;
   int selectedTab = 0;
-  List<bool> listUserOnline = [true, true, true, false, false, true, false, false];
 
   HomeRoute();
   var commonFunc = Utilities();
@@ -44,10 +46,35 @@ class HomeRoute extends State<HomeRouteState> {
   void removeUser(BubbleMessage user, ListUserModel listUsers) {
     listUsers.removeUser(user);
   }
+  // showModalBottomSheet<void>(
+  //           context: context,
+  //           builder: (BuildContext context) {
+  //             return Container(
+  //               height: 200,
+  //               color: Colors.amber,
+  //               child: Center(
+  //                 child: Column(
+  //                   mainAxisAlignment: MainAxisAlignment.center,
+  //                   mainAxisSize: MainAxisSize.min,
+  //                   children: <Widget>[
+  //                     const Text('Modal BottomSheet'),
+  //                     ElevatedButton(
+  //                       child: const Text('Close BottomSheet'),
+  //                       onPressed: () => Navigator.pop(context),
+  //                     )
+  //                   ],
+  //                 ),
+  //               ),
+  //             );
+  //           },
+  //         );
 
   @override
   Widget build(BuildContext context) {
     var listUsers = Provider.of<ListUserModel>(context);
+    List<User> listUserOnline = [User(id: '', userName: '', email: '', age: '', phoneNumber: '', listFriend: [], url: '')];
+    List<User> listFriends = Provider.of<UserProfile>(context).userProfile.listFriend;
+    listUserOnline.addAll(listFriends);
     double marginSearch = isSearch == true ? 150.0 : 100.0;
     return FutureBuilder<dynamic>(
         future: listUsers.getAllUsers(isSearch),
@@ -76,16 +103,8 @@ class HomeRoute extends State<HomeRouteState> {
               body: selectedTab == 0
                   ? Stack(children: <Widget>[
                       Container(
-                        height: 60,
                           margin: const EdgeInsets.only(top: 28.0),
                           padding: const EdgeInsets.only(left: 12, right: 12),
-                            decoration: BoxDecoration(
-                            color: Colors.white,
-                            // borderRadius: BorderRadius.only(
-                            //           bottomLeft: Radius.circular(40),
-                            //           bottomRight: Radius.circular(40)
-                            //           ),
-                          ),
                           child: Column(
                             children: [
                               Row(
@@ -121,19 +140,29 @@ class HomeRoute extends State<HomeRouteState> {
                           Expanded(
                             child: Container(
                                 margin: EdgeInsets.only(top: marginSearch),
+                                padding: const EdgeInsets.only(top: 6),
+                                color: Colors.black12,
                                 child: ListView.builder(
                                   itemCount: listUserOnline.length,
                                   itemBuilder:
                                       (BuildContext context, int index) {
                                     return index == 0
                                         ? Stack(
-                                          children: [Container(
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () => {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(builder: (context) => AddFriends()),
+                                                )
+                                              },
+                                              child: Container(
                                             margin: EdgeInsets.all(6),
                                             width: 60.0,
                                           height: 60.0,
                                           decoration: BoxDecoration(
                                             border: Border.all(
-                                              color: Colors.black12,
+                                              color: Colors.white,
                                             ),
                                               borderRadius:
                                                   BorderRadius.all(
@@ -141,12 +170,13 @@ class HomeRoute extends State<HomeRouteState> {
                                           child: const Icon(
                                             Icons.person_add,
                                             size: 25,
-                                            color: Colors.black12,
+                                            color: Colors.white,
                                           ),
-                                          )]
+                                          )
+                                            )]
                                         )
                                         : RenderOnlineUser(
-                                            isOnline: listUserOnline[index],
+                                            user: listUserOnline[index],
                                           );
                                   },
                                   scrollDirection: Axis.horizontal,

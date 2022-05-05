@@ -11,7 +11,7 @@ Future logout(
       .where('username', isEqualTo: username)
       .get();
 
-  accounts.docs[0].reference.update({'isOnline': false});
+  // accounts.docs[0].reference.update({'isOnline': false});
   listUsers.removeAll();
   Navigator.push(
     context,
