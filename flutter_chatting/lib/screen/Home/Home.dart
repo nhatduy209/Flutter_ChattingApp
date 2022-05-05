@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chatting/assets/component/Flushbar.dart';
 import 'package:flutter_chatting/common/utilities.dart';
 import 'package:flutter_chatting/main.dart';
 import 'package:flutter_chatting/models/ListBubbeMessageProvider.dart';
@@ -76,6 +77,7 @@ class HomeRoute extends State<HomeRouteState> {
     List<User> listFriends = Provider.of<UserProfile>(context).userProfile.listFriend;
     listUserOnline.addAll(listFriends);
     double marginSearch = isSearch == true ? 150.0 : 100.0;
+
     return FutureBuilder<dynamic>(
         future: listUsers.getAllUsers(isSearch),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {

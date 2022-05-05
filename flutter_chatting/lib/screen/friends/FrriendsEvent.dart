@@ -21,6 +21,6 @@ Future<User> findByUsername(String search) async {
     return user;
   } else {
     return User(
-        userName: "", age: '', id: '', email: '', phoneNumber: '', url: '', listFriend: []);
+        userName: "", age: '', id: '', email: '', phoneNumber: '', url: '', listFriend: [], token: '');
   }
 }

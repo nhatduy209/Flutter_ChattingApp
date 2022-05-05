@@ -1,8 +1,10 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter_chatting/common/API.dart';
 import 'package:flutter_chatting/common/utilities.dart';
 import 'package:flutter_chatting/models/ListBubbeMessageProvider.dart';
+import 'package:flutter_chatting/models/UserModel.dart';
 import 'package:path/path.dart' as Path;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +60,7 @@ class ChattingState extends State<Chatting> {
   late StreamSubscription<QuerySnapshot> listeningMessageChange;
   ChattingState(this.listMessages, this.isRead, this.id, this.userChatting);
   final message = TextEditingController();
-
+  late String tokenDevice;
   resetMessage() {
     message.text = '';
   }
@@ -66,7 +68,11 @@ class ChattingState extends State<Chatting> {
   CollectionReference messages =
       FirebaseFirestore.instance.collection('message');
 
+  CollectionReference account =
+      FirebaseFirestore.instance.collection('account');
+
   Future sendMessage(message, idChatting) async {
+    print('GET TOKEN ----' + tokenDevice);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String username = prefs.getString('username');
 
@@ -74,11 +80,11 @@ class ChattingState extends State<Chatting> {
     var idMess = genID.v1();
 
     if (listImage.isEmpty) {
-      messages.doc(idChatting).collection('listmessage').add({
-        'message': message,
-        'Time': DateTime.now(),
-        'id': '$idMess-$username'
-      });
+      // messages.doc(idChatting).collection('listmessage').add({
+      //   'message': message,
+      //   'Time': DateTime.now(),
+      //   'id': '$idMess-$username'
+      // });
 
       setState(() => {
             listMessages.insert(
@@ -88,16 +94,25 @@ class ChattingState extends State<Chatting> {
                     content: message,
                     time: DateTime.now()))
           });
+
+      await pushNotification(tokenDevice, username, message);
+
       resetMessage();
     } else {
       var listImageUrl = await uploadImageToFirebase(listImage);
-      listImageUrl.forEach((element) {
+      listImageUrl.forEach((element) async {
         if (listImageUrl.isNotEmpty) {
           messages.doc(idChatting).collection('listmessage').add({
             'message': element,
             'Time': DateTime.now(),
             'id': '$idMess-$username'
           });
+
+          await pushNotification(
+            tokenDevice,
+            username,
+            message,
+          );
           setState(() => {
                 listMessages.insert(
                     0,
@@ -180,6 +195,14 @@ class ChattingState extends State<Chatting> {
 
   @override
   void initState() {
+    account.get().then((QuerySnapshot querySnapshot) {
+      final allData = querySnapshot.docs.map((doc) => doc.data()).toList();
+      var exist =
+          allData.where((item) => item['username'] == userChatting).first;
+      var user = User.fromJson(exist);
+      tokenDevice = user.token;
+    });
+
     var data = FirebaseFirestore.instance
         .collection('message')
         .doc(id)
@@ -212,9 +235,6 @@ class ChattingState extends State<Chatting> {
             }
           });
           if (messageInstance.id.contains(username) == false) {
-            //listMessages.reversed.toList().add(messageInstance);
-            print("TESTING ----- $userChatting");
-
             setState(() => {listMessages.insert(0, messageInstance)});
             // listUsers.changeLatestMessage(userChatting, messageInstance.content,
             //     messageInstance.time.toString());
