@@ -55,6 +55,7 @@ dependencies:
   jiffy: ^3.0.1
   flutter_slidable: ^1.2.0
   overlay_support: ^1.2.1
+  http: ^0.12.2
 
 dev_dependencies:
   flutter_test:

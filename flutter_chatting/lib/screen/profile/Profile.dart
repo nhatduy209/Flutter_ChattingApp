@@ -19,7 +19,7 @@ class ProfileScreen extends StatefulWidget {
 
 class ProfileState extends State<ProfileScreen> {
   List<File> listImage = <File>[];
-  var userProfile = User(id: '', userName: '', email: '', age: '', phoneNumber: '', url: '');
+  var userProfile = User(id: '', userName: '', email: '', age: '', phoneNumber: '', url: '', token: '');
   final phoneNumber = TextEditingController();
   final age = TextEditingController();
   final email = TextEditingController();

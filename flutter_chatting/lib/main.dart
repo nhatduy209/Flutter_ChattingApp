@@ -223,7 +223,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                             phoneNumber:
                                                 doc.data()['phoneNumber'],
                                             password: doc.data()['password'],
-                                            url: doc.data()['url']));
+                                            url: doc.data()['url'],
+                                            token: ''));
                                       }
                                     }
                                     var exist = allData.where((item) =>
