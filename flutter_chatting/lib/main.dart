@@ -9,7 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_chatting/screen/forgot_password/ForgotPassword.dart';
 import 'package:flutter_chatting/widget/LoadingCircle.dart';
-import 'package:fluttertoast/fluttertoast.dart' as toastfliutter;
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -121,6 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
               age: doc.data()['age'],
               phoneNumber: doc.data()['phoneNumber'],
               password: doc.data()['password'],
+              listFriend: doc.data()['listFriend'],
               url: doc.data()['url'],
               token: ''));
         }
@@ -284,7 +285,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     if (exist.length > 0 &&
                                         username.text.isNotEmpty &&
                                         password.text.isNotEmpty) {
-                                      makeOnline(username.text);
+                                      makeOnline(username.text, '');
                                       SharedPreferences prefs =
                                           await SharedPreferences.getInstance();
                                       // Set
@@ -300,7 +301,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                         age: data.data()['age'],
                                         phoneNumber: data.data()['phoneNumber'],
                                         listFriend: [],
-                                        url: data.data()['url'])
+                                        url: data.data()['url'],
+                                        token: '')
                                         );
                                       }
                                       userProfile.setProfile(User(
@@ -310,17 +312,18 @@ class _MyHomePageState extends State<MyHomePage> {
                                         age: listUser[0]['age'],
                                         phoneNumber: listUser[0]['phoneNumber'],
                                         listFriend: friends,
-                                        url: listUser[0]['url'])
+                                        url: listUser[0]['url'],
+                                        token: '')
                                       );
 
-                                      Fluttertoast.showToast(
-                                          msg: "Login successfully",
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.CENTER,
-                                          timeInSecForIosWeb: 1,
-                                          backgroundColor: Colors.green[500],
-                                          textColor: Colors.white,
-                                          fontSize: 16.0);
+                                      // Fluttertoast.showToast(
+                                      //     msg: "Login successfully",
+                                      //     toastLength: Toast.LENGTH_SHORT,
+                                      //     gravity: ToastGravity.CENTER,
+                                      //     timeInSecForIosWeb: 1,
+                                      //     backgroundColor: Colors.green[500],
+                                      //     textColor: Colors.white,
+                                      //     fontSize: 16.0);
                                       setState(() => isPressLogin = false);
                                       Navigator.push(
                                         context,
@@ -331,13 +334,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 )),
                                       );
                                     } else {
-                                      Fluttertoast.showToast(
-                                          msg: "Login fail",
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.CENTER,
-                                          backgroundColor: Colors.red,
-                                          textColor: Colors.white,
-                                          fontSize: 20.0);
+                                      // Fluttertoast.showToast(
+                                      //     msg: "Login fail",
+                                      //     toastLength: Toast.LENGTH_SHORT,
+                                      //     gravity: ToastGravity.CENTER,
+                                      //     backgroundColor: Colors.red,
+                                      //     textColor: Colors.white,
+                                      //     fontSize: 20.0);
                                       setState(() => isPressLogin = false);
                                     }
                                   }),

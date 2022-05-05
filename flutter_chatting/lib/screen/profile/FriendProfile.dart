@@ -26,7 +26,7 @@ class FriendProfileScreen extends StatefulWidget {
 }
 
 class FriendProfileState extends State<FriendProfileScreen> {
-  User userProfile = User(id: '', userName: '', email: '', age: '', phoneNumber: '', listFriend: [], url: '');
+  User userProfile = User(id: '', userName: '', email: '', age: '', phoneNumber: '', listFriend: [], url: '', token: '');
   bool checkFriend(BuildContext context) {
     List<User> listFriends = Provider.of<UserProfile>(context).userProfile.listFriend;
     return listFriends.where((element) => element.userName == widget.userName).isNotEmpty;
@@ -49,7 +49,8 @@ class FriendProfileState extends State<FriendProfileScreen> {
                   age: doc.data()['age'],
                   phoneNumber: doc.data()['phoneNumber'],
                   listFriend: [],
-                  url: doc.data()['url']);
+                  url: doc.data()['url'],
+                  token: '');
               });
               // print(User(
               //     id: doc.id,

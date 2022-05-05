@@ -73,7 +73,7 @@ class HomeRoute extends State<HomeRouteState> {
   @override
   Widget build(BuildContext context) {
     var listUsers = Provider.of<ListUserModel>(context);
-    List<User> listUserOnline = [User(id: '', userName: '', email: '', age: '', phoneNumber: '', listFriend: [], url: '')];
+    List<User> listUserOnline = [User(id: '', userName: '', email: '', age: '', phoneNumber: '', listFriend: [], url: '', token: '')];
     List<User> listFriends = Provider.of<UserProfile>(context).userProfile.listFriend;
     listUserOnline.addAll(listFriends);
     double marginSearch = isSearch == true ? 150.0 : 100.0;

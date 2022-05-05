@@ -35,7 +35,8 @@ class AddFriendsState extends State<AddFriends> {
                   age: doc.data()['age'],
                   phoneNumber: doc.data()['phoneNumber'],
                   listFriend: [],
-                  url: doc.data()['url']));
+                  url: doc.data()['url'],
+                  token: ''));
             }
           }
           print(listFilted);
