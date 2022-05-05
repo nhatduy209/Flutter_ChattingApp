@@ -38,7 +38,7 @@ class RenderNewFriendItem extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(100.0),
                 child: Image.network(
-                  user.url.isEmpty ?
+                  user.url == null ?
                   'https://img.freepik.com/free-vector/mysterious-gangster-mafia-character-smoking_23-2148474614.jpg?t=st=1650615735~exp=1650616335~hmac=e739702e26831846c2cb4c0c1b3901323df00e8379fd23bf37a6c6a157b4d68b&w=740' :
                   user.url.toString(),
                   height: 80.0,
@@ -63,7 +63,7 @@ class RenderNewFriendItem extends StatelessWidget {
                     ),
                     Container(
                       width: MediaQuery.of(context).size.width * 0.5,
-                      child: Text(user.email, style: TextStyle(fontWeight: FontWeight.bold),)
+                      child: Text(user.email == null ? '--' :  user.email, style: TextStyle(fontWeight: FontWeight.bold),)
                     ),
                   ],
                 ), 

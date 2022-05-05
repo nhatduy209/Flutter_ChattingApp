@@ -27,24 +27,17 @@ class FriendProfileScreen extends StatefulWidget {
 
 class FriendProfileState extends State<FriendProfileScreen> {
   User userProfile = User(id: '', userName: '', email: '', age: '', phoneNumber: '', listFriend: [], url: '');
-  bool get checkFriend {
+  bool checkFriend(BuildContext context) {
     List<User> listFriends = Provider.of<UserProfile>(context).userProfile.listFriend;
     return listFriends.where((element) => element.userName == widget.userName).isNotEmpty;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    userProfile = User(id: '', userName: '', email: '', age: '', phoneNumber: '', listFriend: [], url: '');
-    List<User> listFriends = Provider.of<UserProfile>(context).userProfile.listFriend;
+  Future<dynamic> getListMessage(
+      {BuildContext? context}) async {
+    // Get data from docs and convert map to List
+    List<User> listFriends = Provider.of<UserProfile>(context!).userProfile.listFriend;
     var accounts = FirebaseFirestore.instance.collection('account');
-    if(widget.isAdded) {
-      setState(() {
-        userProfile = listFriends.where((element) => element.userName == widget.userName).first;
-      });
-    } else if (userProfile.id.isNotEmpty & !widget.isAdded) {
-      print(userProfile);
-      print(widget.userName);
-      accounts.get().then(
+    accounts.get().then(
         (QuerySnapshot querySnapshot) async {
           for (var doc in querySnapshot.docs) {
             if (doc.data()['username'] == widget.userName) {
@@ -58,20 +51,26 @@ class FriendProfileState extends State<FriendProfileScreen> {
                   listFriend: [],
                   url: doc.data()['url']);
               });
-              print(User(
-                  id: doc.id,
-                  userName: doc.data()['username'],
-                  email: doc.data()['email'],
-                  age: doc.data()['age'],
-                  phoneNumber: doc.data()['phoneNumber'],
-                  listFriend: [],
-                  url: doc.data()['url']));
+              // print(User(
+              //     id: doc.id,
+              //     userName: doc.data()['username'],
+              //     email: doc.data()['email'],
+              //     age: doc.data()['age'],
+              //     phoneNumber: doc.data()['phoneNumber'],
+              //     listFriend: [],
+              //     url: doc.data()['url']));
             }
           }
         }
       );
-    }
-    // TODO: implement build
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<dynamic>(
+      future: getListMessage(context: context),
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        // TODO: implement build
     return Scaffold(
         body: Container(
           child: Align(
@@ -114,7 +113,7 @@ class FriendProfileState extends State<FriendProfileScreen> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(100.0),
                             child: Image.network(
-                              userProfile.url.isNotEmpty ? userProfile.url :
+                              // userProfile.url != null ? userProfile.url.toString() :
                               'https://img.freepik.com/free-vector/call-center-concept-with-woman_23-2147939060.jpg?t=st=1651334914~exp=1651335514~hmac=ab8b01b29bfdb4432294983ff7202b6921371e9ba8cce2bc7014ce4cf5b9c77e&w=826',
                               height: 160.0,
                               width: 160.0,
@@ -147,28 +146,28 @@ class FriendProfileState extends State<FriendProfileScreen> {
                   Container(
                     margin: const EdgeInsets.only(top: 32),
                     child: Text(
-                      userProfile.userName.toString(),
+                      userProfile.userName == null ? '--' : userProfile.userName.toString(),
                       style: TextStyle(fontSize: 32),
                     ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 20),
                     child: Text(
-                      userProfile.userName.toString(),
+                      userProfile.userName == null ? '--' : userProfile.userName.toString(),
                       style: TextStyle(fontSize: 24, color: Colors.black12),
                     ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 20),
                     child: Text(
-                      userProfile.email.toString(),
+                      userProfile.email == null ? '--' : userProfile.email.toString(),
                       style: TextStyle(fontSize: 24, color: Colors.black12),
                     ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 20),
                     child: Text(
-                      userProfile.phoneNumber.toString(),
+                      userProfile.phoneNumber == null ? '--' : userProfile.phoneNumber.toString(),
                       style: TextStyle(fontSize: 24, color: Colors.black12),
                     ),
                   ),
@@ -184,7 +183,7 @@ class FriendProfileState extends State<FriendProfileScreen> {
                   ),
                   Column(
                     children: [
-                      widget.isAdded ? 
+                      checkFriend(context) ? 
                       Container(
                       // margin: const EdgeInsets.only(top: 120.0),
                       width: MediaQuery.of(context).size.width * 0.6,
@@ -202,7 +201,7 @@ class FriendProfileState extends State<FriendProfileScreen> {
                         });
                         },
                         child: Text(
-                          widget.isAdded ? 'Unfriend' : 'Cancel invitation',
+                          checkFriend(context) ? 'Unfriend' : 'Cancel invitation',
                           style: TextStyle(fontSize: 20, color: Colors.black54),),
                       )) :
                       Container(
@@ -233,5 +232,7 @@ class FriendProfileState extends State<FriendProfileScreen> {
             ))
         )
         );
+      }
+    );
   }
 }
