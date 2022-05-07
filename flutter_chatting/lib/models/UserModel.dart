@@ -18,7 +18,7 @@ class User {
       required this.email,
       required this.age,
       required this.phoneNumber,
-      password,
+      this.password,
       required this.listFriend,
       required this.url,
       required this.token});

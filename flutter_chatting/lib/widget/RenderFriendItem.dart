@@ -47,14 +47,17 @@ class RenderFriendItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(100.0),
                 child: 
                 Image.network(
-                  user.url.isEmpty ?
+                  user.url == '' ?
                   'https://img.freepik.com/free-vector/call-center-concept-with-woman_23-2147939060.jpg?t=st=1651334914~exp=1651335514~hmac=ab8b01b29bfdb4432294983ff7202b6921371e9ba8cce2bc7014ce4cf5b9c77e&w=826'
                   : user.url.toString(),
                   height: 60.0,
                   width: 60.0,
                 ),
               ),
-              Text('Admin', style: TextStyle(fontWeight: FontWeight.bold),)
+              Container(
+                margin: const EdgeInsets.only(top: 6),
+                child: Text(user.userName, style: TextStyle(fontWeight: FontWeight.bold),),
+              )
             ]
           ),
         )

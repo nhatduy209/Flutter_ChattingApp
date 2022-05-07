@@ -10,8 +10,6 @@ class UserProfile extends ChangeNotifier {
   }
 
   void setProfile(User user) async {
-    print('provider');
-    print(user.listFriend);
     _userProfile.id = user.id;
     _userProfile.age = user.age;
     _userProfile.userName = user.userName;

@@ -20,6 +20,7 @@ import '../../models/BubleMessageModel.dart';
 import '../../models/UserModel.dart';
 import '../../models/UserProfileProvider.dart';
 import '../chatting/Chating.dart';
+import '../notification/Notifications.dart';
 import '../settings/Settings.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -94,6 +95,10 @@ class HomeRoute extends State<HomeRouteState> {
                   BottomNavigationBarItem(
                     icon: Icon(Icons.person_add),
                     label: 'Find friends',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.notifications),
+                    label: 'Notification',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.settings),
@@ -243,7 +248,9 @@ class HomeRoute extends State<HomeRouteState> {
                     ])
                   : selectedTab == 1
                       ? const Friends()
-                      : const SettingsApp());
+                      : selectedTab == 2
+                        ? const NotificationScreen()
+                        : const SettingsApp());
         });
   }
 }

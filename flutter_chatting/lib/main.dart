@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/common/firebase.dart';
 import 'package:flutter_chatting/models/ListBubbeMessageProvider.dart';
+import 'package:flutter_chatting/models/NotificationProvider.dart';
 import 'package:flutter_chatting/models/UserModel.dart';
 import 'package:flutter_chatting/models/UserProfileProvider.dart';
 import 'package:flutter_chatting/screen/Home/Home.dart';
@@ -65,6 +66,7 @@ void main() async {
     providers: [
       ChangeNotifierProvider(create: (context) => ListUserModel()),
       ChangeNotifierProvider(create: (context) => UserProfile()),
+      ChangeNotifierProvider(create: (context) => NotificationProvider()),
     ],
     child: const MyApp(),
   ));
@@ -111,21 +113,21 @@ class _MyHomePageState extends State<MyHomePage> {
       });
       final listUser = [];
       final allData = [];
-      for (var doc in querySnapshot.docs) {
-        allData.add(doc.data());
-        if (doc.data()['username'] == username.text) {
-          listUser.add(User(
-              id: doc.id,
-              userName: doc.data()['username'],
-              email: doc.data()['email'],
-              age: doc.data()['age'],
-              phoneNumber: doc.data()['phoneNumber'],
-              password: doc.data()['password'],
-              listFriend: doc.data()['listFriend'],
-              url: doc.data()['url'],
-              token: ''));
-        }
-      }
+      // for (var doc in querySnapshot.docs) {
+      //   allData.add(doc.data());
+      //   if (doc.data()['username'] == username.text) {
+      //     listUser.add(User(
+      //         id: doc.id,
+      //         userName: doc.data()['username'],
+      //         email: doc.data()['email'],
+      //         age: doc.data()['age'],
+      //         phoneNumber: doc.data()['phoneNumber'],
+      //         password: doc.data()['password'],
+      //         listFriend: [],
+      //         url: doc.data()['url'],
+      //         token: ''));
+      //   }
+      // }
       var exist = allData.where((item) =>
           item['username'] == username.text &&
           item['password'] == password.text);
@@ -311,6 +313,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         email: listUser[0]['email'],
                                         age: listUser[0]['age'],
                                         phoneNumber: listUser[0]['phoneNumber'],
+                                        password: listUser[0]['password'],
                                         listFriend: friends,
                                         url: listUser[0]['url'],
                                         token: '')

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chatting/models/NotiModel.dart';
 import 'package:flutter_chatting/models/UserModel.dart';
 import 'package:flutter_chatting/models/UserProfileProvider.dart';
 import 'package:flutter_chatting/screen/User_online.dart';
@@ -28,16 +29,19 @@ class FriendProfileScreen extends StatefulWidget {
 class FriendProfileState extends State<FriendProfileScreen> {
   User userProfile = User(id: '', userName: '', email: '', age: '', phoneNumber: '', listFriend: [], url: '', token: '');
   bool checkFriend(BuildContext context) {
-    List<User> listFriends = Provider.of<UserProfile>(context).userProfile.listFriend;
+    List<User> listFriends = Provider.of<UserProfile>(context, listen: false).userProfile.listFriend;
     return listFriends.where((element) => element.userName == widget.userName).isNotEmpty;
   }
+  bool isSent = false;
+  CollectionReference noti =
+      FirebaseFirestore.instance.collection('notification');
+  CollectionReference accounts = FirebaseFirestore.instance.collection('account');
 
   Future<dynamic> getListMessage(
       {BuildContext? context}) async {
     // Get data from docs and convert map to List
-    List<User> listFriends = Provider.of<UserProfile>(context!).userProfile.listFriend;
-    var accounts = FirebaseFirestore.instance.collection('account');
-    accounts.get().then(
+    User profile = Provider.of<UserProfile>(context!).userProfile;
+    await accounts.get().then(
         (QuerySnapshot querySnapshot) async {
           for (var doc in querySnapshot.docs) {
             if (doc.data()['username'] == widget.userName) {
@@ -49,25 +53,98 @@ class FriendProfileState extends State<FriendProfileScreen> {
                   age: doc.data()['age'],
                   phoneNumber: doc.data()['phoneNumber'],
                   listFriend: [],
+                  password: doc.data()['password'],
                   url: doc.data()['url'],
                   token: '');
               });
-              // print(User(
-              //     id: doc.id,
-              //     userName: doc.data()['username'],
-              //     email: doc.data()['email'],
-              //     age: doc.data()['age'],
-              //     phoneNumber: doc.data()['phoneNumber'],
-              //     listFriend: [],
-              //     url: doc.data()['url']));
             }
           }
         }
       );
+    await noti.get().then((value) => {
+        if (value.docs.where((user) => user.data()['from'] == profile.userName && user.data()['username'] == userProfile.userName).length > 0) {
+          setState(() {
+            isSent = true;
+          })
+        } else {
+          setState(() {
+            isSent = false;
+          })
+        }
+      }
+    );
   }
+
+  Future<dynamic> sendInvitation(BuildContext context) async {
+    User profile = Provider.of<UserProfile>(context, listen: false).userProfile;
+    await noti.add({
+      'username': widget.userName,
+      'url': profile.url,
+      'from': profile.userName
+    });
+  }
+  Future update(DocumentSnapshot ds, User profile, var listFriends) async {
+    ds.reference.set({
+              'username': profile.userName,
+              'email': profile.email,
+              'age': profile.age,
+              'phoneNumber':
+                  profile.phoneNumber,
+              'password': profile.password,
+              'listFriend': listFriends,
+              'url': profile.url
+            });
+  }
+  Future cancel(BuildContext context) async {
+    User profile = Provider.of<UserProfile>(context, listen: false).userProfile;
+    if (checkFriend(context)) {
+      var listFriends = profile.listFriend.where((element) => element.userName != widget.userName).map((e) => e.userName).toList();
+      var lFriend = [];
+      accounts.get().then((snapshot) => {
+        for (DocumentSnapshot ds in snapshot.docs){
+          if (ds.data()['username'] == profile.userName) {
+            update(ds, profile, listFriends)
+            .then((value) => {
+              profile.listFriend = profile.listFriend.where((element) => element.userName != widget.userName).toList(),
+              Provider.of<UserProfile>(context, listen: false).setProfile(profile)})
+            .catchError((error) => print(error)),
+          }
+          else if (ds.data()['username'] == widget.userName) {
+            lFriend = ds.data()['listFriend'].where((element) => element != profile.userName).toList(),
+            update(ds, User(
+                  id: ds.id,
+                  userName: ds.data()['username'],
+                  email: ds.data()['email'],
+                  age: ds.data()['age'],
+                  phoneNumber: ds.data()['phoneNumber'],
+                  listFriend: [],
+                  url: ds.data()['url'],
+                  password: ds.data()['password'],
+                  token: ds.data()['token']), lFriend)
+          }
+        }
+      });
+    } else {
+      await noti.get().then((snapshot) => {
+        for (DocumentSnapshot ds in snapshot.docs){
+          if (ds.data()['username'] == widget.userName) {
+            ds.reference.delete()
+          }
+        }
+      });
+    }
+  }
+  // Future<bool> checkAddedFirend(BuildContext context) async {
+  //   QuerySnapshot data = await noti.get();
+  //   data.docs.forEach((el) => print(el['username'] == widget.userName));
+  //   print(data.docs.where((element) => element['username'] == widget.userName && element['from'] == userProfile.userName).isNotEmpty);
+
+  //   return data.docs.where((element) => element['username'] == widget.userName && element['from'] == userProfile.userName).isNotEmpty;
+  // }
 
   @override
   Widget build(BuildContext context) {
+    // print(isSent);
     return FutureBuilder<dynamic>(
       future: getListMessage(context: context),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -114,8 +191,9 @@ class FriendProfileState extends State<FriendProfileScreen> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(100.0),
                             child: Image.network(
-                              // userProfile.url != null ? userProfile.url.toString() :
-                              'https://img.freepik.com/free-vector/call-center-concept-with-woman_23-2147939060.jpg?t=st=1651334914~exp=1651335514~hmac=ab8b01b29bfdb4432294983ff7202b6921371e9ba8cce2bc7014ce4cf5b9c77e&w=826',
+                              userProfile.url == ''
+                              ? 'https://img.freepik.com/free-vector/call-center-concept-with-woman_23-2147939060.jpg?t=st=1651334914~exp=1651335514~hmac=ab8b01b29bfdb4432294983ff7202b6921371e9ba8cce2bc7014ce4cf5b9c77e&w=826'
+                              : userProfile.url.toString(),
                               height: 160.0,
                               width: 160.0,
                             ),
@@ -147,29 +225,29 @@ class FriendProfileState extends State<FriendProfileScreen> {
                   Container(
                     margin: const EdgeInsets.only(top: 32),
                     child: Text(
-                      userProfile.userName == null ? '--' : userProfile.userName.toString(),
+                      userProfile.userName == '' ? '--' : userProfile.userName.toString(),
                       style: TextStyle(fontSize: 32),
                     ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 20),
                     child: Text(
-                      userProfile.userName == null ? '--' : userProfile.userName.toString(),
-                      style: TextStyle(fontSize: 24, color: Colors.black12),
+                      userProfile.userName == '' ? '--' : userProfile.userName.toString(),
+                      style: TextStyle(fontSize: 24, color: Colors.black38),
                     ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 20),
                     child: Text(
-                      userProfile.email == null ? '--' : userProfile.email.toString(),
-                      style: TextStyle(fontSize: 24, color: Colors.black12),
+                      userProfile.email == '' ? '--' : userProfile.email.toString(),
+                      style: TextStyle(fontSize: 24, color: Colors.black38),
                     ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 20),
                     child: Text(
-                      userProfile.phoneNumber == null ? '--' : userProfile.phoneNumber.toString(),
-                      style: TextStyle(fontSize: 24, color: Colors.black12),
+                      userProfile.phoneNumber == '' ? '--' : userProfile.phoneNumber.toString(),
+                      style: TextStyle(fontSize: 24, color: Colors.black38),
                     ),
                   ),
                   Container(
@@ -184,7 +262,7 @@ class FriendProfileState extends State<FriendProfileScreen> {
                   ),
                   Column(
                     children: [
-                      checkFriend(context) ? 
+                      checkFriend(context) || isSent == true ? 
                       Container(
                       // margin: const EdgeInsets.only(top: 120.0),
                       width: MediaQuery.of(context).size.width * 0.6,
@@ -197,9 +275,11 @@ class FriendProfileState extends State<FriendProfileScreen> {
                               borderRadius: BorderRadius.circular(50)),
                         ),
                         onPressed: () {
-                          setState(() {
-                          // widget.isAdded= !widget.isAdded;
-                        });
+                        //   setState(() async {
+                        //   // widget.isAdded= !widget.isAdded;
+                        //   await 
+                        // });
+                          cancel(context);
                         },
                         child: Text(
                           checkFriend(context) ? 'Unfriend' : 'Cancel invitation',
@@ -218,7 +298,7 @@ class FriendProfileState extends State<FriendProfileScreen> {
                             ),
                             onPressed: () {
                               setState(() {
-                          // widget.isAdded= !widget.isAdded;
+                                sendInvitation(context);
                         });
                             },
                             child: Text(
