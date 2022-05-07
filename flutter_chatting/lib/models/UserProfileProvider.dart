@@ -4,13 +4,14 @@ import 'package:flutter_chatting/models/UserModel.dart';
 
 class UserProfile extends ChangeNotifier {
   final User _userProfile = User(
-      id: '',
-      userName: '',
-      email: '',
-      age: '',
-      phoneNumber: '',
-      url: '',
-      token: '');
+    id: '',
+    userName: '',
+    email: '',
+    age: '',
+    phoneNumber: '',
+    url: '',
+    token: '',
+  );
   User get userProfile {
     return _userProfile;
   }

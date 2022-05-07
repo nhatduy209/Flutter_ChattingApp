@@ -80,11 +80,11 @@ class ChattingState extends State<Chatting> {
     var idMess = genID.v1();
 
     if (listImage.isEmpty) {
-      // messages.doc(idChatting).collection('listmessage').add({
-      //   'message': message,
-      //   'Time': DateTime.now(),
-      //   'id': '$idMess-$username'
-      // });
+      messages.doc(idChatting).collection('listmessage').add({
+        'message': message,
+        'Time': DateTime.now(),
+        'id': '$idMess-$username'
+      });
 
       setState(() => {
             listMessages.insert(
