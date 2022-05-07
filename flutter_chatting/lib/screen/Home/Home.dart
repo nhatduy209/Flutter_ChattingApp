@@ -61,7 +61,7 @@ class HomeRoute extends State<HomeRouteState> {
                       isScrollControlled: true,
                       context: context,
                       builder: (BuildContext context) {
-                        return const ModalAddGroupChat();
+                        return ModalAddGroupChat();
                       },
                     );
                   },

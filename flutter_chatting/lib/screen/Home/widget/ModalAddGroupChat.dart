@@ -2,14 +2,50 @@ import 'dart:ffi';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chatting/models/ListBubbeMessageProvider.dart';
+import 'package:flutter_chatting/models/ListGroupChat.dart';
 import 'package:flutter_chatting/models/UserModel.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class ModalAddGroupChat extends StatelessWidget {
-  const ModalAddGroupChat({Key? key}) : super(key: key);
+  //const ModalAddGroupChat({Key? key}) : super(key: key);
+
+  CollectionReference messages =
+      FirebaseFirestore.instance.collection('message');
+
+  Future<void> handleAddGroupChat(List<Map<String, bool>> getListCheck) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    var currentUser = prefs.getString('username');
+
+    List<String> groupName = [currentUser];
+    for (var index = 0; index < getListCheck.length; index++) {
+      getListCheck[index].keys.forEach((element) {
+        if (getListCheck[index][element] == true) {
+          groupName.add(element);
+        }
+      });
+    }
+    var genID = new Uuid();
+    var idMess = genID.v1();
+
+    String groupChat = groupName.join('_');
+    print('GROUP CHAT CREATE ----' + groupChat);
+    messages.doc(groupChat).set({
+      'name': 'Group created by ${currentUser}',
+    });
+    messages.doc(groupChat).collection('listmessage').add({
+      'message': 'Group created by ${currentUser}',
+      'Time': DateTime.now(),
+      'id': '$idMess-${currentUser}'
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    var listCheckBox = Provider.of<ListGroupChat>(context);
     return SizedBox(
         height: MediaQuery.of(context).size.height,
         child: Container(
@@ -28,7 +64,9 @@ class ModalAddGroupChat extends StatelessWidget {
                   child: const Text('New group chat'),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    handleAddGroupChat(listCheckBox.getListCheck);
+                  },
                   child: const Text('Add'),
                 ),
               ]),
@@ -49,7 +87,9 @@ class ListFriends extends StatefulWidget {
 
 class ListFriendsState extends State<ListFriends> {
   List<dynamic> listFriends = [];
-  Future<void> getListFriends() async {
+
+  //List<Map<String, bool>> listCheck = [];
+  Future<void> getListFriends(ListGroupChat listCheckBoxs) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     var currentUser = prefs.getString('username');
@@ -62,7 +102,14 @@ class ListFriendsState extends State<ListFriends> {
         User user = User.fromJson(doc.data());
 
         if (currentUser == user.userName) {
-          setState(() => {listFriends = user.listFriends});
+          List<Map<String, bool>> listCheckBox = [];
+          for (var element in user.listFriends) {
+            listCheckBox.add({'$element': false});
+          }
+          setState(() => {
+                listFriends = user.listFriends,
+                listCheckBoxs.listCheck = listCheckBox
+              });
         }
       }
     });
@@ -70,9 +117,9 @@ class ListFriendsState extends State<ListFriends> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
+    var listCheckBox = Provider.of<ListGroupChat>(context);
     listFriends.isEmpty
-        ? getListFriends()
+        ? getListFriends(listCheckBox)
         : print('LENGHT : ' + listFriends.length.toString());
 
     return listFriends.isNotEmpty
@@ -81,13 +128,6 @@ class ListFriendsState extends State<ListFriends> {
             itemBuilder: (BuildContext context, int index) {
               return Container(
                 margin: const EdgeInsets.only(top: 15, bottom: 15),
-                // decoration: const BoxDecoration(
-                //     border: Border(
-                //   bottom: BorderSide(
-                //     color: Colors.black,
-                //     width: 0.5,
-                //   ),
-                // )),
                 child: Row(
                   children: [
                     Container(
@@ -96,40 +136,24 @@ class ListFriendsState extends State<ListFriends> {
                         height: 50,
                         child: CircleAvatar(
                           backgroundImage: NetworkImage(
-                              'https://picsum.photos/id/237/200/300'),
+                              'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.istockphoto.com%2Fphotos%2Fblank-avatar&psig=AOvVaw3VFHw0I-PbgMeYBBSY7dDd&ust=1652014205254000&source=images&cd=vfe&ved=0CAwQjRxqFwoTCPj-5c-2zfcCFQAAAAAdAAAAABAR'),
                         )),
                     Text(listFriends[index],
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     const Spacer(),
-                    const CheckBox(),
+                    Checkbox(
+                      checkColor: Color.fromARGB(255, 18, 234, 129),
+                      activeColor: Colors.white,
+                      value: listCheckBox.getListCheck[index].values.first,
+                      onChanged: (bool? value) {
+                        listCheckBox.setCheckBox(value, index);
+                      },
+                    )
                   ],
                 ),
               );
             })
         : const Center(
             child: Text('You don`t have any friends, find your friends now'));
-  }
-}
-
-class CheckBox extends StatefulWidget {
-  const CheckBox({Key? key}) : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => CheckBoxState();
-}
-
-class CheckBoxState extends State<CheckBox> {
-  bool? isCheck = false;
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Checkbox(
-      checkColor: Color.fromARGB(255, 18, 234, 129),
-      activeColor: Colors.white,
-      value: isCheck,
-      onChanged: (bool? value) {
-        setState(() => {isCheck = value});
-      },
-    );
   }
 }
