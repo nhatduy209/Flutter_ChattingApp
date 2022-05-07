@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chatting/common/firebase.dart';
 import 'package:flutter_chatting/models/ListBubbeMessageProvider.dart';
 import 'package:flutter_chatting/models/NotificationProvider.dart';
+import 'package:flutter_chatting/models/ListGroupChat.dart';
 import 'package:flutter_chatting/models/UserModel.dart';
 import 'package:flutter_chatting/models/UserProfileProvider.dart';
 import 'package:flutter_chatting/screen/Home/Home.dart';
@@ -67,6 +68,7 @@ void main() async {
       ChangeNotifierProvider(create: (context) => ListUserModel()),
       ChangeNotifierProvider(create: (context) => UserProfile()),
       ChangeNotifierProvider(create: (context) => NotificationProvider()),
+      ChangeNotifierProvider(create: (context) => ListGroupChat()),
     ],
     child: const MyApp(),
   ));
@@ -221,7 +223,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               // ),
                               controller: password,
                               decoration: const InputDecoration(
-                                  hintText: 'Enter your username',
+                                  hintText: 'Enter your password',
                                   border: InputBorder.none),
                             ),
                           )),

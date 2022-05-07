@@ -12,6 +12,7 @@ class User {
   String url;
   List<User> listFriend;
   String token;
+  List<dynamic> listFriends = [];
   User(
       {required this.id,
       required this.userName,
@@ -21,7 +22,8 @@ class User {
       this.password,
       required this.listFriend,
       required this.url,
-      required this.token});
+      required this.token,
+      listFriends});
 
   User.fromJson(Map<String, dynamic> json)
       : id = json['id'],
@@ -31,7 +33,8 @@ class User {
         phoneNumber = json['phoneNumber'],
         listFriend = json['listFriend'],
         url = json['url'],
-        token = json['token'];
+        token = json['token'],
+        listFriends = json['listFriend'];
 
   Map<String, dynamic> toJson() => {
         'userName': userName,
@@ -41,6 +44,7 @@ class User {
         'listFriend': listFriend,
         'url': url,
         'token': token,
+        'listFriend': listFriends
       };
 
   set setPassword(String _password) {

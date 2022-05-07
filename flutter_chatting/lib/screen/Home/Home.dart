@@ -8,6 +8,7 @@ import 'package:flutter_chatting/main.dart';
 import 'package:flutter_chatting/models/ListBubbeMessageProvider.dart';
 import 'package:flutter_chatting/screen/Home/HomeEvent.dart';
 import 'package:flutter_chatting/screen/Home/widget/BubbleMessageSlide.dart';
+import 'package:flutter_chatting/screen/Home/widget/ModalAddGroupChat.dart';
 import 'package:flutter_chatting/screen/Home/widget/SearchText.dart';
 import 'package:flutter_chatting/screen/User_online.dart';
 import 'package:flutter_chatting/screen/friends/AddFriend.dart';
@@ -83,6 +84,18 @@ class HomeRoute extends State<HomeRouteState> {
         future: listUsers.getAllUsers(isSearch),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           return Scaffold(
+              floatingActionButton: FloatingActionButton(
+                  child: const Icon(Icons.person_add_alt, color: Colors.black),
+                  onPressed: () {
+                    showModalBottomSheet<void>(
+                      isScrollControlled: true,
+                      context: context,
+                      builder: (BuildContext context) {
+                        return ModalAddGroupChat();
+                      },
+                    );
+                  },
+                  backgroundColor: Colors.deepPurple[100]),
               bottomNavigationBar: BottomNavigationBar(
                 selectedItemColor: Colors.black,
                 currentIndex: selectedTab,

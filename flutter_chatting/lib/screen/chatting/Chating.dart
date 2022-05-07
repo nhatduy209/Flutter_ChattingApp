@@ -72,7 +72,7 @@ class ChattingState extends State<Chatting> {
       FirebaseFirestore.instance.collection('account');
 
   Future sendMessage(message, idChatting) async {
-    print('GET TOKEN ----' + tokenDevice);
+    print('GET TOKEN ----' + idChatting);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String username = prefs.getString('username');
 
@@ -80,11 +80,11 @@ class ChattingState extends State<Chatting> {
     var idMess = genID.v1();
 
     if (listImage.isEmpty) {
-      // messages.doc(idChatting).collection('listmessage').add({
-      //   'message': message,
-      //   'Time': DateTime.now(),
-      //   'id': '$idMess-$username'
-      // });
+      messages.doc(idChatting).collection('listmessage').add({
+        'message': message,
+        'Time': DateTime.now(),
+        'id': '$idMess-$username'
+      });
 
       setState(() => {
             listMessages.insert(
