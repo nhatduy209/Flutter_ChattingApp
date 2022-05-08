@@ -45,7 +45,7 @@ class SettingsApp extends StatelessWidget {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => FriendProfileScreen()),
+                            MaterialPageRoute(builder: (context) => ProfileScreen()),
                           );
                         },
                         child: const ListTile(

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 
 class User {
@@ -9,18 +10,20 @@ class User {
   String phoneNumber;
   String? password;
   String url;
+  List<User> listFriend;
   String token;
-  List<dynamic> listFriends = [];
-  User(
-      {required this.id,
-      required this.userName,
-      required this.email,
-      required this.age,
-      required this.phoneNumber,
-      password,
-      required this.url,
-      required this.token,
-      listFriends});
+
+  User({
+    required this.id,
+    required this.userName,
+    required this.email,
+    required this.age,
+    required this.phoneNumber,
+    this.password,
+    required this.listFriend,
+    required this.url,
+    required this.token,
+  });
 
   User.fromJson(Map<String, dynamic> json)
       : id = json['id'],
@@ -28,18 +31,18 @@ class User {
         email = json['email'],
         age = json['age'],
         phoneNumber = json['phoneNumber'],
+        listFriend = json['listFriend'],
         url = json['url'],
-        token = json['token'],
-        listFriends = json['listFriend'];
+        token = json['token'];
 
   Map<String, dynamic> toJson() => {
         'userName': userName,
         'email': email,
         'age': age,
         'phoneNumber': phoneNumber,
+        'listFriend': listFriend,
         'url': url,
         'token': token,
-        'listFriend': listFriends
       };
 
   set setPassword(String _password) {
@@ -77,4 +80,10 @@ class User {
   }
 
   String get getPhoneNumber => phoneNumber;
+
+  List<User> get getListFriend => listFriend;
+
+  set setListFriend(List<User> _listFriend) {
+    listFriend = _listFriend;
+  }
 }

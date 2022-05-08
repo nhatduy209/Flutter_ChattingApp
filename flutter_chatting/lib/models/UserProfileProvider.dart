@@ -3,27 +3,21 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_chatting/models/UserModel.dart';
 
 class UserProfile extends ChangeNotifier {
-  final User _userProfile = User(
-    id: '',
-    userName: '',
-    email: '',
-    age: '',
-    phoneNumber: '',
-    url: '',
-    token: '',
-  );
+  final User _userProfile =
+      User(id: '', userName: '', email: '', age: '', phoneNumber: '', url: '', listFriend: [], token: '');
   User get userProfile {
     return _userProfile;
   }
 
-  void setProfile(dynamic user) async {
-    userProfile.id = user.id;
-    userProfile.age = user.age;
-    userProfile.userName = user.userName;
-    userProfile.email = user.email;
-    userProfile.phoneNumber = user.phoneNumber;
-    userProfile.password = user.password;
-    userProfile.url = user.url;
+  void setProfile(User user) async {
+    _userProfile.id = user.id;
+    _userProfile.age = user.age;
+    _userProfile.userName = user.userName;
+    _userProfile.email = user.email;
+    _userProfile.phoneNumber = user.phoneNumber;
+    _userProfile.listFriend = user.listFriend;
+    _userProfile.password = user.password;
+    _userProfile.url = user.url;
     notifyListeners();
   }
 }

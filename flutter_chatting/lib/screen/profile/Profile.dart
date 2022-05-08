@@ -19,7 +19,7 @@ class ProfileScreen extends StatefulWidget {
 
 class ProfileState extends State<ProfileScreen> {
   List<File> listImage = <File>[];
-  var userProfile = User(id: '', userName: '', email: '', age: '', phoneNumber: '', url: '', token: '');
+  var userProfile = User(id: '', userName: '', email: '', age: '', phoneNumber: '', url: '', listFriend: [], token: '');
   final phoneNumber = TextEditingController();
   final age = TextEditingController();
   final email = TextEditingController();
@@ -46,18 +46,18 @@ class ProfileState extends State<ProfileScreen> {
       var listImageUrl = await uploadImageToFirebase(listImage);
       url = listImageUrl.isNotEmpty ? listImageUrl[0] : '';
     }
-    if (password.text.isNotEmpty) {
-      if (confirmPassword.text == password.text) {
-        var accounts = await FirebaseFirestore.instance.collection('account');
-        accounts.doc(userProfile.id).update({
-          'age': age.text, 'phoneNumber': phoneNumber.text, 'url': url,
-          'password': password.text
-        }).then((value) => print('success'));
-      } else {
-        print('password is wrong!');
-      }
-      return;
-    }
+    // if (password.text.isNotEmpty) {
+    //   if (confirmPassword.text == password.text) {
+    //     var accounts = await FirebaseFirestore.instance.collection('account');
+    //     accounts.doc(userProfile.id).update({
+    //       'age': age.text, 'phoneNumber': phoneNumber.text, 'url': url,
+    //       'password': password.text
+    //     }).then((value) => print('success'));
+    //   } else {
+    //     print('password is wrong!');
+    //   }
+    //   return;
+    // }
     var accounts = await FirebaseFirestore.instance.collection('account');
     accounts.doc(userProfile.id).update({
      'age': age.text, 'phoneNumber': phoneNumber.text, 'url': url
@@ -109,7 +109,7 @@ class ProfileState extends State<ProfileScreen> {
       age.text = userProfile.age;
       email.text = userProfile.email;
       userName.text = userProfile.userName;
-      url = userProfile.url.isEmpty ? url : userProfile.url;
+      url = userProfile.url != null ? url : userProfile.url;
       print(userProfile.url);
     }
     // TODO: implement build
@@ -140,7 +140,8 @@ class ProfileState extends State<ProfileScreen> {
                       borderRadius: BorderRadius.circular(100.0),
                       child:
                       listImage.isEmpty && url.isNotEmpty ? Image.network(
-                        userProfile.url.isNotEmpty ? userProfile.url : 'https://img.freepik.com/free-vector/mysterious-gangster-mafia-character-smoking_23-2148474614.jpg?t=st=1650615735~exp=1650616335~hmac=e739702e26831846c2cb4c0c1b3901323df00e8379fd23bf37a6c6a157b4d68b&w=740',
+                        // userProfile.url.isNotEmpty ? userProfile.url :
+                        'https://img.freepik.com/free-vector/mysterious-gangster-mafia-character-smoking_23-2148474614.jpg?t=st=1650615735~exp=1650616335~hmac=e739702e26831846c2cb4c0c1b3901323df00e8379fd23bf37a6c6a157b4d68b&w=740',
                         height: 100.0,
                         width: 100.0,
                       ) : 
