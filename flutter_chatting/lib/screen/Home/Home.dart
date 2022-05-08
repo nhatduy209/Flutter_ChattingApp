@@ -98,20 +98,30 @@ class HomeRoute extends State<HomeRouteState> {
                   backgroundColor: Colors.deepPurple[100]),
               bottomNavigationBar: BottomNavigationBar(
                 selectedItemColor: Colors.black,
+                unselectedItemColor: Colors.black26,
+                elevation: 0,
                 currentIndex: selectedTab,
                 onTap: onChangeSelectedTab,
                 items: const <BottomNavigationBarItem>[
                   BottomNavigationBarItem(
                     icon: Icon(Icons.message),
-                    label: 'Home',
+                    // activeIcon: Container(
+                    //   padding: const EdgeInsets.all(12),
+                    //     decoration: const BoxDecoration(
+                    //       color: Colors.amber,
+                    //       borderRadius: BorderRadius.all(Radius.circular(12))
+                    //   ),
+                    //   child: Icon(Icons.message),
+                    // ),
+                    label: 'Messages',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.person_add),
-                    label: 'Find friends',
+                    label: 'My friends',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.notifications),
-                    label: 'Notification',
+                    label: 'Notifications',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.settings),

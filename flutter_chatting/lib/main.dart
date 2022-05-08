@@ -109,56 +109,93 @@ class _MyHomePageState extends State<MyHomePage> {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   Future<void> handleLogin(UserProfile userProfile) async {
-    accounts.get().then((QuerySnapshot querySnapshot) async {
+    accounts.get().then(
+        (QuerySnapshot querySnapshot) async {
       setState(() {
         isPressLogin = true;
       });
       final listUser = [];
       final allData = [];
-      // for (var doc in querySnapshot.docs) {
-      //   allData.add(doc.data());
-      //   if (doc.data()['username'] == username.text) {
-      //     listUser.add(User(
-      //         id: doc.id,
-      //         userName: doc.data()['username'],
-      //         email: doc.data()['email'],
-      //         age: doc.data()['age'],
-      //         phoneNumber: doc.data()['phoneNumber'],
-      //         password: doc.data()['password'],
-      //         listFriend: [],
-      //         url: doc.data()['url'],
-      //         token: ''));
-      //   }
-      // }
+      for (var doc in querySnapshot.docs) {
+        allData.add(doc.data());
+        if (doc.data()['username'] ==
+            username.text) {
+          listUser.add({
+              'id': doc.id,
+              'userName': doc.data()['username'],
+              'email': doc.data()['email'],
+              'age': doc.data()['age'],
+              'phoneNumber':
+                  doc.data()['phoneNumber'],
+              'password': doc.data()['password'],
+              'listFriend': doc.data()['listFriend'],
+              'url': doc.data()['url']});
+        }
+      }
       var exist = allData.where((item) =>
           item['username'] == username.text &&
           item['password'] == password.text);
 
-      if (exist.isNotEmpty &&
+      if (exist.length > 0 &&
           username.text.isNotEmpty &&
           password.text.isNotEmpty) {
-        String? token = await messaging.getToken();
-        makeOnline(username.text, token);
-        SharedPreferences prefs = await SharedPreferences.getInstance();
+        makeOnline(username.text, '');
+        SharedPreferences prefs =
+            await SharedPreferences.getInstance();
         // Set
-        prefs.setString('username', username.text);
-        print(exist.toList()[0]);
-        print(listUser[0].id);
-        userProfile.setProfile(listUser[0]);
+        prefs.setString(
+            'username', username.text);
+        final List<User> friends = [];
+        for (var friend in listUser[0]['listFriend']) {
+          var data = querySnapshot.docs.firstWhere((element) => element.data()['username'] == friend);                           
+          friends.add(User(
+          id: data.id,
+          userName: data.data()['username'],
+          email: data.data()['email'],
+          age: data.data()['age'],
+          phoneNumber: data.data()['phoneNumber'],
+          listFriend: [],
+          url: data.data()['url'],
+          token: '')
+          );
+        }
+        userProfile.setProfile(User(
+          id: listUser[0]['id'],
+          userName: listUser[0]['userName'],
+          email: listUser[0]['email'],
+          age: listUser[0]['age'],
+          phoneNumber: listUser[0]['phoneNumber'],
+          password: listUser[0]['password'],
+          listFriend: friends,
+          url: listUser[0]['url'],
+          token: '')
+        );
 
-        ScaffoldMessenger.of(context).showSnackBar(loginSuccessBar);
-
+        // Fluttertoast.showToast(
+        //     msg: "Login successfully",
+        //     toastLength: Toast.LENGTH_SHORT,
+        //     gravity: ToastGravity.CENTER,
+        //     timeInSecForIosWeb: 1,
+        //     backgroundColor: Colors.green[500],
+        //     textColor: Colors.white,
+        //     fontSize: 16.0);
         setState(() => isPressLogin = false);
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => HomeRouteState(
+              builder: (context) =>
+                  HomeRouteState(
                     title: 'Home',
                   )),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(loginFailBar);
-
+        // Fluttertoast.showToast(
+        //     msg: "Login fail",
+        //     toastLength: Toast.LENGTH_SHORT,
+        //     gravity: ToastGravity.CENTER,
+        //     backgroundColor: Colors.red,
+        //     textColor: Colors.white,
+        //     fontSize: 20.0);
         setState(() => isPressLogin = false);
       }
     });
@@ -259,96 +296,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         borderRadius:
                                             BorderRadius.circular(30.0))),
                               ),
-                              onPressed: () => accounts.get().then(
-                                      (QuerySnapshot querySnapshot) async {
-                                    setState(() {
-                                      isPressLogin = true;
-                                    });
-                                    final listUser = [];
-                                    final allData = [];
-                                    for (var doc in querySnapshot.docs) {
-                                      allData.add(doc.data());
-                                      if (doc.data()['username'] ==
-                                          username.text) {
-                                        listUser.add({
-                                            'id': doc.id,
-                                            'userName': doc.data()['username'],
-                                            'email': doc.data()['email'],
-                                            'age': doc.data()['age'],
-                                            'phoneNumber':
-                                                doc.data()['phoneNumber'],
-                                            'password': doc.data()['password'],
-                                            'listFriend': doc.data()['listFriend'],
-                                            'url': doc.data()['url']});
-                                      }
-                                    }
-                                    var exist = allData.where((item) =>
-                                        item['username'] == username.text &&
-                                        item['password'] == password.text);
-
-                                    if (exist.length > 0 &&
-                                        username.text.isNotEmpty &&
-                                        password.text.isNotEmpty) {
-                                      makeOnline(username.text, '');
-                                      SharedPreferences prefs =
-                                          await SharedPreferences.getInstance();
-                                      // Set
-                                      prefs.setString(
-                                          'username', username.text);
-                                      final List<User> friends = [];
-                                      for (var friend in listUser[0]['listFriend']) {
-                                        var data = querySnapshot.docs.firstWhere((element) => element.data()['username'] == friend);                           
-                                        friends.add(User(
-                                        id: data.id,
-                                        userName: data.data()['username'],
-                                        email: data.data()['email'],
-                                        age: data.data()['age'],
-                                        phoneNumber: data.data()['phoneNumber'],
-                                        listFriend: [],
-                                        url: data.data()['url'],
-                                        token: '')
-                                        );
-                                      }
-                                      userProfile.setProfile(User(
-                                        id: listUser[0]['id'],
-                                        userName: listUser[0]['userName'],
-                                        email: listUser[0]['email'],
-                                        age: listUser[0]['age'],
-                                        phoneNumber: listUser[0]['phoneNumber'],
-                                        password: listUser[0]['password'],
-                                        listFriend: friends,
-                                        url: listUser[0]['url'],
-                                        token: '')
-                                      );
-
-                                      // Fluttertoast.showToast(
-                                      //     msg: "Login successfully",
-                                      //     toastLength: Toast.LENGTH_SHORT,
-                                      //     gravity: ToastGravity.CENTER,
-                                      //     timeInSecForIosWeb: 1,
-                                      //     backgroundColor: Colors.green[500],
-                                      //     textColor: Colors.white,
-                                      //     fontSize: 16.0);
-                                      setState(() => isPressLogin = false);
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                HomeRouteState(
-                                                  title: 'Home',
-                                                )),
-                                      );
-                                    } else {
-                                      // Fluttertoast.showToast(
-                                      //     msg: "Login fail",
-                                      //     toastLength: Toast.LENGTH_SHORT,
-                                      //     gravity: ToastGravity.CENTER,
-                                      //     backgroundColor: Colors.red,
-                                      //     textColor: Colors.white,
-                                      //     fontSize: 20.0);
-                                      setState(() => isPressLogin = false);
-                                    }
-                                  }),
+                              onPressed: () => handleLogin(userProfile),
                               child: Text('Sign in',
                                   style: TextStyle(fontSize: 25)))),
                       Container(

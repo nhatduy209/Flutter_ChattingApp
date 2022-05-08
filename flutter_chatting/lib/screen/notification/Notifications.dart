@@ -28,8 +28,8 @@ class NotificationScreenState extends State<NotificationScreen> {
         final List<Noti> list = [];
         await noti.get().then((data) => {
           for(var noti in data.docs) {
-            if (noti.data()['from'] == profile.userName) {
-              list.add(Noti(userName: noti.data()['username'], url: noti.data()['url'], from: profile.userName))
+            if (noti.data()['username'] == profile.userName) {
+              list.add(Noti(userName: profile.userName, url: noti.data()['url'], from: noti.data()['from']))
             }
           },
           setState(() {
@@ -46,9 +46,18 @@ class NotificationScreenState extends State<NotificationScreen> {
         return Column(children: [
             Expanded(
               child: Container(
-                  child: ListView.builder(
+                  child: listNotifications.isEmpty ? Column(
+                    children: [
+                      Container(
+                        alignment: Alignment.center,
+                        margin: const EdgeInsets.only(top: 120),
+                        child: Image.asset('assets/images/not-notification-yet.png')
+                      ),
+                    ]
+                  ) :
+                  ListView.builder(
                     // ignore: unnecessary_null_comparison
-                    itemCount: listNotifications.isEmpty ? 0 : listNotifications.length,
+                    itemCount: listNotifications.length,
                     itemBuilder:
                         (BuildContext context, int index) {
                       return RenderNotiItem(
