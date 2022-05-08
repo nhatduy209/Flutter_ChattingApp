@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chatting/models/ListBubbeMessageProvider.dart';
 import 'package:flutter_chatting/models/ListGroupChat.dart';
 import 'package:flutter_chatting/models/UserModel.dart';
+import 'package:flutter_chatting/models/UserProfileProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -86,10 +87,12 @@ class ListFriends extends StatefulWidget {
 }
 
 class ListFriendsState extends State<ListFriends> {
-  List<dynamic> listFriends = [];
-
+  List<User> listFriends = [];
   //List<Map<String, bool>> listCheck = [];
-  Future<void> getListFriends(ListGroupChat listCheckBoxs) async {
+  Future<void> getListFriends(
+    ListGroupChat listCheckBoxs,
+    List<User> listUsers,
+  ) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     var currentUser = prefs.getString('username');
@@ -97,34 +100,50 @@ class ListFriendsState extends State<ListFriends> {
     CollectionReference account =
         FirebaseFirestore.instance.collection('account');
 
-    account.get().then((QuerySnapshot querySnapshot) async {
-      for (var doc in querySnapshot.docs) {
-        User user = User.fromJson(doc.data());
+    // account.get().then((QuerySnapshot querySnapshot) async {
+    //   for (var doc in querySnapshot.docs) {
+    //     User user = User.fromJson(doc.data());
 
-        if (currentUser == user.userName) {
-          List<Map<String, bool>> listCheckBox = [];
-          for (var element in user.listFriends) {
-            listCheckBox.add({'$element': false});
-          }
-          setState(() => {
-                listFriends = user.listFriends,
-                listCheckBoxs.listCheck = listCheckBox
-              });
-        }
+    //     print('USER ---- ' + user.toString());
+
+    //     if (currentUser == user.userName) {
+    //       List<Map<String, bool>> listCheckBox = [];
+    //       for (var element in user.listFriend) {
+    //         listCheckBox.add({'${element.userName}': false});
+    //       }
+    //       setState(() => {
+    //             listFriends = user.listFriend,
+    //             listCheckBoxs.listCheck = listCheckBox
+    //           });
+    //     }
+    //   }
+    // });
+
+    for (var element in listUsers) {
+      List<Map<String, bool>> listCheckBox = [];
+      for (var element in listUsers) {
+        listCheckBox.add({'${element.userName}': false});
       }
-    });
+      setState(() => {listCheckBoxs.listCheck = listCheckBox});
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     var listCheckBox = Provider.of<ListGroupChat>(context);
-    listFriends.isEmpty
-        ? getListFriends(listCheckBox)
-        : print('LENGHT : ' + listFriends.length.toString());
+    List<User> listUsers =
+        Provider.of<UserProfile>(context).userProfile.listFriend;
+    if (listCheckBox.getListCheck.isEmpty) {
+      getListFriends(listCheckBox, listUsers);
+    }
 
-    return listFriends.isNotEmpty
+    // listFriends.isEmpty
+    //     ? getListFriends(listCheckBox)
+    //     : print('LENGHT : ' + listFriends.length.toString());
+    print('listUsers' + listUsers.length.toString());
+    return listUsers.isNotEmpty
         ? ListView.builder(
-            itemCount: listFriends.length,
+            itemCount: listUsers.length,
             itemBuilder: (BuildContext context, int index) {
               return Container(
                 margin: const EdgeInsets.only(top: 15, bottom: 15),
@@ -135,10 +154,9 @@ class ListFriendsState extends State<ListFriends> {
                         width: 50,
                         height: 50,
                         child: CircleAvatar(
-                          backgroundImage: NetworkImage(
-                              'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.istockphoto.com%2Fphotos%2Fblank-avatar&psig=AOvVaw3VFHw0I-PbgMeYBBSY7dDd&ust=1652014205254000&source=images&cd=vfe&ved=0CAwQjRxqFwoTCPj-5c-2zfcCFQAAAAAdAAAAABAR'),
+                          backgroundImage: NetworkImage(listUsers[index].url),
                         )),
-                    Text(listFriends[index],
+                    Text(listUsers[index].userName,
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     const Spacer(),
                     Checkbox(
