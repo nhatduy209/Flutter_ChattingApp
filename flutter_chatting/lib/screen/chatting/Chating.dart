@@ -72,7 +72,7 @@ class ChattingState extends State<Chatting> {
       FirebaseFirestore.instance.collection('account');
 
   Future sendMessage(message, idChatting) async {
-    print('GET TOKEN ----' + idChatting);
+    // print('GET TOKEN ----' + idChatting);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String username = prefs.getString('username');
 

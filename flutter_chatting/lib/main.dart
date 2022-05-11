@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/common/firebase.dart';
 import 'package:flutter_chatting/models/ListBubbeMessageProvider.dart';
+import 'package:flutter_chatting/models/ListPostProvider.dart';
 import 'package:flutter_chatting/models/NotificationProvider.dart';
 import 'package:flutter_chatting/models/ListGroupChat.dart';
 import 'package:flutter_chatting/models/UserModel.dart';
@@ -69,6 +70,7 @@ void main() async {
       ChangeNotifierProvider(create: (context) => UserProfile()),
       ChangeNotifierProvider(create: (context) => NotificationProvider()),
       ChangeNotifierProvider(create: (context) => ListGroupChat()),
+      ChangeNotifierProvider(create: (context) => ListPostProvider()),
     ],
     child: const MyApp(),
   ));
@@ -109,8 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   Future<void> handleLogin(UserProfile userProfile) async {
-    accounts.get().then(
-        (QuerySnapshot querySnapshot) async {
+    accounts.get().then((QuerySnapshot querySnapshot) async {
       setState(() {
         isPressLogin = true;
       });
@@ -118,18 +119,17 @@ class _MyHomePageState extends State<MyHomePage> {
       final allData = [];
       for (var doc in querySnapshot.docs) {
         allData.add(doc.data());
-        if (doc.data()['username'] ==
-            username.text) {
+        if (doc.data()['username'] == username.text) {
           listUser.add({
-              'id': doc.id,
-              'userName': doc.data()['username'],
-              'email': doc.data()['email'],
-              'age': doc.data()['age'],
-              'phoneNumber':
-                  doc.data()['phoneNumber'],
-              'password': doc.data()['password'],
-              'listFriend': doc.data()['listFriend'],
-              'url': doc.data()['url']});
+            'id': doc.id,
+            'userName': doc.data()['username'],
+            'email': doc.data()['email'],
+            'age': doc.data()['age'],
+            'phoneNumber': doc.data()['phoneNumber'],
+            'password': doc.data()['password'],
+            'listFriend': doc.data()['listFriend'],
+            'url': doc.data()['url']
+          });
         }
       }
       var exist = allData.where((item) =>
@@ -140,36 +140,33 @@ class _MyHomePageState extends State<MyHomePage> {
           username.text.isNotEmpty &&
           password.text.isNotEmpty) {
         makeOnline(username.text, '');
-        SharedPreferences prefs =
-            await SharedPreferences.getInstance();
+        SharedPreferences prefs = await SharedPreferences.getInstance();
         // Set
-        prefs.setString(
-            'username', username.text);
+        prefs.setString('username', username.text);
         final List<User> friends = [];
         for (var friend in listUser[0]['listFriend']) {
-          var data = querySnapshot.docs.firstWhere((element) => element.data()['username'] == friend);                           
+          var data = querySnapshot.docs
+              .firstWhere((element) => element.data()['username'] == friend);
           friends.add(User(
-          id: data.id,
-          userName: data.data()['username'],
-          email: data.data()['email'],
-          age: data.data()['age'],
-          phoneNumber: data.data()['phoneNumber'],
-          listFriend: [],
-          url: data.data()['url'],
-          token: '')
-          );
+              id: data.id,
+              userName: data.data()['username'],
+              email: data.data()['email'],
+              age: data.data()['age'],
+              phoneNumber: data.data()['phoneNumber'],
+              listFriend: [],
+              url: data.data()['url'],
+              token: ''));
         }
         userProfile.setProfile(User(
-          id: listUser[0]['id'],
-          userName: listUser[0]['userName'],
-          email: listUser[0]['email'],
-          age: listUser[0]['age'],
-          phoneNumber: listUser[0]['phoneNumber'],
-          password: listUser[0]['password'],
-          listFriend: friends,
-          url: listUser[0]['url'],
-          token: '')
-        );
+            id: listUser[0]['id'],
+            userName: listUser[0]['userName'],
+            email: listUser[0]['email'],
+            age: listUser[0]['age'],
+            phoneNumber: listUser[0]['phoneNumber'],
+            password: listUser[0]['password'],
+            listFriend: friends,
+            url: listUser[0]['url'],
+            token: ''));
 
         // Fluttertoast.showToast(
         //     msg: "Login successfully",
@@ -183,8 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) =>
-                  HomeRouteState(
+              builder: (context) => HomeRouteState(
                     title: 'Home',
                   )),
         );

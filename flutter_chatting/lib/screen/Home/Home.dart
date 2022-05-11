@@ -14,6 +14,7 @@ import 'package:flutter_chatting/screen/Home/widget/SearchText.dart';
 import 'package:flutter_chatting/screen/User_online.dart';
 import 'package:flutter_chatting/screen/friends/AddFriend.dart';
 import 'package:flutter_chatting/screen/friends/Friends.dart';
+import 'package:flutter_chatting/screen/news-feed/NewsFeed.dart';
 import 'package:flutter_chatting/widget/RenderOnlineUser.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -143,7 +144,7 @@ class HomeRoute extends State<HomeRouteState> {
               ),
               // backgroundColor: Colors.deepPurpleAccent,
               body: selectedTab == 0
-                  ? const Center(child: Text('News feed'))
+                  ? const NewsFeed()
                   : selectedTab == 1
                       ? Stack(children: <Widget>[
                           Container(
