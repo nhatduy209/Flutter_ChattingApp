@@ -104,6 +104,7 @@ class FriendsState extends State<Friends> {
         Expanded(
           child: Container(
               child: GridView.builder(
+                shrinkWrap: true,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
                 ),

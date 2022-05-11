@@ -88,38 +88,39 @@ class UserOnlineState extends State<UserOnline> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: const EdgeInsets.only(top: 20.0),
+        margin: const EdgeInsets.only(top: 4.0),
         // padding: const EdgeInsets.all(4),
         // decoration: const BoxDecoration(
         //   color: Color.fromARGB(240, 240, 240, 240),
         //   ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
-              margin: const EdgeInsets.only(right: 16, left: 12),
+              margin: const EdgeInsets.only(right: 4, left: 2),
               child: Stack(
-                children: [
-                  ClipRRect(
-                      borderRadius: BorderRadius.circular(50.0),
-                      child: Container(
-                          width: 77.0,
-                          height: 77.0,
-                          color: widget.isOnline == true
-                              ? Colors.green
-                              : Colors.grey)),
-                  Container(
-                    margin: const EdgeInsets.all(6),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(50.0),
-                      child: Image.network(
-                        widget.avatar,
-                        height: 65.0,
-                        width: 65.0,
-                      ),
-                    ),
-                  )
-                ],
-              ),
+              children: [
+                // ClipRRect(
+                // borderRadius: BorderRadius.circular(50.0),
+                // child: Container(
+                //     width: 77.0,
+                //     height: 77.0,
+                //     color:
+                //         widget.isOnline == true ? Colors.green : Colors.grey)),
+                        Container(
+                          // margin: const EdgeInsets.all(6),
+                          child: ClipRRect(
+                  borderRadius: BorderRadius.circular(50.0),
+                  child: Image.network(
+                    widget.avatar,
+                    height: MediaQuery.of(context).size.width * 0.2,
+                    width: MediaQuery.of(context).size.width * 0.2,
+                  ),
+                ),
+                        )
+                
+              ],
+            ),
             ),
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -127,28 +128,25 @@ class UserOnlineState extends State<UserOnline> {
                 Row(
                   children: [
                     Container(
-                      width: 230,
-                      height: 30,
-                      child: Text(
-                        widget.username,
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold),
-                      ),
+                      width: MediaQuery.of(context).size.width * ( widget.latestMessageTime.isNotEmpty ? 0.5 : 0.7),
+                      // height: 60,
+                      child: Text(widget.username, textAlign: TextAlign.start,
+                      style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),),
                     ),
                     widget.latestMessageTime.isNotEmpty
-                        ? Text(
-                            Jiffy(widget.latestMessageTime).fromNow(),
-                            style: const TextStyle(fontSize: 11.0),
-                          )
-                        : Container(),
+                    ? Container(
+                      alignment: Alignment.centerRight,
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      child: Text(
+                    Jiffy(widget.latestMessageTime).fromNow(),
+                    style: const TextStyle(fontSize: 11.0),
+                    )
+                  )
+                : Container(),
                   ],
                 ),
                 Container(
-                  width: 255,
-                  margin: const EdgeInsets.only(right: 50),
+                  width: MediaQuery.of(context).size.width * 0.7,
                   padding: new EdgeInsets.only(right: 13.0),
                   child: Text(
                     widget.latestMessage.isNotEmpty ? widget.latestMessage : "",

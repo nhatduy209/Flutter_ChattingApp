@@ -113,33 +113,126 @@ class HomeRoute extends State<HomeRouteState> {
                   ),
                 ],
               ),
-              bottomNavigationBar: BottomNavigationBar(
-                selectedItemColor: Colors.black,
-                unselectedItemColor: Colors.black26,
-                elevation: 0,
-                currentIndex: selectedTab,
-                onTap: onChangeSelectedTab,
-                items: const <BottomNavigationBarItem>[
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.description),
-                    label: 'News feed',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.message),
-                    label: 'Messages',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.person_add),
-                    label: 'My friends',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.notifications),
-                    label: 'Notifications',
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.settings),
-                    label: 'Settings',
-                  ),
+              bottomNavigationBar: Stack(
+                children: [
+                  // Container(
+                  //   height: 70,
+                  //   color: Colors.blueGrey[200],
+                  //   margin: EdgeInsets.only(top: 10),
+                  // ),
+                  Container(
+                    // margin: EdgeInsets.only(top: 24),
+                    child: BottomNavigationBar(
+                      selectedFontSize: 0,
+                  selectedItemColor: Colors.black,
+                  unselectedItemColor: Colors.black26,
+                  elevation: 0,
+                  currentIndex: selectedTab,
+                  onTap: onChangeSelectedTab,
+                  items: <BottomNavigationBarItem>[
+                    BottomNavigationBarItem(
+                      backgroundColor: Colors.blueGrey[50],
+                      icon: selectedTab == 0 ? Container(
+                        padding: EdgeInsets.only(top: 6, bottom: 6, left: 4, right: 4),
+                        margin: EdgeInsets.only(left: 4, right: 4),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                                      color: Color.fromARGB(199, 165, 137, 241),
+                                      borderRadius: BorderRadius.circular(180)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Icon(Icons.description, size: 16,),
+                            Text('New Posts', style: TextStyle(fontSize: 12))
+                          ]
+                        ),
+                      ) :  Container(
+                        child: Icon(Icons.description)),
+                      label: '',
+                    ),
+                    BottomNavigationBarItem(
+                      backgroundColor: Colors.blueGrey[50],
+                      icon: selectedTab == 1 ? Container(
+                        padding: EdgeInsets.only(top: 6, bottom: 6, left: 4, right: 4),
+                        margin: EdgeInsets.only(left: 4, right: 4),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                                      color: Color.fromARGB(199, 165, 137, 241),
+                                      borderRadius: BorderRadius.circular(180)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Icon(Icons.message, size: 16,),
+                            Text('Messages', style: TextStyle(fontSize: 12))
+                          ]
+                        ),
+                      ) :  Container(
+                        child: Icon(Icons.message)),
+                      label: '',
+                    ),
+                    BottomNavigationBarItem(
+                      backgroundColor: Colors.blueGrey[50],
+                      icon: selectedTab == 2 ? Container(
+                        padding: EdgeInsets.only(top: 6, bottom: 6, left: 4, right: 4),
+                        margin: EdgeInsets.only(left: 4, right: 4),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                                      color: Color.fromARGB(198, 100, 206, 238),
+                                      borderRadius: BorderRadius.circular(180)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Icon(Icons.person_add, size: 16,),
+                            Text('Friends', style: TextStyle(fontSize: 12))
+                          ]
+                        ),
+                      ) :  Container(
+                        child: Icon(Icons.person_add)),
+                      label: '',
+                    ),
+                    BottomNavigationBarItem(
+                      backgroundColor: Colors.blueGrey[50],
+                      icon: selectedTab == 3 ? Container(
+                        padding: EdgeInsets.only(top: 6, bottom: 6, left: 4, right: 4),
+                        margin: EdgeInsets.only(left: 2, right: 2),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                                      color: Color.fromARGB(198, 100, 206, 238),
+                                      borderRadius: BorderRadius.circular(180)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Icon(Icons.notifications, size: 16,),
+                            Text('Notifications', style: TextStyle(fontSize: 12),)
+                          ]
+                        ),
+                      ) :  Container(
+                        child: Icon(Icons.notifications)),
+                      label: '',
+                    ),
+                    BottomNavigationBarItem(
+                      backgroundColor: Colors.blueGrey[50],
+                      icon: selectedTab == 4 ? Container(
+                        padding: EdgeInsets.only(top: 6, bottom: 6, left: 4, right: 4),
+                        margin: EdgeInsets.only(left: 4, right: 4),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                                      color: Color.fromARGB(198, 100, 206, 238),
+                                      borderRadius: BorderRadius.circular(180)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Icon(Icons.settings, size: 16,),
+                            Text('Settings', style: TextStyle(fontSize: 12))
+                          ]
+                        ),
+                      ) :  Container(
+                        child: Icon(Icons.settings)),
+                      label: '',
+                    ),
+                  ],
+                ),
+                  )
                 ],
               ),
               // backgroundColor: Colors.deepPurpleAccent,

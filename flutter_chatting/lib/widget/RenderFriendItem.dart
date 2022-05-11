@@ -11,8 +11,6 @@ class RenderFriendItem extends StatelessWidget {
   })  : this.user = user, this.added = added;
   @override
   Widget build(BuildContext context) {
-    print('item');
-    print(user.url);
     // TODO: implement build
     return Align(
       alignment: Alignment.center,
@@ -26,8 +24,12 @@ class RenderFriendItem extends StatelessWidget {
             )),
           )
         },
-        child: Container(
+        child: Column(
+          children: [
+            Expanded(
+          child: Container(
           width: MediaQuery.of(context).size.width * 0.3,
+          // height: ,
           margin: const EdgeInsets.all(12),
           padding: const EdgeInsets.all(12),
           decoration: const BoxDecoration(
@@ -54,12 +56,17 @@ class RenderFriendItem extends StatelessWidget {
                   width: 60.0,
                 ),
               ),
-              Container(
+              Expanded(
+                child: Container(
                 margin: const EdgeInsets.only(top: 6),
                 child: Text(user.userName, style: TextStyle(fontWeight: FontWeight.bold),),
               )
+              )
             ]
           ),
+        )
+        )
+          ],
         )
       )
     );
