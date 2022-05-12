@@ -34,7 +34,7 @@ class RenderNotiItem extends StatelessWidget {
     User profile = Provider.of<UserProfile>(context, listen: false).userProfile;
     var listFriends = [];
     var ortherFriends = [];
-    accounts.get().then((snapshot) => {
+    await accounts.get().then((snapshot) => {
       for (DocumentSnapshot ds in snapshot.docs){
         if (ds.data()['username'] == profile.userName) {
           listFriends.addAll(ds.data()['listFriend']),
