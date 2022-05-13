@@ -4,6 +4,7 @@ import 'package:flutter_chatting/models/NotiModel.dart';
 import 'package:flutter_chatting/models/UserModel.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import '../models/ListBubbeMessageProvider.dart';
 import '../models/UserProfileProvider.dart';
 import '../screen/profile/FriendProfile.dart';
 
@@ -32,6 +33,7 @@ class RenderNotiItem extends StatelessWidget {
   }
   Future accept(BuildContext context) async {
     User profile = Provider.of<UserProfile>(context, listen: false).userProfile;
+    var listUsers = Provider.of<ListUserModel>(context, listen: false);
     var listFriends = [];
     var ortherFriends = [];
     await accounts.get().then((snapshot) => {
@@ -43,8 +45,11 @@ class RenderNotiItem extends StatelessWidget {
           .then((value) async => await notifications.get().then((snapshot) => {
             for (DocumentSnapshot ds in snapshot.docs){
               if (ds.data()['username'] == noti.userName) {
-                ds.reference.delete().then((value) async => 
-                await createConversation(noti.from + '_' + profile.userName))
+                ds.reference.delete().then((value) async => {
+                  await createConversation(noti.from + '_' + profile.userName),
+                listUsers.removeAll(),
+                listUsers.getAllUsers(false)
+                })
               }
             }
           })
