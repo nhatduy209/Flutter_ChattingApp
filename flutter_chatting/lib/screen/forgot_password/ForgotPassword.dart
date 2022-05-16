@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../main.dart';
 
@@ -15,13 +14,13 @@ class ForgotPassword extends StatelessWidget {
     var instance = FirebaseAuth.instance;
     await instance.sendPasswordResetEmail(email: email).then(
       (value) {
-        Fluttertoast.showToast(
-            msg: "Recovery password has ben sent",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 20.0);
+        // Fluttertoast.showToast(
+        //     msg: "Recovery password has ben sent",
+        //     toastLength: Toast.LENGTH_SHORT,
+        //     gravity: ToastGravity.CENTER,
+        //     backgroundColor: Colors.red,
+        //     textColor: Colors.white,
+        //     fontSize: 20.0);
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const MyApp()),

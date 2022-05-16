@@ -12,10 +12,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_chatting/screen/forgot_password/ForgotPassword.dart';
 import 'package:flutter_chatting/widget/LoadingCircle.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:overlay_support/overlay_support.dart';
 
@@ -111,6 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   Future<void> handleLogin(UserProfile userProfile) async {
+    String? token = await messaging.getToken();
     accounts.get().then((QuerySnapshot querySnapshot) async {
       setState(() {
         isPressLogin = true;
@@ -136,10 +135,10 @@ class _MyHomePageState extends State<MyHomePage> {
           item['username'] == username.text &&
           item['password'] == password.text);
 
-      if (exist.length > 0 &&
+      if (exist.isNotEmpty &&
           username.text.isNotEmpty &&
           password.text.isNotEmpty) {
-        makeOnline(username.text, '');
+        makeOnline(username.text, token);
         SharedPreferences prefs = await SharedPreferences.getInstance();
         // Set
         prefs.setString('username', username.text);
@@ -168,15 +167,9 @@ class _MyHomePageState extends State<MyHomePage> {
             url: listUser[0]['url'],
             token: ''));
 
-        // Fluttertoast.showToast(
-        //     msg: "Login successfully",
-        //     toastLength: Toast.LENGTH_SHORT,
-        //     gravity: ToastGravity.CENTER,
-        //     timeInSecForIosWeb: 1,
-        //     backgroundColor: Colors.green[500],
-        //     textColor: Colors.white,
-        //     fontSize: 16.0);
         setState(() => isPressLogin = false);
+        ScaffoldMessenger.of(context).showSnackBar(loginSuccessBar);
+
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -185,13 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   )),
         );
       } else {
-        // Fluttertoast.showToast(
-        //     msg: "Login fail",
-        //     toastLength: Toast.LENGTH_SHORT,
-        //     gravity: ToastGravity.CENTER,
-        //     backgroundColor: Colors.red,
-        //     textColor: Colors.white,
-        //     fontSize: 20.0);
+        ScaffoldMessenger.of(context).showSnackBar(loginFailBar);
         setState(() => isPressLogin = false);
       }
     });

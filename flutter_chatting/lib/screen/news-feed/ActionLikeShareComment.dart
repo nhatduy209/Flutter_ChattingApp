@@ -6,18 +6,19 @@ import 'package:flutter_chatting/screen/news-feed/widget/CommentInput.dart';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:share_plus/share_plus.dart';
 
 class ActionLikeShareComment extends StatefulWidget {
   // final String postID;
-  // final String content;
+  final String content;
   // int numberOfLikes;
-  //List<PhotoEntity>? photos;
+  List<String>? photos;
   ActionLikeShareComment({
     Key? key,
     //required this.postID,
     //required this.numberOfLikes,
-    //required this.content,
-    // this.photos,
+    required this.content,
+    this.photos,
   }) : super(key: key);
 
   @override
@@ -52,8 +53,7 @@ class ActionLikeShareState extends State<ActionLikeShareComment> {
                   });
                 },
               ),
-              //  _ShareButton(widget.content, widget.photos),
-              _ShareButton(),
+              _ShareButton(widget.content, widget.photos),
             ],
           ),
           padding: const EdgeInsets.only(left: 15.0, right: 15.0),
@@ -102,24 +102,28 @@ class _ThumbUpButtonState extends State<_ThumbUpButton> {
 }
 
 class _ShareButton extends StatelessWidget {
-  //String content;
-  // List<PhotoEntity>? photos;
-  //_ShareButton(this.content, this.photos);
+  String content;
+  List<String>? photos;
+  _ShareButton(this.content, this.photos);
 
-  // Future<List<String>> getPathFromUrl(List<PhotoEntity> photos) async {
-  //   List<String> paths = [];
-  //   for (var photo in photos) {
-  //     final uri = Uri.parse(photo.file!.thumbnailUrl);
-  //     final response = await http.get(uri);
-  //     final bytes = response.bodyBytes;
-  //     final temp = await getTemporaryDirectory();
-  //     final path = '${temp.path}/${photo.file!.fileName}';
-  //     paths.add(path);
-  //     File(path).writeAsBytesSync(bytes);
-  //   }
+  Future<List<String>> getPathFromUrl(List<String> photos) async {
+    List<String> paths = [];
+    for (var photo in photos) {
+      final uri = Uri.parse(photo);
+      final response = await http.get(uri);
+      print(' Res ---' + response.body);
+      final bytes = response.bodyBytes;
+      final temp = await getTemporaryDirectory();
+      final path = '${temp.path}/$photo';
+      print(' list image ---' + path);
 
-  //   return paths;
-  // }
+      paths.add(path);
+
+      File(path).writeAsBytesSync(bytes);
+    }
+
+    return paths;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,12 +131,12 @@ class _ShareButton extends StatelessWidget {
     return TextButton(
       //  '/data/user/0/com.lengineer.lecongressman/cache/scaled_image_picker2961409313100381031.jpg'
       onPressed: () async {
-        // if (photos!.isNotEmpty) {
-        //   List<String> listPath = await getPathFromUrl(photos!);
-        //   Share.shareFiles(listPath, subject: content, text: content);
-        // } else {
-        //   Share.share(content);
-        // }
+        if (photos!.isNotEmpty) {
+          List<String> listPath = await getPathFromUrl(photos!);
+          Share.shareFiles(listPath, subject: content, text: content);
+        } else {
+          Share.share(content);
+        }
       },
       child: Row(
         children: const [
