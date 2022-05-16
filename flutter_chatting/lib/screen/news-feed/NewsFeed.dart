@@ -33,7 +33,9 @@ class NewsFeedState extends State<NewsFeed> {
     if (listPostProvider.getListPosts.isEmpty) {
       await posts.get().then((QuerySnapshot querySnapshot) async {
         for (var doc in querySnapshot.docs) {
-          var post = Post.fromJson(doc.data());
+          var p = doc.data();
+          p['postId'] = doc.id;
+          Post post = Post.fromJson(p);
           listPostProvider.add(post);
           // print('LIST POST ====' + listPosts.length.toString());
         }
@@ -106,6 +108,7 @@ class NewsFeedState extends State<NewsFeed> {
                           ),
                         ),
                         ActionLikeShareComment(
+                          postId: listPostProvider.getListPosts[index].postId,
                             content:
                                 listPostProvider.getListPosts[index].content,
                             photos:

@@ -10,6 +10,7 @@ class Post {
   List<LikeModel> likes;
   PostOwner owner;
   String content;
+  String postId;
 
   Post({
     required this.canView,
@@ -18,6 +19,7 @@ class Post {
     required this.owner,
     required this.photos,
     required this.content,
+    required this.postId
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -44,6 +46,7 @@ class Post {
     });
 
     return Post(
+      postId: json['postId'],
       photos: photos,
       canView: viewers,
       content: json['content'],
@@ -54,6 +57,7 @@ class Post {
   }
 
   Map<String, dynamic> toJson() => {
+        'postId' : postId,
         'content': content,
         'canView': canView,
         'photos': photos,

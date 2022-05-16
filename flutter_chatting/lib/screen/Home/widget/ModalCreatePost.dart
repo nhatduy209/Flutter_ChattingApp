@@ -44,6 +44,7 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
     }
 
     Post newPost = Post(
+        postId: '',
         content: text,
         canView: ["nhatduy209"],
         likes: [],

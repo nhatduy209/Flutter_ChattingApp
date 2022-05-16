@@ -9,13 +9,13 @@ import 'package:http/http.dart' as http;
 import 'package:share_plus/share_plus.dart';
 
 class ActionLikeShareComment extends StatefulWidget {
-  // final String postID;
+  final String postId;
   final String content;
   // int numberOfLikes;
   List<String>? photos;
   ActionLikeShareComment({
     Key? key,
-    //required this.postID,
+    required this.postId,
     //required this.numberOfLikes,
     required this.content,
     this.photos,
@@ -37,7 +37,7 @@ class ActionLikeShareState extends State<ActionLikeShareComment> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // _ThumbUpButton(
-              //   postID: widget.postID,
+              //   postId: widget.postId,
               //   numberOfLikes: widget.numberOfLikes,
               // ),
               _ThumbUpButton(),
@@ -49,7 +49,7 @@ class ActionLikeShareState extends State<ActionLikeShareComment> {
                 ),
                 onPressed: () {
                   setState(() {
-                    pressedComment = true;
+                    pressedComment = !pressedComment;
                   });
                 },
               ),
@@ -60,7 +60,7 @@ class ActionLikeShareState extends State<ActionLikeShareComment> {
         ),
         pressedComment
             ? CommentInput(
-                // postID: widget.postID,
+                postId: widget.postId,
                 )
             : Container(),
       ],
@@ -69,9 +69,9 @@ class ActionLikeShareState extends State<ActionLikeShareComment> {
 }
 
 class _ThumbUpButton extends StatefulWidget {
-  // String postID;
+  // String postId;
   // int numberOfLikes;
-  // _ThumbUpButton({Key? key, required this.postID, required this.numberOfLikes})
+  // _ThumbUpButton({Key? key, required this.postId, required this.numberOfLikes})
   //     : super(key: key);
 
   @override
@@ -85,7 +85,7 @@ class _ThumbUpButtonState extends State<_ThumbUpButton> {
 
     return TextButton(
       onPressed: () async {
-        //  context.read<ActionBloc>().add(ActionLikePost(widget.postID));
+        //  context.read<ActionBloc>().add(ActionLikePost(widget.postId));
       },
       child: Row(
         children: const [

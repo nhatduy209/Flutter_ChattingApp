@@ -179,7 +179,8 @@ class FriendProfileState extends State<FriendProfileScreen> {
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           // TODO: implement build
           return Scaffold(
-              body: Container(
+              body: SingleChildScrollView(
+            child: Container(
                   child: Align(
                       alignment: Alignment.center,
                       child: Stack(
@@ -368,7 +369,8 @@ class FriendProfileState extends State<FriendProfileScreen> {
                             )
                           ]),
                         ],
-                      ))));
+                      ))),
+          ));
         });
   }
 }

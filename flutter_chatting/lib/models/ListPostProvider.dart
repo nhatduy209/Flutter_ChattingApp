@@ -25,4 +25,17 @@ class ListPostProvider extends ChangeNotifier {
     // This call tells the widgets that are listening to this model to rebuild.
     notifyListeners();
   }
+
+  void addAll(List<Post> ListPost) {
+    print('listPosst');
+    print(ListPost.length);
+    _listPost.addAll(ListPost);
+    // This call tells the widgets that are listening to this model to rebuild.
+    notifyListeners();
+  }
+  void clear() {
+    _listPost.clear();
+    // This call tells the widgets that are listening to this model to rebuild.
+    notifyListeners();
+  }
 }
