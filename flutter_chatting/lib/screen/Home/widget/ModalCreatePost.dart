@@ -20,27 +20,6 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
   List<File> listImage = <File>[];
   TextEditingController contentPost = TextEditingController();
 
-  // Widget _contentInput(context) {
-  //   return BlocBuilder<HomePageBloc, HomePageState>(
-  //       buildWhen: (previous, current) =>
-  //           previous.contentPost != current.contentPost,
-  //       builder: (context, state) {
-  //         return TextFormField(
-  //           textAlign: TextAlign.start,
-  //           maxLines: 5,
-  //           onChanged: (content) => context
-  //               .read<HomePageBloc>()
-  //               .add(HomePageOnContentChanged(content)),
-  //           decoration: InputDecoration(
-  //               // contentPadding: EdgeInsets.symmetric(
-  //               //     vertical: MediaQuery.of(context).size.height / 4),
-  //               border: const OutlineInputBorder(
-  //                   borderRadius: BorderRadius.all(Radius.circular(10.0))),
-  //               labelText: AppLocalizations.of(context)!.inputContentPost),
-  //         );
-  //       });
-  // }
-
   Future<void> selectImage() async {
     PickedFile listPickedFiles =
         await ImagePicker().getImage(source: ImageSource.gallery);
