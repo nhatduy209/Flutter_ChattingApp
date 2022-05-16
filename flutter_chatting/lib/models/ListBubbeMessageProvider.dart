@@ -60,12 +60,14 @@ class ListUserModel extends ChangeNotifier {
           .collection('message')
           .get()
           .then((QuerySnapshot querySnapshot) {
-        for (var doc in querySnapshot.docs) {
-          if (doc.id.contains(getUsername)) {
-            String newUserChatting = commonFunc.getUserChatting(
-                idChatting: doc.id, username: getUsername);
-            _listUser.add(
-                BubbleMessage(username: newUserChatting, idChatting: doc.id));
+        if(_listUser.isEmpty) {
+          for (var doc in querySnapshot.docs) {
+            if (doc.id.contains(getUsername)) {
+              String newUserChatting = commonFunc.getUserChatting(
+                  idChatting: doc.id, username: getUsername);
+              _listUser.add(
+                  BubbleMessage(username: newUserChatting, idChatting: doc.id));
+            }
           }
         }
       });

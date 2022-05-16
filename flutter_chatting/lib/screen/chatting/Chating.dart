@@ -136,14 +136,14 @@ class ChattingState extends State<Chatting> {
         .doc(idChatting)
         .collection('listmessage')
         .orderBy('Time', descending: true);
-
     if (listMessages.isEmpty) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var getUsername = prefs.getString('username');
       username = prefs.getString('username');
-
+      
       await data.get().then((QuerySnapshot querySnapshot) {
-        for (var doc in querySnapshot.docs) {
+        if (listMessages.isEmpty) {
+          for (var doc in querySnapshot.docs) {
           var messageInstance = new Message(id: "", content: "");
           doc.data().forEach((key, value) {
             if (key == 'message') {
@@ -159,10 +159,11 @@ class ChattingState extends State<Chatting> {
           });
           listMessages.add(messageInstance);
         }
+        }
+        isInitListMessage = false;
+        listUsers.changeLatestMessage(userChatting, listMessages[0].content,
+            listMessages[0].time.toString()); // get latest message
       });
-      isInitListMessage = false;
-      listUsers.changeLatestMessage(userChatting, listMessages[0].content,
-          listMessages[0].time.toString()); // get latest message
     }
   }
 
@@ -199,15 +200,13 @@ class ChattingState extends State<Chatting> {
       final allData = querySnapshot.docs.map((doc) => doc.data()).toList();
       var exist =
           allData.where((item) => item['username'] == userChatting).first;
-      var user = User.fromJson(exist);
-      tokenDevice = user.token;
+      tokenDevice = exist['token'];
     });
 
     var data = FirebaseFirestore.instance
         .collection('message')
         .doc(id)
         .collection('listmessage');
-
     listeningMessageChange =
         data.snapshots().listen((snapshot) => _onEventsSnapshot(snapshot));
     super.initState();
