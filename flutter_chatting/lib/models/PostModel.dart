@@ -59,7 +59,7 @@ class Post {
         'photos': photos,
         'comments': comments,
         'likes': likes,
-        'owner': owner,
+        'owner': owner.toJson(),
       };
 }
 

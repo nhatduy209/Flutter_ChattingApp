@@ -17,6 +17,4 @@ Future<void> pushNotification(tokenReciver, sender, message) async {
   // tạo POST request
   dynamic response = await post("${url}/chatting/sendMessage",
       headers: headers, body: jsonBody);
-
-  print("RESPONSE ----" + response);
 }

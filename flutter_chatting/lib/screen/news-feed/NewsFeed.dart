@@ -105,7 +105,11 @@ class NewsFeedState extends State<NewsFeed> {
                             top: 10.0,
                           ),
                         ),
-                        ActionLikeShareComment(),
+                        ActionLikeShareComment(
+                            content:
+                                listPostProvider.getListPosts[index].content,
+                            photos:
+                                listPostProvider.getListPosts[index].photos),
                         listPostProvider.getListPosts[index].comments.isNotEmpty
                             ? Container(
                                 padding: const EdgeInsets.only(
