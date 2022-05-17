@@ -111,11 +111,9 @@ class _ShareButton extends StatelessWidget {
     for (var photo in photos) {
       final uri = Uri.parse(photo);
       final response = await http.get(uri);
-      print(' Res ---' + response.body);
       final bytes = response.bodyBytes;
       final temp = await getTemporaryDirectory();
-      final path = '${temp.path}/$photo';
-      print(' list image ---' + path);
+      final path = '${temp.path}/${photo.length}.png';
 
       paths.add(path);
 
