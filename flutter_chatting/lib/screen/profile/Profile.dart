@@ -55,18 +55,7 @@ class ProfileState extends State<ProfileScreen> {
       var listImageUrl = await uploadImageToFirebase(listImage);
       url = listImageUrl.isNotEmpty ? listImageUrl[0] : '';
     }
-    // if (password.text.isNotEmpty) {
-    //   if (confirmPassword.text == password.text) {
-    //     var accounts = await FirebaseFirestore.instance.collection('account');
-    //     accounts.doc(userProfile.id).update({
-    //       'age': age.text, 'phoneNumber': phoneNumber.text, 'url': url,
-    //       'password': password.text
-    //     }).then((value) => print('success'));
-    //   } else {
-    //     print('password is wrong!');
-    //   }
-    //   return;
-    // }
+
     var accounts = await FirebaseFirestore.instance.collection('account');
     accounts.doc(userProfile.id).update({
       'age': age.text,

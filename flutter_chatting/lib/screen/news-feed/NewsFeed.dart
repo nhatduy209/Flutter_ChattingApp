@@ -10,6 +10,7 @@ import 'package:flutter_chatting/screen/news-feed/widget/ListComment.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum LOAD_POST {
   none,
@@ -26,18 +27,27 @@ class NewsFeed extends StatefulWidget {
 
 class NewsFeedState extends State<NewsFeed> {
   LOAD_POST loadingPost = LOAD_POST.none;
+  bool reload = false;
   //List<Post> listPostProvider.getListPosts = [];
   CollectionReference posts = FirebaseFirestore.instance.collection('post');
 
   Future<bool> getListPost(ListPostProvider listPostProvider) async {
-    if (listPostProvider.getListPosts.isEmpty) {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String username = prefs.getString('username');
+
+    if (listPostProvider.getListPosts.isEmpty || reload == true) {
       await posts.get().then((QuerySnapshot querySnapshot) async {
         for (var doc in querySnapshot.docs) {
           var post = Post.fromJson(doc.data());
-          listPostProvider.add(post);
-          // print('LIST POST ====' + listPosts.length.toString());
+
+          for (var element in post.canView) {
+            if (element == username) {
+              listPostProvider.add(post);
+            }
+          }
         }
-        setState(() => loadingPost = LOAD_POST.success);
+        setState(() => reload = false);
+        //  setState(() => loadingPost = LOAD_POST.success);
         return true;
       }).catchError((err) {
         return false;
@@ -53,10 +63,12 @@ class NewsFeedState extends State<NewsFeed> {
     return FutureBuilder(
       future: getListPost(listPostProvider),
       builder: (context, AsyncSnapshot<dynamic> snapshot) {
-        print('SNAP ----' + snapshot.data.toString());
         if (snapshot.hasData == true) {
           return RefreshIndicator(
-            onRefresh: () async {},
+            onRefresh: () async {
+              reload = true;
+              getListPost(listPostProvider);
+            },
             child: ListView.builder(
               itemCount: listPostProvider.getListPosts.length,
               itemBuilder: (context, index) {

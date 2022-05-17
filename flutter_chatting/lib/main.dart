@@ -247,22 +247,22 @@ class _MyHomePageState extends State<MyHomePage> {
                                   border: InputBorder.none),
                             ),
                           )),
-                      Container(
-                          alignment: Alignment.centerRight,
-                          margin: const EdgeInsets.only(right: 40.0),
-                          child: TextButton(
-                              onPressed: () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => ForgotPassword()),
-                                  ),
-                              child: const Text(
-                                "Forgot password",
-                                textAlign: TextAlign.end,
-                                style: TextStyle(
-                                  color: Colors.deepPurpleAccent,
-                                ),
-                              ))),
+                      // Container(
+                      //     alignment: Alignment.centerRight,
+                      //     margin: const EdgeInsets.only(right: 40.0),
+                      //     child: TextButton(
+                      //         onPressed: () => Navigator.push(
+                      //               context,
+                      //               MaterialPageRoute(
+                      //                   builder: (context) => ForgotPassword()),
+                      //             ),
+                      //         child: const Text(
+                      //           "Forgot password",
+                      //           textAlign: TextAlign.end,
+                      //           style: TextStyle(
+                      //             color: Colors.deepPurpleAccent,
+                      //           ),
+                      //         ))),
                       Container(
                           margin: const EdgeInsets.only(top: 10.0),
                           width: 300,
