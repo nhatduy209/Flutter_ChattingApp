@@ -108,6 +108,7 @@ class NewsFeedState extends State<NewsFeed> {
                           ),
                         ),
                         ActionLikeShareComment(
+                          index: index,
                           postId: listPostProvider.getListPosts[index].postId,
                             content:
                                 listPostProvider.getListPosts[index].content,

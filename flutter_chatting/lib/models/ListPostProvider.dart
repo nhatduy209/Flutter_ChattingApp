@@ -33,6 +33,14 @@ class ListPostProvider extends ChangeNotifier {
     // This call tells the widgets that are listening to this model to rebuild.
     notifyListeners();
   }
+  void addComment(CommentModel comment, int index) {
+    print('comment');
+    print(_listPost[index].comments.length);
+    _listPost[index].comments.add(comment);
+    print(_listPost[index].comments.length);
+    // This call tells the widgets that are listening to this model to rebuild.
+    notifyListeners();
+  }
   void clear() {
     _listPost.clear();
     // This call tells the widgets that are listening to this model to rebuild.

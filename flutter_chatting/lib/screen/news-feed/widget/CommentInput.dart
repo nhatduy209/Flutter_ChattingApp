@@ -9,25 +9,17 @@ import '../../../models/UserProfileProvider.dart';
 
 class CommentInput extends StatelessWidget {
   final String postId;
+  final int index;
 
   var comments = [];
-  CommentInput({Key? key, required this.postId}) : super(key: key);
+  CommentModel cmt = CommentModel(content: '', createAt: Timestamp.now(), username: '', url: '');
+  CommentInput({Key? key, required this.postId, required this.index}) : super(key: key);
   CollectionReference post =
       FirebaseFirestore.instance.collection('post');
   final commentInput = TextEditingController();
-  Future reloadPost(context) async {
+  Future reloadPost(context, comment) async {
     ListPostProvider listPostProvider = Provider.of<ListPostProvider>(context, listen: false);
-    listPostProvider.clear();
-    await post.get().then((QuerySnapshot querySnapshot) async {
-        for (var doc in querySnapshot.docs) {
-          var p = doc.data();
-          p['postId'] = doc.id;
-          Post newPost = Post.fromJson(p);
-          listPostProvider.add(newPost);
-          // print('LIST POST ====' + listPosts.length.toString());
-        }
-      }).catchError((err) {
-      });
+    listPostProvider.addComment(comment, index);
   }
   Future comment(BuildContext context) async {
     User profile = Provider.of<UserProfile>(context, listen: false).userProfile;
@@ -35,14 +27,18 @@ class CommentInput extends StatelessWidget {
       for (DocumentSnapshot ds in data.docs){
         comments = [],
         if(ds.id == postId) {
+          cmt = CommentModel(content: commentInput.text,
+            url: profile.url,
+            createAt: Timestamp.now(),
+            username : profile.userName),
           comments = ds.data()['comments'],
           comments.add({
             'content': commentInput.text,
             'url': profile.url,
-            'createAt': DateTime.now(),
+            'createAt': Timestamp.now(),
             'username' : profile.userName
           }),
-          reloadPost(context),
+          reloadPost(context, cmt),
           ds.reference.update({'comments': comments})
         }
       }
