@@ -100,8 +100,8 @@ class NewsFeedState extends State<NewsFeed> {
                               ),
                             ),
                             leading: CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                  "https://firebasestorage.googleapis.com/v0/b/flutter-chatting-c8c87.appspot.com/o/message%2Fscaled_image_picker2688855893894157660.jpg?alt=media&token=0d45b817-1b49-49d7-b6e3-cd46523c0eb1"),
+                              backgroundImage: NetworkImage(listPostProvider
+                                  .getListPosts[index].owner.url),
                             ),
                             subtitle: Text(Jiffy(
                                     DateTime.fromMicrosecondsSinceEpoch(
