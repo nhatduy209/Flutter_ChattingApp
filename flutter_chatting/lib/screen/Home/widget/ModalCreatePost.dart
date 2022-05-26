@@ -67,7 +67,7 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
     Post newPost = Post(
         postId: '',
         content: text,
-        canView: [profile.userName],
+        canView: profile.listFriend.map((e) => e.userName).toList(),
         likes: [],
         comments: [],
         photos: listImageUrl,
