@@ -127,11 +127,11 @@ class _ShareButton extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return TextButton(
-      //  '/data/user/0/com.lengineer.lecongressman/cache/scaled_image_picker2961409313100381031.jpg'
       onPressed: () async {
         if (photos!.isNotEmpty) {
-          List<String> listPath = await getPathFromUrl(photos!);
-          Share.shareFiles(listPath, subject: content, text: content);
+          //List<String> listPath = await getPathFromUrl(photos!);
+          //Share.shareFiles(photos, subject: content, text: content);
+          Share.share(content, subject: photos![0]);
         } else {
           Share.share(content);
         }
