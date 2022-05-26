@@ -12,6 +12,7 @@ import 'BubleMessageModel.dart';
 class ListPostProvider extends ChangeNotifier {
   /// Internal, private state of the cart.
   late List<Post> _listPost = [];
+  late String _editedIndex = '';
 
   /// An unmodifiable view of the items in the cart.
   UnmodifiableListView<Post> get getListPosts =>

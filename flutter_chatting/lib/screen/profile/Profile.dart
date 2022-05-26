@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/models/UserModel.dart';
 import 'package:flutter_chatting/models/UserProfileProvider.dart';
+import 'package:flutter_chatting/screen/profile/widget/PersonalPost.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -55,18 +56,7 @@ class ProfileState extends State<ProfileScreen> {
       var listImageUrl = await uploadImageToFirebase(listImage);
       url = listImageUrl.isNotEmpty ? listImageUrl[0] : '';
     }
-    // if (password.text.isNotEmpty) {
-    //   if (confirmPassword.text == password.text) {
-    //     var accounts = await FirebaseFirestore.instance.collection('account');
-    //     accounts.doc(userProfile.id).update({
-    //       'age': age.text, 'phoneNumber': phoneNumber.text, 'url': url,
-    //       'password': password.text
-    //     }).then((value) => print('success'));
-    //   } else {
-    //     print('password is wrong!');
-    //   }
-    //   return;
-    // }
+
     var accounts = await FirebaseFirestore.instance.collection('account');
     accounts.doc(userProfile.id).update({
       'age': age.text,

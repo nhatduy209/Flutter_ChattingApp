@@ -11,6 +11,7 @@ class Post {
   PostOwner owner;
   String content;
   String postId;
+  dynamic createAt;
 
   Post({
     required this.canView,
@@ -19,7 +20,8 @@ class Post {
     required this.owner,
     required this.photos,
     required this.content,
-    required this.postId
+    required this.postId,
+    required this.createAt,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -53,7 +55,7 @@ class Post {
       likes: likes,
       comments: comments,
       owner: PostOwner.fromJson(json['owner']),
-    );
+      createAt: json['createAt']);
   }
 
   Map<String, dynamic> toJson() => {
@@ -64,6 +66,7 @@ class Post {
         'comments': comments,
         'likes': likes,
         'owner': owner.toJson(),
+        'createAt': createAt,
       };
 }
 

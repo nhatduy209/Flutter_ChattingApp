@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chatting/assets/component/Flushbar.dart';
 import 'package:flutter_chatting/models/ListBubbeMessageProvider.dart';
 import 'package:flutter_chatting/models/ListPostProvider.dart';
 import 'package:flutter_chatting/models/PostModel.dart';
@@ -18,24 +19,26 @@ enum LOAD_POST {
   success,
 }
 
-class NewsFeed extends StatefulWidget {
-  const NewsFeed({Key? key}) : super(key: key);
+class PersonalPost extends StatefulWidget {
+  const PersonalPost({Key? key}) : super(key: key);
 
   @override
-  NewsFeedState createState() => NewsFeedState();
+  PersonalPostState createState() => PersonalPostState();
 }
 
-class NewsFeedState extends State<NewsFeed> {
+class PersonalPostState extends State<PersonalPost> {
   LOAD_POST loadingPost = LOAD_POST.none;
   bool reload = false;
-  //List<Post> listPostProvider.getListPosts = [];
+  String selecton = '';
+  ListPostProvider listPostProvider = ListPostProvider();
+
   CollectionReference posts = FirebaseFirestore.instance.collection('post');
   Future<bool> getListPost(ListPostProvider listPostProvider) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String username = prefs.getString('username');
 
-    if (listPostProvider.getListPosts.isEmpty || reload == true) {
-      if (reload == true) {
+    if (listPostProvider.getListPersonalPosts.isEmpty || reload == true) {
+      if (reload) {
         listPostProvider.reloadPost();
       }
       await posts
@@ -43,24 +46,18 @@ class NewsFeedState extends State<NewsFeed> {
           .get()
           .then((QuerySnapshot querySnapshot) async {
         for (var doc in querySnapshot.docs) {
-          var p = doc.data();
-          p['postId'] = doc.id;
-          Post post = Post.fromJson(p);
+          var post = Post.fromJson(doc.data());
 
-          for (var element in post.canView) {
-            if (element == username &&
-                listPostProvider.checkExist(post) == false) {
-              reload == true
-                  ? listPostProvider.insert(post)
-                  : listPostProvider.add(post);
-            }
+          if (post.owner.username == username &&
+              listPostProvider.checkExistPersonalPost(post) == false) {
+            listPostProvider.addPersonalPost(post);
           }
         }
         setState(() => reload = false);
 
         return true;
       }).catchError((err) {
-        print('Error getting post --- ' + err.toString());
+        print('Error getting personal post --- ' + err.toString());
         return false;
       });
     }
@@ -73,10 +70,20 @@ class NewsFeedState extends State<NewsFeed> {
     return time.millisecondsSinceEpoch * 1000;
   }
 
+  Future<void> handlePost(selection, Post post) async {
+    switch (selection) {
+      case 'delete':
+        listPostProvider.removePersonalPost(post);
+        ScaffoldMessenger.of(context).showSnackBar(deletePost);
+        break;
+      default:
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    var listPostProvider = Provider.of<ListPostProvider>(context, listen: true);
-
+    listPostProvider = Provider.of<ListPostProvider>(context, listen: true);
     return FutureBuilder(
       future: getListPost(listPostProvider),
       builder: (context, AsyncSnapshot<dynamic> snapshot) {
@@ -87,7 +94,7 @@ class NewsFeedState extends State<NewsFeed> {
               getListPost(listPostProvider);
             },
             child: ListView.builder(
-              itemCount: listPostProvider.getListPosts.length,
+              itemCount: listPostProvider.getListPersonalPosts.length,
               itemBuilder: (context, index) {
                 return SizedBox(
                   child: Card(
@@ -96,19 +103,43 @@ class NewsFeedState extends State<NewsFeed> {
                         ListTile(
                             title: Text(
                               listPostProvider
-                                  .getListPosts[index].owner.username,
+                                  .getListPersonalPosts[index].owner.username,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            leading: CircleAvatar(
-                              backgroundImage: NetworkImage(listPostProvider
-                                  .getListPosts[index].owner.url),
+                            trailing: DropdownButton<String>(
+                              icon: const Icon(
+                                Icons.more_vert,
+                                color: const Color(0xFF000000),
+                              ),
+                              elevation: 16,
+                              style: const TextStyle(color: Colors.deepPurple),
+                              onChanged: (String? val) {
+                                handlePost(
+                                    val,
+                                    listPostProvider
+                                        .getListPersonalPosts[index]);
+                              },
+                              items: <String>[
+                                'delete',
+                                'edit'
+                              ].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                            leading: const CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                  "https://firebasestorage.googleapis.com/v0/b/flutter-chatting-c8c87.appspot.com/o/message%2Fscaled_image_picker2688855893894157660.jpg?alt=media&token=0d45b817-1b49-49d7-b6e3-cd46523c0eb1"),
                             ),
                             subtitle: Text(Jiffy(
                                     DateTime.fromMicrosecondsSinceEpoch(
                                         convertTimeStamp(listPostProvider
-                                            .getListPosts[index].createAt)))
+                                            .getListPersonalPosts[index]
+                                            .createAt)))
                                 .fromNow())),
                         Align(
                           alignment: Alignment.centerLeft,
@@ -119,13 +150,15 @@ class NewsFeedState extends State<NewsFeed> {
                               bottom: 10,
                             ),
                             child: Text(
-                              listPostProvider.getListPosts[index].content,
+                              listPostProvider
+                                  .getListPersonalPosts[index].content,
                             ),
                           ),
                         ),
-                        listPostProvider.getListPosts[index].photos.isNotEmpty
-                            ? _ListPhoto(
-                                listPostProvider.getListPosts[index].photos)
+                        listPostProvider
+                                .getListPersonalPosts[index].photos.isNotEmpty
+                            ? _ListPhoto(listPostProvider
+                                .getListPersonalPosts[index].photos)
                             : Container(),
                         const SizedBox(height: 10),
                         const Divider(),
@@ -135,18 +168,17 @@ class NewsFeedState extends State<NewsFeed> {
                           ),
                         ),
                         ActionLikeShareComment(
-                          index: index,
-                          postId: listPostProvider.getListPosts[index].postId,
-                            content:
-                                listPostProvider.getListPosts[index].content,
-                            photos:
-                                listPostProvider.getListPosts[index].photos),
-                        listPostProvider.getListPosts[index].comments.isNotEmpty
+                            content: listPostProvider
+                                .getListPersonalPosts[index].content,
+                            photos: listPostProvider
+                                .getListPersonalPosts[index].photos),
+                        listPostProvider
+                                .getListPersonalPosts[index].comments.isNotEmpty
                             ? Container(
                                 padding: const EdgeInsets.only(
                                   top: 10.0,
                                 ),
-                                child: ListComments(postId: listPostProvider.getListPosts[index].postId),
+                                child: ListComments(index),
                               )
                             : Container(),
                       ],
