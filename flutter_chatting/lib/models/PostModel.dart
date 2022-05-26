@@ -12,6 +12,7 @@ class Post {
   String content;
   String video;
   dynamic createAt;
+  String postId;
 
   Post({
     required this.canView,
@@ -22,6 +23,7 @@ class Post {
     required this.content,
     required this.createAt,
     required this.video,
+    required this.postId,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -48,6 +50,7 @@ class Post {
     });
 
     return Post(
+        postId: json['postId'],
         photos: photos,
         canView: viewers,
         content: json['content'],
@@ -59,6 +62,7 @@ class Post {
   }
 
   Map<String, dynamic> toJson() => {
+        'postId': postId,
         'content': content,
         'canView': canView,
         'photos': photos,

@@ -44,7 +44,9 @@ class NewsFeedState extends State<NewsFeed> {
           .get()
           .then((QuerySnapshot querySnapshot) async {
         for (var doc in querySnapshot.docs) {
-          var post = Post.fromJson(doc.data());
+          var p = doc.data();
+          p['postId'] = doc.id;
+          Post post = Post.fromJson(p);
 
           for (var element in post.canView) {
             if (element == username &&
@@ -56,7 +58,7 @@ class NewsFeedState extends State<NewsFeed> {
           }
         }
         setState(() => reload = false);
-
+        //  setState(() => loadingPost = LOAD_POST.success);
         return true;
       }).catchError((err) {
         print('Error getting post --- ' + err.toString());
@@ -139,6 +141,8 @@ class NewsFeedState extends State<NewsFeed> {
                           ),
                         ),
                         ActionLikeShareComment(
+                          index: index,
+                          postId: listPostProvider.getListPosts[index].postId,
                             content:
                                 listPostProvider.getListPosts[index].content,
                             photos:
@@ -148,7 +152,7 @@ class NewsFeedState extends State<NewsFeed> {
                                 padding: const EdgeInsets.only(
                                   top: 10.0,
                                 ),
-                                child: ListComments(index),
+                                child: ListComments(postId: listPostProvider.getListPosts[index].postId),
                               )
                             : Container(),
                       ],

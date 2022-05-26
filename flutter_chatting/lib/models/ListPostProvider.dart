@@ -14,6 +14,7 @@ class ListPostProvider extends ChangeNotifier {
   /// Internal, private state of the cart.
   late List<Post> _listPost = [];
   late List<Post> _listPersonalPost = [];
+  late String editedPostId = '';
 
   /// An unmodifiable view of the items in the cart.
   UnmodifiableListView<Post> get getListPosts =>
@@ -27,6 +28,12 @@ class ListPostProvider extends ChangeNotifier {
 
   void add(Post Post) {
     _listPost.add(Post);
+    // This call tells the widgets that are listening to this model to rebuild.
+    notifyListeners();
+  }
+
+  void setEditedPostId(String id) {
+    editedPostId = id;
     // This call tells the widgets that are listening to this model to rebuild.
     notifyListeners();
   }
@@ -88,5 +95,9 @@ class ListPostProvider extends ChangeNotifier {
       return false;
     }
     // This call tells the widgets that are listening to this model to rebuild.
+  }
+
+  void addComment(CommentModel comment, int index) {
+    _listPost[index].comments.add(comment);
   }
 }

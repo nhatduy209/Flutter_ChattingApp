@@ -177,14 +177,18 @@ class PersonalPostState extends State<PersonalPost> {
                             content: listPostProvider
                                 .getListPersonalPosts[index].content,
                             photos: listPostProvider
-                                .getListPersonalPosts[index].photos),
+                                .getListPersonalPosts[index].photos,
+                                index: index,
+                                postId: listPostProvider
+                                .getListPersonalPosts[index].postId,),
                         listPostProvider
                                 .getListPersonalPosts[index].comments.isNotEmpty
                             ? Container(
                                 padding: const EdgeInsets.only(
                                   top: 10.0,
                                 ),
-                                child: ListComments(index),
+                                child: ListComments(postId: listPostProvider
+                                .getListPersonalPosts[index].postId,),
                               )
                             : Container(),
                       ],

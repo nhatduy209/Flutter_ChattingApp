@@ -9,6 +9,10 @@ import 'package:flutter_chatting/models/PostModel.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
+import 'package:provider/provider.dart';
+
+import '../../../models/UserModel.dart';
+import '../../../models/UserProfileProvider.dart';
 
 class ModalCreatePost extends StatefulWidget {
   const ModalCreatePost({Key? key}) : super(key: key);
@@ -49,10 +53,8 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
       String text, List<File> listImage, BuildContext context) async {
     String videoUploadUri = "";
     CollectionReference post = FirebaseFirestore.instance.collection('post');
-    PostOwner owner = PostOwner(
-        url:
-            "https://firebasestorage.googleapis.com/v0/b/flutter-chatting-c8c87.appspot.com/o/profile%2Fbackground.png?alt=media&token=62b2a3f4-de42-4828-9136-9336578ebbf3",
-        username: 'nhatduy209');
+    User profile = Provider.of<UserProfile>(context, listen: false).userProfile;
+    PostOwner owner = PostOwner(url: profile.url, username: profile.userName);
     List<String> listImageUrl = [];
     if (listImage.isNotEmpty) {
       listImageUrl = await uploadImageToFirebase(listImage);
@@ -63,8 +65,9 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
     }
 
     Post newPost = Post(
+        postId: '',
         content: text,
-        canView: ["nhatduy209"],
+        canView: [profile.userName],
         likes: [],
         comments: [],
         photos: listImageUrl,
