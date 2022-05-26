@@ -23,6 +23,7 @@ class CommentInput extends StatelessWidget {
   }
   Future comment(BuildContext context) async {
     User profile = Provider.of<UserProfile>(context, listen: false).userProfile;
+    ListPostProvider listPostProvider = Provider.of<ListPostProvider>(context, listen: false);
     await post.get().then((data) => {
       for (DocumentSnapshot ds in data.docs){
         comments = [],
@@ -40,6 +41,7 @@ class CommentInput extends StatelessWidget {
           }),
           reloadPost(context, cmt),
           ds.reference.update({'comments': comments})
+          .then((value) => listPostProvider.setEditedPostId(ds.id))
         }
       }
     });

@@ -57,7 +57,7 @@ class NewsFeedState extends State<NewsFeed> {
           }
         }
         setState(() => reload = false);
-
+        //  setState(() => loadingPost = LOAD_POST.success);
         return true;
       }).catchError((err) {
         print('Error getting post --- ' + err.toString());
