@@ -13,10 +13,14 @@ import 'BubleMessageModel.dart';
 class ListPostProvider extends ChangeNotifier {
   /// Internal, private state of the cart.
   late List<Post> _listPost = [];
+  late List<Post> _listPersonalPost = [];
 
   /// An unmodifiable view of the items in the cart.
   UnmodifiableListView<Post> get getListPosts =>
       UnmodifiableListView(_listPost);
+
+  UnmodifiableListView<Post> get getListPersonalPosts =>
+      UnmodifiableListView(_listPersonalPost);
 
   /// The current total price of all items (assuming all items cost $42).
   int get totalPost => _listPost.length;
@@ -27,8 +31,49 @@ class ListPostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addPersonalPost(Post Post) {
+    _listPersonalPost.add(Post);
+    // This call tells the widgets that are listening to this model to rebuild.
+    notifyListeners();
+  }
+
+  bool checkExistPersonalPost(Post post) {
+    var count = _listPersonalPost
+        .where((element) => element.content == post.content)
+        .toList();
+
+    if (count.isNotEmpty) {
+      return true;
+    } else {
+      return false;
+    }
+    // This call tells the widgets that are listening to this model to rebuild.
+  }
+
+  void removePersonalPost(Post post) async {
+    await FirebaseFirestore.instance
+        .collection('post')
+        .get()
+        .then((querySnapshot) => {
+              for (var doc in querySnapshot.docs)
+                if (doc['content'] == post.content) {doc.reference.delete()}
+            });
+
+    _listPersonalPost.removeWhere((element) => element.content == post.content);
+
+    // This call tells the widgets that are listening to this model to rebuild.
+    notifyListeners();
+  }
+
   void insert(Post Post) {
     _listPost.insert(0, Post);
+    // This call tells the widgets that are listening to this model to rebuild.
+    notifyListeners();
+  }
+
+  void reloadPost() {
+    _listPost.clear();
+    _listPersonalPost.clear();
     // This call tells the widgets that are listening to this model to rebuild.
     notifyListeners();
   }
@@ -37,7 +82,6 @@ class ListPostProvider extends ChangeNotifier {
     var count =
         _listPost.where((element) => element.content == post.content).toList();
 
-    print('EXIST ?? ' + count.length.toString());
     if (count.isNotEmpty) {
       return true;
     } else {

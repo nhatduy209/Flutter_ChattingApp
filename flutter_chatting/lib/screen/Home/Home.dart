@@ -6,6 +6,7 @@ import 'package:flutter_chatting/assets/component/Flushbar.dart';
 import 'package:flutter_chatting/common/utilities.dart';
 import 'package:flutter_chatting/main.dart';
 import 'package:flutter_chatting/models/ListBubbeMessageProvider.dart';
+import 'package:flutter_chatting/models/ListPostProvider.dart';
 import 'package:flutter_chatting/screen/Home/HomeEvent.dart';
 import 'package:flutter_chatting/screen/Home/widget/BubbleMessageSlide.dart';
 import 'package:flutter_chatting/screen/Home/widget/ModalAddGroupChat.dart';
@@ -71,6 +72,7 @@ class HomeRoute extends State<HomeRouteState> {
         Provider.of<UserProfile>(context).userProfile.listFriend;
     listUserOnline.addAll(listFriends);
     double marginSearch = isSearch == true ? 150.0 : 100.0;
+    ListPostProvider listPostProvider = Provider.of<ListPostProvider>(context);
 
     return FutureBuilder<dynamic>(
         future: listUsers.getAllUsers(isSearch),
@@ -124,114 +126,146 @@ class HomeRoute extends State<HomeRouteState> {
                     // margin: EdgeInsets.only(top: 24),
                     child: BottomNavigationBar(
                       selectedFontSize: 0,
-                  selectedItemColor: Colors.black,
-                  unselectedItemColor: Colors.black26,
-                  elevation: 0,
-                  currentIndex: selectedTab,
-                  onTap: onChangeSelectedTab,
-                  items: <BottomNavigationBarItem>[
-                    BottomNavigationBarItem(
-                      backgroundColor: Colors.blueGrey[50],
-                      icon: selectedTab == 0 ? Container(
-                        padding: EdgeInsets.only(top: 6, bottom: 6, left: 4, right: 4),
-                        margin: EdgeInsets.only(left: 4, right: 4),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
+                      selectedItemColor: Colors.black,
+                      unselectedItemColor: Colors.black26,
+                      elevation: 0,
+                      currentIndex: selectedTab,
+                      onTap: onChangeSelectedTab,
+                      items: <BottomNavigationBarItem>[
+                        BottomNavigationBarItem(
+                          backgroundColor: Colors.blueGrey[50],
+                          icon: selectedTab == 0
+                              ? Container(
+                                  padding: EdgeInsets.only(
+                                      top: 6, bottom: 6, left: 4, right: 4),
+                                  margin: EdgeInsets.only(left: 4, right: 4),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
                                       color: Color.fromARGB(199, 165, 137, 241),
                                       borderRadius: BorderRadius.circular(180)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Icon(Icons.description, size: 16,),
-                            Text('New Posts', style: TextStyle(fontSize: 12))
-                          ]
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: const [
+                                        Icon(
+                                          Icons.description,
+                                          size: 16,
+                                        ),
+                                        Text('New Posts',
+                                            style: TextStyle(fontSize: 12))
+                                      ]),
+                                )
+                              : Container(child: Icon(Icons.description)),
+                          label: '',
                         ),
-                      ) :  Container(
-                        child: Icon(Icons.description)),
-                      label: '',
-                    ),
-                    BottomNavigationBarItem(
-                      backgroundColor: Colors.blueGrey[50],
-                      icon: selectedTab == 1 ? Container(
-                        padding: EdgeInsets.only(top: 6, bottom: 6, left: 4, right: 4),
-                        margin: EdgeInsets.only(left: 4, right: 4),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
+                        BottomNavigationBarItem(
+                          backgroundColor: Colors.blueGrey[50],
+                          icon: selectedTab == 1
+                              ? Container(
+                                  padding: EdgeInsets.only(
+                                      top: 6, bottom: 6, left: 4, right: 4),
+                                  margin: EdgeInsets.only(left: 4, right: 4),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
                                       color: Color.fromARGB(199, 165, 137, 241),
                                       borderRadius: BorderRadius.circular(180)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Icon(Icons.message, size: 16,),
-                            Text('Messages', style: TextStyle(fontSize: 12))
-                          ]
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: const [
+                                        Icon(
+                                          Icons.message,
+                                          size: 16,
+                                        ),
+                                        Text('Messages',
+                                            style: TextStyle(fontSize: 12))
+                                      ]),
+                                )
+                              : Container(child: Icon(Icons.message)),
+                          label: '',
                         ),
-                      ) :  Container(
-                        child: Icon(Icons.message)),
-                      label: '',
-                    ),
-                    BottomNavigationBarItem(
-                      backgroundColor: Colors.blueGrey[50],
-                      icon: selectedTab == 2 ? Container(
-                        padding: EdgeInsets.only(top: 6, bottom: 6, left: 4, right: 4),
-                        margin: EdgeInsets.only(left: 4, right: 4),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
+                        BottomNavigationBarItem(
+                          backgroundColor: Colors.blueGrey[50],
+                          icon: selectedTab == 2
+                              ? Container(
+                                  padding: EdgeInsets.only(
+                                      top: 6, bottom: 6, left: 4, right: 4),
+                                  margin: EdgeInsets.only(left: 4, right: 4),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
                                       color: Color.fromARGB(198, 100, 206, 238),
                                       borderRadius: BorderRadius.circular(180)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Icon(Icons.person_add, size: 16,),
-                            Text('Friends', style: TextStyle(fontSize: 12))
-                          ]
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: const [
+                                        Icon(
+                                          Icons.person_add,
+                                          size: 16,
+                                        ),
+                                        Text('Friends',
+                                            style: TextStyle(fontSize: 12))
+                                      ]),
+                                )
+                              : Container(child: Icon(Icons.person_add)),
+                          label: '',
                         ),
-                      ) :  Container(
-                        child: Icon(Icons.person_add)),
-                      label: '',
-                    ),
-                    BottomNavigationBarItem(
-                      backgroundColor: Colors.blueGrey[50],
-                      icon: selectedTab == 3 ? Container(
-                        padding: EdgeInsets.only(top: 6, bottom: 6, left: 4, right: 4),
-                        margin: EdgeInsets.only(left: 2, right: 2),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
+                        BottomNavigationBarItem(
+                          backgroundColor: Colors.blueGrey[50],
+                          icon: selectedTab == 3
+                              ? Container(
+                                  padding: EdgeInsets.only(
+                                      top: 6, bottom: 6, left: 4, right: 4),
+                                  margin: EdgeInsets.only(left: 2, right: 2),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
                                       color: Color.fromARGB(198, 100, 206, 238),
                                       borderRadius: BorderRadius.circular(180)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Icon(Icons.notifications, size: 16,),
-                            Text('Notifications', style: TextStyle(fontSize: 12),)
-                          ]
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: const [
+                                        Icon(
+                                          Icons.notifications,
+                                          size: 16,
+                                        ),
+                                        Text(
+                                          'Notifications',
+                                          style: TextStyle(fontSize: 12),
+                                        )
+                                      ]),
+                                )
+                              : Container(child: Icon(Icons.notifications)),
+                          label: '',
                         ),
-                      ) :  Container(
-                        child: Icon(Icons.notifications)),
-                      label: '',
-                    ),
-                    BottomNavigationBarItem(
-                      backgroundColor: Colors.blueGrey[50],
-                      icon: selectedTab == 4 ? Container(
-                        padding: EdgeInsets.only(top: 6, bottom: 6, left: 4, right: 4),
-                        margin: EdgeInsets.only(left: 4, right: 4),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
+                        BottomNavigationBarItem(
+                          backgroundColor: Colors.blueGrey[50],
+                          icon: selectedTab == 4
+                              ? Container(
+                                  padding: EdgeInsets.only(
+                                      top: 6, bottom: 6, left: 4, right: 4),
+                                  margin: EdgeInsets.only(left: 4, right: 4),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
                                       color: Color.fromARGB(198, 100, 206, 238),
                                       borderRadius: BorderRadius.circular(180)),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Icon(Icons.settings, size: 16,),
-                            Text('Settings', style: TextStyle(fontSize: 12))
-                          ]
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: const [
+                                        Icon(
+                                          Icons.settings,
+                                          size: 16,
+                                        ),
+                                        Text('Settings',
+                                            style: TextStyle(fontSize: 12))
+                                      ]),
+                                )
+                              : Container(child: Icon(Icons.settings)),
+                          label: '',
                         ),
-                      ) :  Container(
-                        child: Icon(Icons.settings)),
-                      label: '',
+                      ],
                     ),
-                  ],
-                ),
                   )
                 ],
               ),
@@ -253,8 +287,11 @@ class HomeRoute extends State<HomeRouteState> {
                                         IconButton(
                                             icon: const Icon(Icons.logout,
                                                 size: 30.0),
-                                            onPressed: () => logout(getUsername,
-                                                listUsers, context)),
+                                            onPressed: () => logout(
+                                                getUsername,
+                                                listUsers,
+                                                listPostProvider,
+                                                context)),
                                         const Text(
                                           'Chatty',
                                           textAlign: TextAlign.center,
