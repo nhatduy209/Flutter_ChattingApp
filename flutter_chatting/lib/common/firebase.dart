@@ -9,9 +9,9 @@ Future<List<String>> uploadImageToFirebase(List<File> listImage) async {
   firebase_storage.FirebaseStorage storage =
       firebase_storage.FirebaseStorage.instance;
 
-  if (listImage.isEmpty)
+  if (listImage.isEmpty) {
     return [];
-  else {
+  } else {
     return await Future.wait(listImage.map((element) async {
       String destination = 'message/${basename(element.path)}';
       final ref = firebase_storage.FirebaseStorage.instance.ref(destination);
@@ -24,13 +24,37 @@ Future<List<String>> uploadImageToFirebase(List<File> listImage) async {
   }
 }
 
+Future<String> uploadVideoToFirebase(File video) async {
+  String videoUri = "";
+  firebase_storage.FirebaseStorage storage =
+      firebase_storage.FirebaseStorage.instance;
+
+  try {
+    if (video.path.isEmpty) {
+      return videoUri;
+    } else {
+      String destination = 'message/${basename(video.path)}';
+      final ref = firebase_storage.FirebaseStorage.instance.ref(destination);
+      await ref.putFile(video);
+      videoUri = await firebase_storage.FirebaseStorage.instance
+          .ref(destination)
+          .getDownloadURL();
+
+      return videoUri;
+    }
+  } catch (err) {
+    print('Error when uploading video' + err.toString());
+    return videoUri;
+  }
+}
+
 Future<String> getImageFromFirebase(String imageStoragePath) async {
   firebase_storage.FirebaseStorage storage =
       firebase_storage.FirebaseStorage.instance;
   print('IMAGE PATH === $imageStoragePath');
-  if (imageStoragePath.isEmpty)
+  if (imageStoragePath.isEmpty) {
     return "";
-  else {
+  } else {
     try {
       print('IMAGE PATH === $imageStoragePath');
       String downloadURL = await firebase_storage.FirebaseStorage.instance

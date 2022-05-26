@@ -8,6 +8,7 @@ import 'package:flutter_chatting/common/firebase.dart';
 import 'package:flutter_chatting/models/PostModel.dart';
 
 import 'package:image_picker/image_picker.dart';
+import 'package:video_player/video_player.dart';
 
 class ModalCreatePost extends StatefulWidget {
   const ModalCreatePost({Key? key}) : super(key: key);
@@ -18,6 +19,7 @@ class ModalCreatePost extends StatefulWidget {
 
 class _ModalCreatePostState extends State<ModalCreatePost> {
   List<File> listImage = <File>[];
+  List<File> videoPath = <File>[];
   TextEditingController contentPost = TextEditingController();
 
   Future<void> selectImage() async {
@@ -31,8 +33,21 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
     }
   }
 
+  Future<void> selectVideo() async {
+    PickedFile listPickedFiles =
+        await ImagePicker().getVideo(source: ImageSource.gallery);
+
+    if (listPickedFiles.path.isNotEmpty) {
+      print('PATH VIDEO --- ' + listPickedFiles.path);
+      setState(() {
+        videoPath.add(File(listPickedFiles.path));
+      });
+    }
+  }
+
   Future<void> handleAddPost(
       String text, List<File> listImage, BuildContext context) async {
+    String videoUploadUri = "";
     CollectionReference post = FirebaseFirestore.instance.collection('post');
     PostOwner owner = PostOwner(
         url:
@@ -43,6 +58,10 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
       listImageUrl = await uploadImageToFirebase(listImage);
     }
 
+    if (videoPath.isNotEmpty) {
+      videoUploadUri = await uploadVideoToFirebase(videoPath[0]);
+    }
+
     Post newPost = Post(
         content: text,
         canView: ["nhatduy209"],
@@ -50,7 +69,8 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
         comments: [],
         photos: listImageUrl,
         owner: owner,
-        createAt: DateTime.now());
+        createAt: DateTime.now(),
+        video: videoUploadUri);
 
     post.add(newPost.toJson());
     Navigator.pop(context);
@@ -75,6 +95,29 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
                             width: 200, height: 200)));
               },
             ))
+        : Container();
+  }
+
+  Widget _renderVideo(context) {
+    VideoPlayerController? _videoPlayerController;
+    Future<void> _initializeVideoPlayerFuture;
+
+    if (videoPath.isNotEmpty) {
+      _videoPlayerController =
+          VideoPlayerController.file(File(videoPath[0].path));
+      _initializeVideoPlayerFuture = _videoPlayerController!.initialize();
+    }
+
+    return videoPath.isNotEmpty
+        ? SizedBox(
+            height: 200,
+            child: Container(
+                height: 200,
+                width: 200,
+                margin: const EdgeInsets.only(right: 7),
+                child: InkWell(
+                    onTap: () => {_videoPlayerController!.play()},
+                    child: VideoPlayer(_videoPlayerController!))))
         : Container();
   }
 
@@ -123,8 +166,19 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
                           onPressed: () {
                             selectImage();
                           }),
+                      IconButton(
+                          iconSize: 30.0,
+                          icon: const Icon(Icons.switch_video),
+                          color: const Color(0xFF04764E),
+                          onPressed: () {
+                            selectVideo();
+                          })
                     ])),
                 _renderImage(),
+                const SizedBox(
+                  height: 5,
+                ),
+                _renderVideo(context),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
