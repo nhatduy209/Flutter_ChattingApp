@@ -5,6 +5,8 @@ import 'package:jiffy/jiffy.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/PostModel.dart';
+import '../../../models/UserModel.dart';
+import '../../../models/UserProfileProvider.dart';
 class ListComments extends StatefulWidget {
   final String postId;
   // int numberOfLikes;
@@ -53,9 +55,54 @@ class ListCommentsState extends State<ListComments> {
         //   listPostProvider.setEditedPostId('');
         // }
       }
+  Future<dynamic> deleteComment(BuildContext context, CommentModel comment) async {
+    await posts.doc(widget.postId)
+    .update(
+      {
+        'comments': listComments.where((element) => element.content != comment.content && element.createAt != comment.createAt).toList()
+      }
+    ).then((value) => {
+      Navigator.pop(context, 'OK'),
+      reload()
+    });
+  }
+  Widget OptionPopup(CommentModel comment) {
+    return Container(
+            height: 50,
+            margin: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+              color: Colors.black87
+            ),
+            alignment: Alignment.center,
+            child: GestureDetector(
+              onTap: () => {
+                Navigator.pop(context),
+                showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: const Text('Delete confirm form'),
+                    content: const Text('Do you want to delete this comment?'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, 'Cancel'),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => deleteComment(context, comment),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                )
+              },
+              child: Text('Delete', style: TextStyle(fontSize: 24, color: Colors.white),))
+            );
+  }
 
   @override
   Widget build(BuildContext context) {
+    User profile = Provider.of<UserProfile>(context, listen: false).userProfile;
     return FutureBuilder<dynamic>(
       future: getListComments(context: context),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -88,6 +135,17 @@ class ListCommentsState extends State<ListComments> {
                   ).fromNow(),
                   style: const TextStyle(fontSize: 11.0),
                 ),
+                onTap: () => {
+                  listComments[index].username == profile.userName ?
+                  showModalBottomSheet<void>(
+                        isScrollControlled: true,
+                        context: context,
+                        backgroundColor: Color.fromRGBO(0, 0, 0, 0),
+                        builder: (BuildContext context) {
+                          return OptionPopup(listComments[index]);
+                        },
+                      ) : print('hong bé ơi')
+                },
               ),
             ));
           },

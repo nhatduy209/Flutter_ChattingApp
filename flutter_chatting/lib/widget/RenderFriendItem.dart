@@ -24,15 +24,14 @@ class RenderFriendItem extends StatelessWidget {
             )),
           )
         },
-        child: Column(
-          children: [
-            Expanded(
-          child: Container(
+        child: Container(
+          height: 200,
           width: MediaQuery.of(context).size.width * 0.3,
           // height: ,
           margin: const EdgeInsets.all(12),
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.only(top: 12),
           decoration: const BoxDecoration(
+            color: Colors.white,
             boxShadow: [
               BoxShadow(
                 color: Colors.black26,
@@ -40,10 +39,11 @@ class RenderFriendItem extends StatelessWidget {
                 offset: Offset(2, 4), // Shadow position
               ),
             ],
-            color: Colors.white,
+            // color: Colors.white,
             borderRadius: BorderRadius.all(Radius.circular(8))
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(100.0),
@@ -57,16 +57,10 @@ class RenderFriendItem extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: Container(
-                margin: const EdgeInsets.only(top: 6),
-                child: Text(user.userName, style: TextStyle(fontWeight: FontWeight.bold),),
-              )
+                child: Text(user.userName, style: TextStyle(fontWeight: FontWeight.bold), overflow: TextOverflow.fade,),
               )
             ]
           ),
-        )
-        )
-          ],
         )
       )
     );

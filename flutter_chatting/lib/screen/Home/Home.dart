@@ -403,7 +403,11 @@ class HomeRoute extends State<HomeRouteState> {
                                                     .getListUsers[index]
                                                     .username,
                                                 avatar:
-                                                    "https://thumbs.dreamstime.com/b/male-avatar-icon-flat-style-male-user-icon-cartoon-man-avatar-hipster-vector-stock-91462914.jpg",
+                                                listUsers
+                                                    .getListUsers[index].avatar == '' ?
+                                                    "https://thumbs.dreamstime.com/b/male-avatar-icon-flat-style-male-user-icon-cartoon-man-avatar-hipster-vector-stock-91462914.jpg" :
+                                                    listUsers
+                                                    .getListUsers[index].avatar,
                                                 isOnline: false,
                                                 latestMessage: listUsers
                                                     .getListUsers[index]

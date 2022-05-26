@@ -175,9 +175,9 @@ class _ThumbUpButtonState extends State<_ThumbUpButton> {
               size: 25.0),
               SizedBox(width: 5),
               // Text(widget.numberOfLikes.toString()),
-              Text(like.toString(), style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1.0)),),
+              Text(like.toString(), style: TextStyle(color: Color.fromARGB(255, 68, 71, 70)),),
               SizedBox(width: 10),
-              Text('Like', style: TextStyle(color: Color.fromRGBO(200, 200, 200, 1.0)),),
+              Text('Like', style: TextStyle(color: Color.fromARGB(255, 68, 71, 70)),),
             ],
           ),
         );
