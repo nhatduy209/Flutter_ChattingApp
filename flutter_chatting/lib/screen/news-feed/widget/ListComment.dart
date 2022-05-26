@@ -82,13 +82,12 @@ class ListCommentsState extends State<ListComments> {
                     listComments[index].url,
                   ),
                 ),
-                // trailing: Text(
-                //   Jiffy(
-                //     listPostProvider
-                //         .getListPosts[indexComment].comments[index].createAt,
-                //   ).fromNow(),
-                //   style: const TextStyle(fontSize: 11.0),
-                // ),
+                trailing: Text(
+                  Jiffy(
+                    listComments[index].createAt.toDate().toString(),
+                  ).fromNow(),
+                  style: const TextStyle(fontSize: 11.0),
+                ),
               ),
             ));
           },
