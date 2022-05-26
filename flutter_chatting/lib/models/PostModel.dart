@@ -10,8 +10,9 @@ class Post {
   List<LikeModel> likes;
   PostOwner owner;
   String content;
-  String postId;
+  String video;
   dynamic createAt;
+  String postId;
 
   Post({
     required this.canView,
@@ -20,8 +21,9 @@ class Post {
     required this.owner,
     required this.photos,
     required this.content,
-    required this.postId,
     required this.createAt,
+    required this.video,
+    required this.postId,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -48,18 +50,19 @@ class Post {
     });
 
     return Post(
-      postId: json['postId'],
-      photos: photos,
-      canView: viewers,
-      content: json['content'],
-      likes: likes,
-      comments: comments,
-      owner: PostOwner.fromJson(json['owner']),
-      createAt: json['createAt']);
+        postId: json['postId'],
+        photos: photos,
+        canView: viewers,
+        content: json['content'],
+        likes: likes,
+        comments: comments,
+        owner: PostOwner.fromJson(json['owner']),
+        video: json['video'],
+        createAt: json['createAt']);
   }
 
   Map<String, dynamic> toJson() => {
-        'postId' : postId,
+        'postId': postId,
         'content': content,
         'canView': canView,
         'photos': photos,
@@ -67,6 +70,7 @@ class Post {
         'likes': likes,
         'owner': owner.toJson(),
         'createAt': createAt,
+        'video': video,
       };
 }
 
