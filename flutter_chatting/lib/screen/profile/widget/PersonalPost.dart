@@ -132,9 +132,9 @@ class PersonalPostState extends State<PersonalPost> {
                                 );
                               }).toList(),
                             ),
-                            leading: const CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                  "https://firebasestorage.googleapis.com/v0/b/flutter-chatting-c8c87.appspot.com/o/message%2Fscaled_image_picker2688855893894157660.jpg?alt=media&token=0d45b817-1b49-49d7-b6e3-cd46523c0eb1"),
+                            leading: CircleAvatar(
+                              backgroundImage: NetworkImage(listPostProvider
+                                  .getListPersonalPosts[index].owner.url),
                             ),
                             subtitle: Text(Jiffy(
                                     DateTime.fromMicrosecondsSinceEpoch(
@@ -174,21 +174,24 @@ class PersonalPostState extends State<PersonalPost> {
                           ),
                         ),
                         ActionLikeShareComment(
-                            content: listPostProvider
-                                .getListPersonalPosts[index].content,
-                            photos: listPostProvider
-                                .getListPersonalPosts[index].photos,
-                                index: index,
-                                postId: listPostProvider
-                                .getListPersonalPosts[index].postId,),
+                          content: listPostProvider
+                              .getListPersonalPosts[index].content,
+                          photos: listPostProvider
+                              .getListPersonalPosts[index].photos,
+                          index: index,
+                          postId: listPostProvider
+                              .getListPersonalPosts[index].postId,
+                        ),
                         listPostProvider
                                 .getListPersonalPosts[index].comments.isNotEmpty
                             ? Container(
                                 padding: const EdgeInsets.only(
                                   top: 10.0,
                                 ),
-                                child: ListComments(postId: listPostProvider
-                                .getListPersonalPosts[index].postId,),
+                                child: ListComments(
+                                  postId: listPostProvider
+                                      .getListPersonalPosts[index].postId,
+                                ),
                               )
                             : Container(),
                       ],

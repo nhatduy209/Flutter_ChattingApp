@@ -51,9 +51,7 @@ class NewsFeedState extends State<NewsFeed> {
           for (var element in post.canView) {
             if (element == username &&
                 listPostProvider.checkExist(post) == false) {
-              reload == true
-                  ? listPostProvider.insert(post)
-                  : listPostProvider.add(post);
+              listPostProvider.add(post);
             }
           }
         }
@@ -141,8 +139,8 @@ class NewsFeedState extends State<NewsFeed> {
                           ),
                         ),
                         ActionLikeShareComment(
-                          index: index,
-                          postId: listPostProvider.getListPosts[index].postId,
+                            index: index,
+                            postId: listPostProvider.getListPosts[index].postId,
                             content:
                                 listPostProvider.getListPosts[index].content,
                             photos:
@@ -152,7 +150,9 @@ class NewsFeedState extends State<NewsFeed> {
                                 padding: const EdgeInsets.only(
                                   top: 10.0,
                                 ),
-                                child: ListComments(postId: listPostProvider.getListPosts[index].postId),
+                                child: ListComments(
+                                    postId: listPostProvider
+                                        .getListPosts[index].postId),
                               )
                             : Container(),
                       ],
