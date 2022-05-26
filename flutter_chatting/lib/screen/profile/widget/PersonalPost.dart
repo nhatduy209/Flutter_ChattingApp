@@ -12,6 +12,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_player/video_player.dart';
 
 enum LOAD_POST {
   none,
@@ -161,6 +162,11 @@ class PersonalPostState extends State<PersonalPost> {
                                 .getListPersonalPosts[index].photos)
                             : Container(),
                         const SizedBox(height: 10),
+                        listPostProvider.getListPosts[index].video.isNotEmpty
+                            ? _ListVideo(listPostProvider
+                                .getListPersonalPosts[index].video)
+                            : Container(),
+                        const SizedBox(height: 10),
                         const Divider(),
                         Container(
                           padding: const EdgeInsets.only(
@@ -214,6 +220,39 @@ class _ListPhoto extends StatelessWidget {
             child: Image.network(photos[index]),
           );
         },
+      ),
+    );
+  }
+}
+
+class _ListVideo extends StatelessWidget {
+  VideoPlayerController? _videoPlayerController;
+  Future<void>? _initializeVideoPlayerFuture;
+
+  _ListVideo(this.videos);
+  final String videos;
+
+  @override
+  Widget build(BuildContext context) {
+    print('Video ----' + videos);
+    if (videos.isNotEmpty) {
+      _videoPlayerController = VideoPlayerController.network(videos);
+      _initializeVideoPlayerFuture = _videoPlayerController!.initialize();
+    }
+
+    return SizedBox(
+      height: 200,
+      child: Container(
+        margin: const EdgeInsets.only(left: 8.0, right: 8.0),
+        child: Container(
+          height: 200,
+          width: 200,
+          margin: const EdgeInsets.only(right: 7),
+          child: InkWell(
+            onTap: () => {_videoPlayerController!.play()},
+            child: VideoPlayer(_videoPlayerController!),
+          ),
+        ),
       ),
     );
   }
