@@ -30,30 +30,42 @@ class NewsFeedState extends State<NewsFeed> {
   bool reload = false;
   //List<Post> listPostProvider.getListPosts = [];
   CollectionReference posts = FirebaseFirestore.instance.collection('post');
-
   Future<bool> getListPost(ListPostProvider listPostProvider) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String username = prefs.getString('username');
 
     if (listPostProvider.getListPosts.isEmpty || reload == true) {
-      await posts.get().then((QuerySnapshot querySnapshot) async {
+      await posts
+          .orderBy('createAt', descending: true)
+          .get()
+          .then((QuerySnapshot querySnapshot) async {
         for (var doc in querySnapshot.docs) {
           var post = Post.fromJson(doc.data());
 
           for (var element in post.canView) {
-            if (element == username) {
-              listPostProvider.add(post);
+            if (element == username &&
+                listPostProvider.checkExist(post) == false) {
+              reload == true
+                  ? listPostProvider.insert(post)
+                  : listPostProvider.add(post);
             }
           }
         }
         setState(() => reload = false);
-        //  setState(() => loadingPost = LOAD_POST.success);
+
         return true;
       }).catchError((err) {
+        print('Error getting post --- ' + err.toString());
         return false;
       });
     }
     return false;
+  }
+
+  int convertTimeStamp(dynamic timeStamp) {
+    var time = timeStamp as Timestamp;
+
+    return time.millisecondsSinceEpoch * 1000;
   }
 
   @override
@@ -77,22 +89,22 @@ class NewsFeedState extends State<NewsFeed> {
                     child: Column(
                       children: [
                         ListTile(
-                          title: Text(
-                            listPostProvider.getListPosts[index].owner.username,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
+                            title: Text(
+                              listPostProvider
+                                  .getListPosts[index].owner.username,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          // subtitle: Text(
-                          //   Jiffy(posts.state.listPosts[index].createdAt)
-                          //       .fromNow(),
-                          //   style: const TextStyle(fontSize: 11.0),
-                          // ),
-                          leading: CircleAvatar(
-                            backgroundImage: NetworkImage(
-                                "https://firebasestorage.googleapis.com/v0/b/flutter-chatting-c8c87.appspot.com/o/message%2Fscaled_image_picker2688855893894157660.jpg?alt=media&token=0d45b817-1b49-49d7-b6e3-cd46523c0eb1"),
-                          ),
-                        ),
+                            leading: CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                  "https://firebasestorage.googleapis.com/v0/b/flutter-chatting-c8c87.appspot.com/o/message%2Fscaled_image_picker2688855893894157660.jpg?alt=media&token=0d45b817-1b49-49d7-b6e3-cd46523c0eb1"),
+                            ),
+                            subtitle: Text(Jiffy(
+                                    DateTime.fromMicrosecondsSinceEpoch(
+                                        convertTimeStamp(listPostProvider
+                                            .getListPosts[index].createAt)))
+                                .fromNow())),
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Container(

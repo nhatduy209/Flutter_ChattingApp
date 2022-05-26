@@ -49,7 +49,8 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
         likes: [],
         comments: [],
         photos: listImageUrl,
-        owner: owner);
+        owner: owner,
+        createAt: DateTime.now());
 
     post.add(newPost.toJson());
     Navigator.pop(context);
