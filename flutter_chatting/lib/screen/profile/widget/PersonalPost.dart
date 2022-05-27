@@ -55,7 +55,6 @@ class PersonalPostState extends State<PersonalPost> {
           }
         }
         setState(() => reload = false);
-
         return true;
       }).catchError((err) {
         print('Error getting personal post --- ' + err.toString());
@@ -85,6 +84,8 @@ class PersonalPostState extends State<PersonalPost> {
   @override
   Widget build(BuildContext context) {
     listPostProvider = Provider.of<ListPostProvider>(context, listen: true);
+    print('PERSON POST ' +
+        listPostProvider.getListPersonalPosts.length.toString());
     return FutureBuilder(
       future: getListPost(listPostProvider),
       builder: (context, AsyncSnapshot<dynamic> snapshot) {
@@ -94,112 +95,118 @@ class PersonalPostState extends State<PersonalPost> {
               reload = true;
               getListPost(listPostProvider);
             },
-            child: ListView.builder(
-              itemCount: listPostProvider.getListPersonalPosts.length,
-              itemBuilder: (context, index) {
-                return SizedBox(
-                  child: Card(
-                    child: Column(
-                      children: [
-                        ListTile(
-                            title: Text(
-                              listPostProvider
-                                  .getListPersonalPosts[index].owner.username,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            trailing: DropdownButton<String>(
-                              icon: const Icon(
-                                Icons.more_vert,
-                                color: const Color(0xFF000000),
-                              ),
-                              elevation: 16,
-                              style: const TextStyle(color: Colors.deepPurple),
-                              onChanged: (String? val) {
-                                handlePost(
-                                    val,
-                                    listPostProvider
-                                        .getListPersonalPosts[index]);
-                              },
-                              items: <String>[
-                                'delete',
-                                'edit'
-                              ].map<DropdownMenuItem<String>>((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                            ),
-                            leading: CircleAvatar(
-                              backgroundImage: NetworkImage(listPostProvider
-                                  .getListPersonalPosts[index].owner.url),
-                            ),
-                            subtitle: Text(Jiffy(
-                                    DateTime.fromMicrosecondsSinceEpoch(
-                                        convertTimeStamp(listPostProvider
+            child: listPostProvider.getListPersonalPosts.isNotEmpty
+                ? ListView.builder(
+                    itemCount: listPostProvider.getListPersonalPosts.length,
+                    itemBuilder: (context, index) {
+                      return SizedBox(
+                        child: Card(
+                          child: Column(
+                            children: [
+                              ListTile(
+                                  title: Text(
+                                    listPostProvider.getListPersonalPosts[index]
+                                        .owner.username,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  trailing: DropdownButton<String>(
+                                    icon: const Icon(
+                                      Icons.more_vert,
+                                      color: const Color(0xFF000000),
+                                    ),
+                                    elevation: 16,
+                                    style: const TextStyle(
+                                        color: Colors.deepPurple),
+                                    onChanged: (String? val) {
+                                      handlePost(
+                                          val,
+                                          listPostProvider
+                                              .getListPersonalPosts[index]);
+                                    },
+                                    items: <String>['delete', 'edit']
+                                        .map<DropdownMenuItem<String>>(
+                                            (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
+                                  ),
+                                  leading: CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                        listPostProvider
                                             .getListPersonalPosts[index]
-                                            .createAt)))
-                                .fromNow())),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            padding: const EdgeInsets.only(
-                              left: 20,
-                              top: 10,
-                              bottom: 10,
-                            ),
-                            child: Text(
-                              listPostProvider
-                                  .getListPersonalPosts[index].content,
-                            ),
-                          ),
-                        ),
-                        listPostProvider
-                                .getListPersonalPosts[index].photos.isNotEmpty
-                            ? _ListPhoto(listPostProvider
-                                .getListPersonalPosts[index].photos)
-                            : Container(),
-                        const SizedBox(height: 10),
-                        listPostProvider.getListPosts[index].video.isNotEmpty
-                            ? _ListVideo(listPostProvider
-                                .getListPersonalPosts[index].video)
-                            : Container(),
-                        const SizedBox(height: 10),
-                        const Divider(),
-                        Container(
-                          padding: const EdgeInsets.only(
-                            top: 10.0,
-                          ),
-                        ),
-                        ActionLikeShareComment(
-                          content: listPostProvider
-                              .getListPersonalPosts[index].content,
-                          photos: listPostProvider
-                              .getListPersonalPosts[index].photos,
-                          index: index,
-                          postId: listPostProvider
-                              .getListPersonalPosts[index].postId,
-                        ),
-                        listPostProvider
-                                .getListPersonalPosts[index].comments.isNotEmpty
-                            ? Container(
+                                            .owner
+                                            .url),
+                                  ),
+                                  subtitle: Text(Jiffy(
+                                          DateTime.fromMicrosecondsSinceEpoch(
+                                              convertTimeStamp(listPostProvider
+                                                  .getListPersonalPosts[index]
+                                                  .createAt)))
+                                      .fromNow())),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  padding: const EdgeInsets.only(
+                                    left: 20,
+                                    top: 10,
+                                    bottom: 10,
+                                  ),
+                                  child: Text(
+                                    listPostProvider
+                                        .getListPersonalPosts[index].content,
+                                  ),
+                                ),
+                              ),
+                              listPostProvider.getListPersonalPosts[index]
+                                      .photos.isNotEmpty
+                                  ? _ListPhoto(listPostProvider
+                                      .getListPersonalPosts[index].photos)
+                                  : Container(),
+                              const SizedBox(height: 10),
+                              listPostProvider.getListPersonalPosts[index].video
+                                      .isNotEmpty
+                                  ? _ListVideo(listPostProvider
+                                      .getListPersonalPosts[index].video)
+                                  : Container(),
+                              const SizedBox(height: 10),
+                              const Divider(),
+                              Container(
                                 padding: const EdgeInsets.only(
                                   top: 10.0,
                                 ),
-                                child: ListComments(
-                                  postId: listPostProvider
-                                      .getListPersonalPosts[index].postId,
-                                ),
-                              )
-                            : Container(),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+                              ),
+                              ActionLikeShareComment(
+                                content: listPostProvider
+                                    .getListPersonalPosts[index].content,
+                                photos: listPostProvider
+                                    .getListPersonalPosts[index].photos,
+                                index: index,
+                                postId: listPostProvider
+                                    .getListPersonalPosts[index].postId,
+                              ),
+                              listPostProvider.getListPersonalPosts[index]
+                                      .comments.isNotEmpty
+                                  ? Container(
+                                      padding: const EdgeInsets.only(
+                                        top: 10.0,
+                                      ),
+                                      child: ListComments(
+                                        postId: listPostProvider
+                                            .getListPersonalPosts[index].postId,
+                                      ),
+                                    )
+                                  : Container(),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                : Center(child: Text('You\'t haven\'t posted any things ...')),
           );
         } else {
           return const Align(child: Text('Loading post.....'));

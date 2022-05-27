@@ -143,19 +143,27 @@ class _MyHomePageState extends State<MyHomePage> {
         // Set
         prefs.setString('username', username.text);
         final List<User> friends = [];
-        for (var friend in listUser[0]['listFriend']) {
-          var data = querySnapshot.docs
-              .firstWhere((element) => element.data()['username'] == friend);
-          friends.add(User(
-              id: data.id,
-              userName: data.data()['username'],
-              email: data.data()['email'],
-              age: data.data()['age'],
-              phoneNumber: data.data()['phoneNumber'],
-              listFriend: [],
-              url: data.data()['url'],
-              token: ''));
+
+        if (listUser.isNotEmpty) {
+          try {
+            for (var friend in listUser[0]['listFriend']) {
+              var data = querySnapshot.docs.firstWhere(
+                  (element) => element.data()['username'] == friend);
+              friends.add(User(
+                  id: data.id,
+                  userName: data.data()['username'],
+                  email: data.data()['email'],
+                  age: data.data()['age'],
+                  phoneNumber: data.data()['phoneNumber'],
+                  listFriend: [],
+                  url: data.data()['url'],
+                  token: ''));
+            }
+          } catch (err) {
+            print('User dont have any friends');
+          }
         }
+
         userProfile.setProfile(User(
             id: listUser[0]['id'],
             userName: listUser[0]['userName'],

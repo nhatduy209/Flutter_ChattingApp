@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chatting/common/firebase.dart';
+import 'package:flutter_chatting/models/ListPostProvider.dart';
 import 'package:flutter_chatting/models/PostModel.dart';
 
 import 'package:image_picker/image_picker.dart';
@@ -49,11 +50,13 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
     }
   }
 
-  Future<void> handleAddPost(
-      String text, List<File> listImage, BuildContext context) async {
+  Future<void> handleAddPost(String text, List<File> listImage,
+      ListPostProvider listPostProvider, BuildContext context) async {
     String videoUploadUri = "";
+
     CollectionReference post = FirebaseFirestore.instance.collection('post');
     User profile = Provider.of<UserProfile>(context, listen: false).userProfile;
+
     PostOwner owner = PostOwner(url: profile.url, username: profile.userName);
     List<String> listImageUrl = [];
     if (listImage.isNotEmpty) {
@@ -72,10 +75,11 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
         comments: [],
         photos: listImageUrl,
         owner: owner,
-        createAt: DateTime.now(),
+        createAt: Timestamp.fromDate(DateTime.now()),
         video: videoUploadUri);
 
     post.add(newPost.toJson());
+    listPostProvider.handleAddPost(newPost);
     Navigator.pop(context);
   }
 
@@ -126,6 +130,8 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
 
   @override
   Widget build(BuildContext context) {
+    ListPostProvider listPostProvider =
+        Provider.of<ListPostProvider>(context, listen: true);
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(FocusNode());
@@ -191,7 +197,8 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
                               const Color(0xFF04764E))),
                       child: Text('Create'),
                       onPressed: () {
-                        handleAddPost(contentPost.text, listImage, context);
+                        handleAddPost(contentPost.text, listImage,
+                            listPostProvider, context);
                       },
                     ),
                     ElevatedButton(

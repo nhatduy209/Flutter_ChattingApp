@@ -67,6 +67,8 @@ class _SecondRouteState extends State<SecondRoute> {
             'phoneNumber': phoneNumber.text,
             'age': age.text,
             'token': token,
+            'url':
+                'https://eitrawmaterials.eu/wp-content/uploads/2016/09/person-icon.png'
           })
           .then((value) => _showToast(context, 'Sign up successfully'))
           .then((value) => Navigator.pop(

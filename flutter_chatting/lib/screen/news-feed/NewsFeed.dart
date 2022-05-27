@@ -76,6 +76,7 @@ class NewsFeedState extends State<NewsFeed> {
   Widget build(BuildContext context) {
     var listPostProvider = Provider.of<ListPostProvider>(context, listen: true);
 
+    print('LIST POST ---' + listPostProvider.getListPosts.length.toString());
     return FutureBuilder(
       future: getListPost(listPostProvider),
       builder: (context, AsyncSnapshot<dynamic> snapshot) {
@@ -85,82 +86,92 @@ class NewsFeedState extends State<NewsFeed> {
               reload = true;
               getListPost(listPostProvider);
             },
-            child: ListView.builder(
-              itemCount: listPostProvider.getListPosts.length,
-              itemBuilder: (context, index) {
-                return SizedBox(
-                  child: Card(
-                    child: Column(
-                      children: [
-                        ListTile(
-                            title: Text(
-                              listPostProvider
-                                  .getListPosts[index].owner.username,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
+            child: listPostProvider.getListPosts.isNotEmpty
+                ? ListView.builder(
+                    itemCount: listPostProvider.getListPosts.length,
+                    itemBuilder: (context, index) {
+                      return SizedBox(
+                        child: Card(
+                          child: Column(
+                            children: [
+                              ListTile(
+                                  title: Text(
+                                    listPostProvider
+                                        .getListPosts[index].owner.username,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  leading: CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                        listPostProvider
+                                            .getListPosts[index].owner.url),
+                                  ),
+                                  subtitle: Text(Jiffy(
+                                          DateTime.fromMicrosecondsSinceEpoch(
+                                              convertTimeStamp(listPostProvider
+                                                  .getListPosts[index]
+                                                  .createAt)))
+                                      .fromNow())),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  padding: const EdgeInsets.only(
+                                    left: 20,
+                                    top: 10,
+                                    bottom: 10,
+                                  ),
+                                  child: Text(
+                                    listPostProvider
+                                        .getListPosts[index].content,
+                                  ),
+                                ),
                               ),
-                            ),
-                            leading: CircleAvatar(
-                              backgroundImage: NetworkImage(listPostProvider
-                                  .getListPosts[index].owner.url),
-                            ),
-                            subtitle: Text(Jiffy(
-                                    DateTime.fromMicrosecondsSinceEpoch(
-                                        convertTimeStamp(listPostProvider
-                                            .getListPosts[index].createAt)))
-                                .fromNow())),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            padding: const EdgeInsets.only(
-                              left: 20,
-                              top: 10,
-                              bottom: 10,
-                            ),
-                            child: Text(
-                              listPostProvider.getListPosts[index].content,
-                            ),
-                          ),
-                        ),
-                        listPostProvider.getListPosts[index].photos.isNotEmpty
-                            ? _ListPhoto(
-                                listPostProvider.getListPosts[index].photos)
-                            : Container(),
-                        const SizedBox(height: 10),
-                        listPostProvider.getListPosts[index].video.isNotEmpty
-                            ? _ListVideo(
-                                listPostProvider.getListPosts[index].video)
-                            : Container(),
-                        const SizedBox(height: 10),
-                        const Divider(),
-                        Container(
-                          padding: const EdgeInsets.only(
-                            top: 10.0,
-                          ),
-                        ),
-                        ActionLikeShareComment(
-                            index: index,
-                            postId: listPostProvider.getListPosts[index].postId,
-                            content:
-                                listPostProvider.getListPosts[index].content,
-                            photos:
-                                listPostProvider.getListPosts[index].photos),
-                        listPostProvider.getListPosts[index].comments.isNotEmpty
-                            ? Container(
+                              listPostProvider
+                                      .getListPosts[index].photos.isNotEmpty
+                                  ? _ListPhoto(listPostProvider
+                                      .getListPosts[index].photos)
+                                  : Container(),
+                              const SizedBox(height: 10),
+                              listPostProvider
+                                      .getListPosts[index].video.isNotEmpty
+                                  ? _ListVideo(listPostProvider
+                                      .getListPosts[index].video)
+                                  : Container(),
+                              const SizedBox(height: 10),
+                              const Divider(),
+                              Container(
                                 padding: const EdgeInsets.only(
                                   top: 10.0,
                                 ),
-                                child: ListComments(
-                                    postId: listPostProvider
-                                        .getListPosts[index].postId),
-                              )
-                            : Container(),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+                              ),
+                              ActionLikeShareComment(
+                                  index: index,
+                                  postId: listPostProvider
+                                      .getListPosts[index].postId,
+                                  content: listPostProvider
+                                      .getListPosts[index].content,
+                                  photos: listPostProvider
+                                      .getListPosts[index].photos),
+                              listPostProvider
+                                      .getListPosts[index].comments.isNotEmpty
+                                  ? Container(
+                                      padding: const EdgeInsets.only(
+                                        top: 10.0,
+                                      ),
+                                      child: ListComments(
+                                          postId: listPostProvider
+                                              .getListPosts[index].postId),
+                                    )
+                                  : Container(),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                : const Center(
+                    child: Text('You haven\'t posted any things... ')),
           );
         } else {
           return const Align(child: Text('Loading post.....'));

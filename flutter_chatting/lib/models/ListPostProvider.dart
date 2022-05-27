@@ -32,6 +32,13 @@ class ListPostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void handleAddPost(Post post) {
+    _listPersonalPost.insert(0, post);
+    _listPost.insert(0, post);
+
+    notifyListeners();
+  }
+
   void setEditedPostId(String id) {
     editedPostId = id;
     // This call tells the widgets that are listening to this model to rebuild.
