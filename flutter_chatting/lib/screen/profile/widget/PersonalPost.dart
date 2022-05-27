@@ -47,7 +47,9 @@ class PersonalPostState extends State<PersonalPost> {
           .get()
           .then((QuerySnapshot querySnapshot) async {
         for (var doc in querySnapshot.docs) {
-          var post = Post.fromJson(doc.data());
+          var p = doc.data();
+          p['postId'] = doc.id;
+          Post post = Post.fromJson(p);
 
           if (post.owner.username == username &&
               listPostProvider.checkExistPersonalPost(post) == false) {

@@ -59,14 +59,20 @@ class ListUserModel extends ChangeNotifier {
       await FirebaseFirestore.instance
           .collection('message')
           .get()
-          .then((QuerySnapshot querySnapshot) {
+          .then((QuerySnapshot querySnapshot) async {
         if(_listUser.isEmpty) {
           for (var doc in querySnapshot.docs) {
             if (doc.id.contains(getUsername)) {
               String newUserChatting = commonFunc.getUserChatting(
                   idChatting: doc.id, username: getUsername);
+                  var data = await FirebaseFirestore.instance
+                  .collection('account')
+                  .where('username', isEqualTo: newUserChatting)
+                  .get();
+                  print(data.docs[0].data());
+              print(data.docs[0].data()['url']);
               _listUser.add(
-                  BubbleMessage(username: newUserChatting, idChatting: doc.id));
+                  BubbleMessage(username: newUserChatting, idChatting: doc.id, avatar: data.docs.length > 0 ? data.docs[0].data()['url'] : ''));
             }
           }
         }
