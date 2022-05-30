@@ -8,6 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Future logout(String username, ListUserModel listUsers,
     ListPostProvider listPostProvider, BuildContext context) async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  await preferences.clear();
+
   QuerySnapshot accounts = await FirebaseFirestore.instance
       .collection('account')
       .where('username', isEqualTo: username)

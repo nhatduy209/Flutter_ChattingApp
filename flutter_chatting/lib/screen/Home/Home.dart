@@ -56,7 +56,7 @@ class HomeRoute extends State<HomeRouteState> {
 
   @override
   Widget build(BuildContext context) {
-    var listUsers = Provider.of<ListUserModel>(context);
+    var listUsers = Provider.of<ListUserModel>(context, listen: true);
     List<User> listUserOnline = [
       User(
           id: '',
