@@ -56,7 +56,7 @@ class HomeRoute extends State<HomeRouteState> {
 
   @override
   Widget build(BuildContext context) {
-    var listUsers = Provider.of<ListUserModel>(context);
+    var listUsers = Provider.of<ListUserModel>(context, listen: true);
     List<User> listUserOnline = [
       User(
           id: '',
@@ -318,48 +318,56 @@ class HomeRoute extends State<HomeRouteState> {
                                     margin: EdgeInsets.only(top: marginSearch),
                                     padding: const EdgeInsets.only(top: 6),
                                     color: Colors.black12,
-                                    child: ListView.builder(
-                                      itemCount: listUserOnline.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return index == 0
-                                            ? Stack(children: [
-                                                GestureDetector(
-                                                    onTap: () => {
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                                builder:
-                                                                    (context) =>
-                                                                        AddFriends()),
-                                                          )
-                                                        },
-                                                    child: Container(
-                                                      margin: EdgeInsets.all(6),
-                                                      width: 60.0,
-                                                      height: 60.0,
-                                                      decoration: BoxDecoration(
-                                                          border: Border.all(
-                                                            color: Colors.white,
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius.all(
-                                                                  Radius
-                                                                      .circular(
-                                                                          60))),
-                                                      child: const Icon(
-                                                        Icons.person_add,
-                                                        size: 25,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ))
-                                              ])
-                                            : RenderOnlineUser(
-                                                user: listUserOnline[index],
-                                              );
-                                      },
-                                      scrollDirection: Axis.horizontal,
-                                    )),
+                                    child: listUserOnline.isNotEmpty
+                                        ? ListView.builder(
+                                            itemCount: listUserOnline.length,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              return index == 0
+                                                  ? Stack(children: [
+                                                      GestureDetector(
+                                                          onTap: () => {
+                                                                Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                      builder:
+                                                                          (context) =>
+                                                                              AddFriends()),
+                                                                )
+                                                              },
+                                                          child: Container(
+                                                            margin:
+                                                                EdgeInsets.all(
+                                                                    6),
+                                                            width: 60.0,
+                                                            height: 60.0,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                                    border:
+                                                                        Border
+                                                                            .all(
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
+                                                                    borderRadius:
+                                                                        BorderRadius.all(
+                                                                            Radius.circular(60))),
+                                                            child: const Icon(
+                                                              Icons.person_add,
+                                                              size: 25,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                          ))
+                                                    ])
+                                                  : RenderOnlineUser(
+                                                      user:
+                                                          listUserOnline[index],
+                                                    );
+                                            },
+                                            scrollDirection: Axis.horizontal,
+                                          )
+                                        : Container()),
                               ),
                             ],
                           ),
@@ -375,51 +383,56 @@ class HomeRoute extends State<HomeRouteState> {
                                           topRight: Radius.circular(40)),
                                       color: Colors.white,
                                     ),
-                                    child: ListView.builder(
-                                      itemCount: listUsers.getListUsers.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        return SlideBar(
-                                          TextButton(
-                                              onPressed: () => Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            Chatting(
-                                                              listMessages: const [],
-                                                              id: listUsers
+                                    child: listUsers.getListUsers.isNotEmpty
+                                        ? ListView.builder(
+                                            itemCount:
+                                                listUsers.getListUsers.length,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              return SlideBar(
+                                                TextButton(
+                                                    onPressed:
+                                                        () => Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                  builder:
+                                                                      (context) =>
+                                                                          Chatting(
+                                                                            listMessages: const [],
+                                                                            id: listUsers.getListUsers[index].idChatting,
+                                                                            userChatting:
+                                                                                listUsers.getListUsers[index].username,
+                                                                          )),
+                                                            ),
+                                                    child: UserOnline(
+                                                      username: listUsers
+                                                          .getListUsers[index]
+                                                          .username,
+                                                      avatar: listUsers
                                                                   .getListUsers[
                                                                       index]
-                                                                  .idChatting,
-                                                              userChatting:
-                                                                  listUsers
-                                                                      .getListUsers[
-                                                                          index]
-                                                                      .username,
-                                                            )),
-                                                  ),
-                                              child: UserOnline(
-                                                username: listUsers
-                                                    .getListUsers[index]
-                                                    .username,
-                                                avatar:
-                                                listUsers
-                                                    .getListUsers[index].avatar == '' ?
-                                                    "https://thumbs.dreamstime.com/b/male-avatar-icon-flat-style-male-user-icon-cartoon-man-avatar-hipster-vector-stock-91462914.jpg" :
-                                                    listUsers
-                                                    .getListUsers[index].avatar,
-                                                isOnline: false,
-                                                latestMessage: listUsers
-                                                    .getListUsers[index]
-                                                    .latestMessage,
-                                                latestMessageTime: listUsers
-                                                    .getListUsers[index]
-                                                    .latestMessageTime,
-                                              )),
-                                          listUsers.getListUsers[index],
-                                        );
-                                      },
-                                    )),
+                                                                  .avatar ==
+                                                              ''
+                                                          ? "https://thumbs.dreamstime.com/b/male-avatar-icon-flat-style-male-user-icon-cartoon-man-avatar-hipster-vector-stock-91462914.jpg"
+                                                          : listUsers
+                                                              .getListUsers[
+                                                                  index]
+                                                              .avatar,
+                                                      isOnline: false,
+                                                      latestMessage: listUsers
+                                                          .getListUsers[index]
+                                                          .latestMessage,
+                                                      latestMessageTime:
+                                                          listUsers
+                                                              .getListUsers[
+                                                                  index]
+                                                              .latestMessageTime,
+                                                    )),
+                                                listUsers.getListUsers[index],
+                                              );
+                                            },
+                                          )
+                                        : Container()),
                               ),
                             ],
                           )
