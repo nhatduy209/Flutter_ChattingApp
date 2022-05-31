@@ -112,7 +112,7 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
     if (videoPath.isNotEmpty) {
       _videoPlayerController =
           VideoPlayerController.file(File(videoPath[0].path));
-      _initializeVideoPlayerFuture = _videoPlayerController!.initialize();
+      _initializeVideoPlayerFuture = _videoPlayerController.initialize();
     }
 
     return videoPath.isNotEmpty
@@ -132,6 +132,7 @@ class _ModalCreatePostState extends State<ModalCreatePost> {
   Widget build(BuildContext context) {
     ListPostProvider listPostProvider =
         Provider.of<ListPostProvider>(context, listen: true);
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(FocusNode());

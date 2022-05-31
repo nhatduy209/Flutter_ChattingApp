@@ -199,8 +199,7 @@ class PersonalPostState extends State<PersonalPost> {
                                       child: ListComments(
                                         postId: listPostProvider
                                             .getListPersonalPosts[index].postId,
-                                      ),
-                                    )
+                                      ))
                                   : Container(),
                             ],
                           ),

@@ -12,39 +12,55 @@ class CommentInput extends StatelessWidget {
   final int index;
 
   var comments = [];
-  CommentModel cmt = CommentModel(content: '', createAt: Timestamp.now(), username: '', url: '');
-  CommentInput({Key? key, required this.postId, required this.index}) : super(key: key);
-  CollectionReference post =
-      FirebaseFirestore.instance.collection('post');
+  CommentModel cmt = CommentModel(
+      content: '',
+      createAt: Timestamp.now(),
+      username: '',
+      url: '',
+      listReply: [],
+      id: '');
+  CommentInput({Key? key, required this.postId, required this.index})
+      : super(key: key);
+  CollectionReference post = FirebaseFirestore.instance.collection('post');
   final commentInput = TextEditingController();
   Future reloadPost(context, comment) async {
-    ListPostProvider listPostProvider = Provider.of<ListPostProvider>(context, listen: false);
+    ListPostProvider listPostProvider =
+        Provider.of<ListPostProvider>(context, listen: false);
     listPostProvider.addComment(comment, index);
   }
+
   Future comment(BuildContext context) async {
     User profile = Provider.of<UserProfile>(context, listen: false).userProfile;
-    ListPostProvider listPostProvider = Provider.of<ListPostProvider>(context, listen: false);
+    ListPostProvider listPostProvider =
+        Provider.of<ListPostProvider>(context, listen: false);
     await post.get().then((data) => {
-      for (DocumentSnapshot ds in data.docs){
-        comments = [],
-        if(ds.id == postId) {
-          cmt = CommentModel(content: commentInput.text,
-            url: profile.url,
-            createAt: Timestamp.now(),
-            username : profile.userName),
-          comments = ds.data()['comments'],
-          comments.add({
-            'content': commentInput.text,
-            'url': profile.url,
-            'createAt': Timestamp.now(),
-            'username' : profile.userName
-          }),
-          reloadPost(context, cmt),
-          ds.reference.update({'comments': comments})
-          .then((value) => listPostProvider.setEditedPostId(ds.id))
-        }
-      }
-    });
+          for (DocumentSnapshot ds in data.docs)
+            {
+              comments = [],
+              if (ds.id == postId)
+                {
+                  cmt = CommentModel(
+                      content: commentInput.text,
+                      url: profile.url,
+                      createAt: Timestamp.now(),
+                      username: profile.userName,
+                      listReply: [],
+                      id: DateTime.now().millisecondsSinceEpoch.toString()),
+                  comments = ds.data()['comments'],
+                  comments.add({
+                    'content': commentInput.text,
+                    'url': profile.url,
+                    'createAt': Timestamp.now(),
+                    'username': profile.userName,
+                    'reply': [],
+                    'id': DateTime.now().millisecondsSinceEpoch.toString(),
+                  }),
+                  reloadPost(context, cmt),
+                  ds.reference.update({'comments': comments}).then(
+                      (value) => listPostProvider.setEditedPostId(ds.id))
+                }
+            }
+        });
     commentInput.clear();
   }
 
@@ -71,9 +87,7 @@ class CommentInput extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.keyboard_arrow_right, size: 30.0),
             color: const Color(0xFF000000),
-            onPressed: () async => {
-              comment(context)
-            },
+            onPressed: () async => {comment(context)},
           ),
         ],
       ),
