@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -49,34 +50,43 @@ class ListUserModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool checkexist(String id) {
+    return _listUser.where((e) => e.idChatting == id).toList().isEmpty;
+  }
+
   Future<dynamic> getAllUsers(bool isSearch) async {
     var commonFunc = Utilities();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String getUsername = prefs.getString('username');
 
     // Get data from docs and convert map to List
-    if (_listUser.isEmpty && isSearch == false) {
+    if (_listUser.isEmpty && isSearch == false && getUsername.isNotEmpty) {
       await FirebaseFirestore.instance
-          .collection('message')
-          .get()
-          .then((QuerySnapshot querySnapshot) async {
-        if(_listUser.isEmpty) {
-          for (var doc in querySnapshot.docs) {
-            if (doc.id.contains(getUsername)) {
-              String newUserChatting = commonFunc.getUserChatting(
-                  idChatting: doc.id, username: getUsername);
-                  var data = await FirebaseFirestore.instance
                   .collection('account')
-                  .where('username', isEqualTo: newUserChatting)
-                  .get();
-                  print(data.docs[0].data());
-              print(data.docs[0].data()['url']);
-              _listUser.add(
-                  BubbleMessage(username: newUserChatting, idChatting: doc.id, avatar: data.docs.length > 0 ? data.docs[0].data()['url'] : ''));
-            }
-          }
-        }
-      });
+                  .get()
+                  .then((acc) async => {
+                    await FirebaseFirestore.instance
+                      .collection('message')
+                      .get()
+                      .then((QuerySnapshot querySnapshot) async {
+                    if(_listUser.isEmpty) {
+                      var url = null;
+                      for (var doc in querySnapshot.docs) {
+                        if (doc.id.contains(getUsername) && checkexist(doc.id)) {
+                          String newUserChatting = commonFunc.getUserChatting(
+                              idChatting: doc.id, username: getUsername);
+                          for (var a in acc.docs) {
+                            if(a.data()['username'] == newUserChatting) {
+                              url = a.data()['url'];
+                            }
+                          }
+                          _listUser.add(
+                              BubbleMessage(username: newUserChatting, idChatting: doc.id, avatar: url.toString().isNotEmpty ? url.toString() : ''));
+                        }
+                      }
+                    }
+                  })
+                  });
     }
     notifyListeners();
   }
