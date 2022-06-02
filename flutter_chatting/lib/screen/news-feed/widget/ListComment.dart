@@ -113,46 +113,58 @@ class ListCommentsState extends State<ListComments> {
             shrinkWrap: true,
             itemCount: listComments.length, // list comments in posts
             itemBuilder: (BuildContext context, int index) {
-              return (Container(
-                padding: const EdgeInsets.only(
-                    left: 20, right: 10, top: 5, bottom: 5),
-                child: ListTile(
-                  title: Text(
-                    listComments[index].username,
-                    style: const TextStyle(
-                      fontSize: 15,
+              return (Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.only(
+                        left: 20, right: 10, top: 5, bottom: 5),
+                    child: ListTile(
+                      title: Text(
+                        listComments[index].username,
+                        style: const TextStyle(
+                          fontSize: 13,
+                        ),
+                      ),
+                      subtitle: ReplyComment(
+                        content: listComments[index].content,
+                        postId: widget.postId,
+                        commentId: listComments[index].id,
+                      ),
+                      leading: SizedBox(
+                          width: 33,
+                          height: 33,
+                          child: CircleAvatar(
+                            backgroundImage: NetworkImage(
+                              listComments[index].url,
+                            ),
+                          )),
+                      trailing: Text(
+                        Jiffy(
+                          listComments[index].createAt.toDate().toString(),
+                        ).fromNow(),
+                        style: const TextStyle(fontSize: 11.0),
+                      ),
+                      onTap: () => {
+                        listComments[index].username == profile.userName
+                            ? showModalBottomSheet<void>(
+                                isScrollControlled: true,
+                                context: context,
+                                backgroundColor:
+                                    const Color.fromRGBO(0, 0, 0, 0),
+                                builder: (BuildContext context) {
+                                  return OptionPopup(listComments[index]);
+                                },
+                              )
+                            : ScaffoldMessenger.of(context)
+                                .showSnackBar(deleteCommentFail)
+                      },
                     ),
                   ),
-                  subtitle: ReplyComment(
-                    content: listComments[index].content,
-                    postId: widget.postId,
-                    commentId: listComments[index].id,
-                  ),
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(
-                      listComments[index].url,
-                    ),
-                  ),
-                  trailing: Text(
-                    Jiffy(
-                      listComments[index].createAt.toDate().toString(),
-                    ).fromNow(),
-                    style: const TextStyle(fontSize: 11.0),
-                  ),
-                  onTap: () => {
-                    listComments[index].username == profile.userName
-                        ? showModalBottomSheet<void>(
-                            isScrollControlled: true,
-                            context: context,
-                            backgroundColor: const Color.fromRGBO(0, 0, 0, 0),
-                            builder: (BuildContext context) {
-                              return OptionPopup(listComments[index]);
-                            },
-                          )
-                        : ScaffoldMessenger.of(context)
-                            .showSnackBar(deleteCommentFail)
-                  },
-                ),
+                  ListView.builder(
+                      itemCount: listComments[index].listReply.length,
+                      itemBuilder: ((context, index) =>
+                          Text(listComments[index].listReply[index].content))),
+                ],
               ));
             },
           );

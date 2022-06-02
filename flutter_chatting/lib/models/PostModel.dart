@@ -105,6 +105,7 @@ class CommentModel {
     for (var comment in List<dynamic>.from(json['reply'])) {
       ReplyCommentModel replyCommentModel =
           ReplyCommentModel.fromJson((comment));
+
       listReply.add(replyCommentModel);
     }
 

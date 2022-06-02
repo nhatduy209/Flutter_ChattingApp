@@ -48,6 +48,7 @@ class PersonalPostState extends State<PersonalPost> {
           .then((QuerySnapshot querySnapshot) async {
         for (var doc in querySnapshot.docs) {
           var p = doc.data();
+
           p['postId'] = doc.id;
           Post post = Post.fromJson(p);
 

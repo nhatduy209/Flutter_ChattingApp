@@ -46,8 +46,10 @@ class NewsFeedState extends State<NewsFeed> {
         for (var doc in querySnapshot.docs) {
           var p = doc.data();
           p['postId'] = doc.id;
-          Post post = Post.fromJson(p);
 
+          print('POST ERROR ' + doc.data()['content']);
+          Post post = Post.fromJson(p);
+          print('POST NOT ERR ' + post.content);
           for (var element in post.canView) {
             if (element == username &&
                 listPostProvider.checkExist(post) == false) {
