@@ -6,6 +6,7 @@ import 'package:flutter_chatting/widget/RenderFriendItem.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/ListBubbeMessageProvider.dart';
+import '../../widget/RenderNewFriendItem.dart';
 
 class Friends extends StatefulWidget {
   const Friends({Key? key}) : super(key: key);
@@ -103,16 +104,13 @@ class FriendsState extends State<Friends> {
         ),
         Expanded(
           child: Container(
-              child: GridView.builder(
+              child: ListView.builder(
                 shrinkWrap: true,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                ),
                 // ignore: unnecessary_null_comparison
                 itemCount: listFiltedUsers.isEmpty ? 0 : listFiltedUsers.length,
                 itemBuilder:
                     (BuildContext context, int index) {
-                  return RenderFriendItem(
+                  return RenderNewFriendItem(
                         user: listFiltedUsers[index],
                         added: true,
                         );

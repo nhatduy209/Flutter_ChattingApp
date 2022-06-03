@@ -67,8 +67,10 @@ class FriendProfileState extends State<FriendProfileScreen> {
     await noti.get().then((value) => {
           if (value.docs
                   .where((user) =>
-                      user.data()['from'] == profile.userName &&
+                      (user.data()['from'] == profile.userName &&
                       user.data()['username'] == userProfile.userName)
+                      || (user.data()['from'] == userProfile.userName &&
+                      user.data()['username'] == profile.userName))
                   .length >
               0)
             {
@@ -94,15 +96,9 @@ class FriendProfileState extends State<FriendProfileScreen> {
     });
   }
 
-  Future update(DocumentSnapshot ds, User profile, var listFriends) async {
-    ds.reference.set({
-      'username': profile.userName,
-      'email': profile.email,
-      'age': profile.age,
-      'phoneNumber': profile.phoneNumber,
-      'password': profile.password,
+  Future update(DocumentSnapshot ds, var listFriends) async {
+    ds.reference.update({
       'listFriend': listFriends,
-      'url': profile.url
     });
   }
 
@@ -119,7 +115,7 @@ class FriendProfileState extends State<FriendProfileScreen> {
               {
                 if (ds.data()['username'] == profile.userName)
                   {
-                    update(ds, profile, listFriends)
+                    update(ds, listFriends)
                         .then((value) => {
                               profile.listFriend = profile.listFriend
                                   .where((element) =>
@@ -138,16 +134,6 @@ class FriendProfileState extends State<FriendProfileScreen> {
                         .toList(),
                     update(
                         ds,
-                        User(
-                            id: ds.id,
-                            userName: ds.data()['username'],
-                            email: ds.data()['email'],
-                            age: ds.data()['age'],
-                            phoneNumber: ds.data()['phoneNumber'],
-                            listFriend: [],
-                            url: ds.data()['url'],
-                            password: ds.data()['password'],
-                            token: ds.data()['token']),
                         lFriend)
                   }
               }
@@ -156,8 +142,10 @@ class FriendProfileState extends State<FriendProfileScreen> {
       await noti.get().then((snapshot) => {
             for (DocumentSnapshot ds in snapshot.docs)
               {
-                if (ds.data()['username'] == widget.userName &&
+                if ((ds.data()['username'] == widget.userName &&
                     ds.data()['from'] == profile.userName)
+                    || (ds.data()['username'] == profile.userName &&
+                    ds.data()['from'] == widget.userName))
                   {ds.reference.delete()}
               }
           });

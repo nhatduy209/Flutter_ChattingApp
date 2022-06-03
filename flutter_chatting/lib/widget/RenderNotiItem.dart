@@ -31,6 +31,7 @@ class RenderNotiItem extends StatelessWidget {
               'url': profile.url
             });
   }
+
   Future accept(BuildContext context) async {
     User profile = Provider.of<UserProfile>(context, listen: false).userProfile;
     var listUsers = Provider.of<ListUserModel>(context, listen: false);
@@ -39,14 +40,13 @@ class RenderNotiItem extends StatelessWidget {
     await accounts.get().then((snapshot) => {
       for (DocumentSnapshot ds in snapshot.docs){
         if (ds.data()['username'] == profile.userName) {
-          listFriends.addAll(ds.data()['listFriend']),
           listFriends.add(noti.from),
           update(ds, profile, listFriends)
           .then((value) async => await notifications.get().then((snapshot) => {
             for (DocumentSnapshot ds in snapshot.docs){
               if (ds.data()['username'] == noti.userName) {
                 ds.reference.delete().then((value) async => {
-                  await createConversation(noti.from + '_' + profile.userName),
+                  await createConversation(noti.from, profile.userName),
                 listUsers.removeAll(),
                 listUsers.getAllUsers(false)
                 })
@@ -85,17 +85,31 @@ class RenderNotiItem extends StatelessWidget {
       }
     });
   }
-  Future createConversation(String name) async {
+  Future addMessage(name) async {
     var genID = new Uuid();
-    var idMess = genID.v1();
-    messages.doc(name).set(
-      {'name': name}
-    );
-    messages.doc(name).collection('listmessage').add({
-      'message': "Let us secure you together. Let's send each other's first messages",
-      'Time': DateTime.now(),
-      'id': '$idMess-${noti.from}'
-    });
+      var idMess = genID.v1();
+      messages.doc(name).set(
+        {'name': name}
+      );
+      messages.doc(name).collection('listmessage').add({
+        'message': "Let us secure you together. Let's send each other's first messages",
+        'Time': DateTime.now(),
+        'id': '$idMess-${noti.from}'
+      });
+  }
+  Future createConversation(String from, String cur) async {
+    var isExisted = false;
+    await messages.get().then((value) => {
+      print(value),
+      for (var mess in value.docs) {
+        if(mess.id.contains(from) && mess.id.contains(cur)) {
+          isExisted = true
+        }
+      },
+      if(!isExisted) {
+      addMessage(from + "_" + cur)
+    }
+      });
   }
   @override
   Widget build(BuildContext context) {

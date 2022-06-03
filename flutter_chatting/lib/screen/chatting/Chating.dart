@@ -92,7 +92,8 @@ class ChattingState extends State<Chatting> {
                 Message(
                     id: "idMess_$username",
                     content: message,
-                    time: DateTime.now()))
+                    time: DateTime.now())),
+              resetMessage()
           });
 
       await pushNotification(tokenDevice, username, message);
@@ -290,18 +291,24 @@ class ChattingState extends State<Chatting> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(children: [
+                                Row(
+                                  children: [
                                   Container(
-                                    margin: const EdgeInsets.only(top: 5),
-                                    height: 60,
+                                    margin: const EdgeInsets.only(top: 5, bottom: 5),
+                                    padding: const EdgeInsets.only(left: 8, right: 8),
+                                    decoration: BoxDecoration(
+                                        border: Border.all(color: const Color.fromARGB(255, 53, 78, 161)),
+                                        borderRadius: const BorderRadius.all(Radius.circular(50))
+                                      ),
                                     width:
                                         MediaQuery.of(context).size.width - 120,
-                                    child: TextFormField(
+                                    child: 
+                                    TextField(
                                       enabled: listImage.isEmpty,
                                       controller: message,
                                       decoration: const InputDecoration(
-                                        border: UnderlineInputBorder(),
-                                        labelText: 'Type somthing...',
+                                        hintText: "Type something...",
+                                        border: InputBorder.none
                                       ),
                                     ),
                                   ),
