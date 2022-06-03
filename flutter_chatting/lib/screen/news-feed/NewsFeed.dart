@@ -49,7 +49,7 @@ class NewsFeedState extends State<NewsFeed> {
           Post post = Post.fromJson(p);
 
           for (var element in post.canView) {
-            if (element == username &&
+            if ((element == username || post.owner.username == username) &&
                 listPostProvider.checkExist(post) == false) {
               listPostProvider.add(post);
             }
